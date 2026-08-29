@@ -2,25 +2,207 @@
 
 :root {
   --background: #ffffff;
-  --foreground: #171717;
+  --foreground: #111111;
+  --muted: #6e6e6e;
+  --surface: #ffffff;
+  --surface-2: #f4f4f4;
+  --border: #e2e2e2;
+  --accent: #111111;
+  --accent-foreground: #ffffff;
 }
 
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
-}
-
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+  --color-muted: var(--muted);
+  --color-surface: var(--surface);
+  --color-surface-2: var(--surface-2);
+  --color-border: var(--border);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+  --font-display: var(--font-anton);
+  --font-sans: var(--font-jakarta);
 }
 
 body {
   background: var(--background);
   color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  font-family: var(--font-sans), Arial, Helvetica, sans-serif;
+}
+
+::selection {
+  background: var(--accent);
+  color: var(--accent-foreground);
+}
+
+.scrollbar-hide {
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+
+.scrollbar-hide::-webkit-scrollbar {
+  display: none;
+}
+
+.marquee-track {
+  animation: marquee 22s linear infinite;
+}
+
+@keyframes marquee {
+  from {
+    transform: translateX(0);
+  }
+  to {
+    transform: translateX(-50%);
+  }
+}
+
+@keyframes flame-flicker {
+  0%,
+  100% {
+    transform: scale(1) rotate(-6deg);
+  }
+  25% {
+    transform: scale(1.15) rotate(4deg);
+  }
+  50% {
+    transform: scale(0.95) rotate(-3deg);
+  }
+  75% {
+    transform: scale(1.1) rotate(6deg);
+  }
+}
+
+.animate-flame {
+  animation: flame-flicker 0.6s ease-in-out infinite;
+  transform-origin: center bottom;
+}
+
+@keyframes badge-sparkle {
+  0%,
+  100% {
+    transform: scale(1) rotate(0deg);
+    opacity: 1;
+  }
+  50% {
+    transform: scale(1.35) rotate(15deg);
+    opacity: 0.7;
+  }
+}
+
+.animate-badge-sparkle {
+  animation: badge-sparkle 1s ease-in-out infinite;
+}
+
+@keyframes badge-bounce {
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-3px);
+  }
+}
+
+.animate-badge-bounce {
+  animation: badge-bounce 0.8s ease-in-out infinite;
+}
+
+@keyframes badge-shake {
+  0%,
+  100% {
+    transform: rotate(0deg);
+  }
+  20% {
+    transform: rotate(-14deg);
+  }
+  40% {
+    transform: rotate(11deg);
+  }
+  60% {
+    transform: rotate(-9deg);
+  }
+  80% {
+    transform: rotate(6deg);
+  }
+}
+
+.animate-badge-shake {
+  animation: badge-shake 1.3s ease-in-out infinite;
+}
+
+@keyframes card-aura-new {
+  0%,
+  100% {
+    box-shadow: 0 0 0 0 rgba(17, 17, 17, 0.25), 0 0 16px 2px rgba(17, 17, 17, 0.15);
+  }
+  50% {
+    box-shadow: 0 0 0 4px rgba(17, 17, 17, 0.12), 0 0 28px 6px rgba(17, 17, 17, 0.3);
+  }
+}
+
+.card-aura-new {
+  animation: card-aura-new 2.2s ease-in-out infinite;
+}
+
+@keyframes card-aura-hot {
+  0%,
+  100% {
+    box-shadow: 0 0 0 0 rgba(249, 115, 22, 0.5), 0 0 16px 2px rgba(239, 68, 68, 0.35);
+  }
+  50% {
+    box-shadow: 0 0 0 4px rgba(249, 115, 22, 0.22), 0 0 30px 7px rgba(239, 68, 68, 0.6);
+  }
+}
+
+.card-aura-hot {
+  animation: card-aura-hot 1.8s ease-in-out infinite;
+}
+
+@keyframes card-aura-sale {
+  0%,
+  100% {
+    box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.45), 0 0 14px 2px rgba(239, 68, 68, 0.3);
+  }
+  50% {
+    box-shadow: 0 0 0 4px rgba(239, 68, 68, 0.2), 0 0 26px 6px rgba(239, 68, 68, 0.55);
+  }
+}
+
+.card-aura-sale {
+  animation: card-aura-sale 2s ease-in-out infinite;
+}
+
+@keyframes card-aura-limited {
+  0%,
+  100% {
+    box-shadow: 0 0 0 0 rgba(217, 119, 6, 0.45), 0 0 14px 2px rgba(217, 119, 6, 0.3);
+  }
+  50% {
+    box-shadow: 0 0 0 4px rgba(217, 119, 6, 0.2), 0 0 26px 6px rgba(217, 119, 6, 0.55);
+  }
+}
+
+.card-aura-limited {
+  animation: card-aura-limited 2.4s ease-in-out infinite;
+}
+
+@keyframes shimmer-sweep {
+  0% {
+    transform: translateX(-150%) skewX(-20deg);
+  }
+  100% {
+    transform: translateX(250%) skewX(-20deg);
+  }
+}
+
+.card-shine::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  width: 35%;
+  background: linear-gradient(120deg, transparent, rgba(255, 255, 255, 0.55), transparent);
+  animation: shimmer-sweep 2.6s ease-in-out infinite;
+  pointer-events: none;
+  z-index: 5;
 }

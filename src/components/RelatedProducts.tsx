@@ -4,6 +4,18 @@ import { useRef } from "react";
 import type { Product } from "@/lib/products";
 import ProductCard from "@/components/ProductCard";
 
+function ArrowIcon({ direction }: { direction: "left" | "right" }) {
+  return (
+    <svg viewBox="0 0 20 20" className="h-4 w-4" fill="none" stroke="currentColor" strokeWidth="2">
+      <path
+        d={direction === "left" ? "M12 4l-6 6 6 6" : "M8 4l6 6-6 6"}
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      />
+    </svg>
+  );
+}
+
 export default function RelatedProducts({ products }: { products: Product[] }) {
   const scrollerRef = useRef<HTMLDivElement>(null);
 
@@ -15,37 +27,40 @@ export default function RelatedProducts({ products }: { products: Product[] }) {
 
   return (
     <section className="mt-16 border-t border-border pt-10">
-      <div className="mb-5 flex items-center justify-between">
+      <div className="mb-6 flex items-center justify-between">
         <h2 className="font-display text-xl uppercase tracking-tight sm:text-2xl">
           Rekomendasi Produk Lainnya
         </h2>
         <div className="hidden gap-2 sm:flex">
           <button
             aria-label="Geser ke kiri"
-            onClick={() => scrollByAmount(-320)}
-            className="flex h-9 w-9 items-center justify-center rounded-full border border-border text-foreground transition-colors hover:border-accent hover:text-accent"
+            onClick={() => scrollByAmount(-480)}
+            className="flex h-10 w-10 items-center justify-center rounded-full border border-border bg-surface text-foreground transition-colors hover:border-accent hover:text-accent"
           >
-            ‹
+            <ArrowIcon direction="left" />
           </button>
           <button
             aria-label="Geser ke kanan"
-            onClick={() => scrollByAmount(320)}
-            className="flex h-9 w-9 items-center justify-center rounded-full border border-border text-foreground transition-colors hover:border-accent hover:text-accent"
+            onClick={() => scrollByAmount(480)}
+            className="flex h-10 w-10 items-center justify-center rounded-full border border-border bg-surface text-foreground transition-colors hover:border-accent hover:text-accent"
           >
-            ›
+            <ArrowIcon direction="right" />
           </button>
         </div>
       </div>
 
-      <div
-        ref={scrollerRef}
-        className="-mx-4 flex snap-x snap-mandatory gap-4 overflow-x-auto scroll-smooth px-4 pb-2 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
-      >
-        {products.map((p) => (
-          <div key={p.id} className="w-[min(70vw,220px)] flex-none snap-start sm:w-[240px]">
-            <ProductCard product={p} />
-          </div>
-        ))}
+      <div className="relative">
+        <div
+          ref={scrollerRef}
+          className="-mx-4 flex snap-x snap-mandatory gap-4 overflow-x-auto scroll-smooth px-4 pb-2 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
+        >
+          {products.map((p) => (
+            <div key={p.id} className="w-[min(58vw,220px)] flex-none snap-start sm:w-[240px]">
+              <ProductCard product={p} variant="compact" />
+            </div>
+          ))}
+        </div>
+        <div className="pointer-events-none absolute inset-y-0 right-0 w-14 bg-gradient-to-l from-background to-transparent" />
       </div>
     </section>
   );

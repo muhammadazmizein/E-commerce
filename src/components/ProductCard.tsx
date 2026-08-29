@@ -8,17 +8,25 @@ import { cardAuraClass, hasShine } from "@/lib/badge-effects";
 import ProductBadge from "@/components/ProductBadge";
 import { StarRow } from "@/components/StarRating";
 
-export default function ProductCard({ product }: { product: Product }) {
+export default function ProductCard({
+  product,
+  variant = "grid",
+}: {
+  product: Product;
+  variant?: "grid" | "compact";
+}) {
   const soldOut = product.badge === "SOLD OUT";
   const hasSizes = !!product.sizes && product.sizes.length > 0;
   const { addItem } = useCart();
   const href = `/product/${product.id}`;
+  const aura = variant === "grid" ? cardAuraClass(product.badge) : "";
+  const shine = variant === "grid" && hasShine(product.badge);
 
   return (
     <div
-      className={`group flex flex-col overflow-hidden rounded-2xl border border-border bg-surface shadow-sm transition-all duration-300 hover:-translate-y-1 hover:border-accent/60 hover:shadow-xl ${cardAuraClass(product.badge)}`}
+      className={`group flex h-full flex-col overflow-hidden rounded-2xl border border-border bg-surface shadow-sm transition-all duration-300 hover:-translate-y-1 hover:border-accent/60 hover:shadow-xl ${aura}`}
     >
-      <div className={`relative aspect-[4/5] overflow-hidden ${hasShine(product.badge) ? "card-shine" : ""}`}>
+      <div className={`relative aspect-[4/5] overflow-hidden ${shine ? "card-shine" : ""}`}>
         <Link href={href} className="absolute inset-0 z-0">
           <Image
             src={product.image}
@@ -54,7 +62,9 @@ export default function ProductCard({ product }: { product: Product }) {
 
       <Link href={href} className="flex flex-1 flex-col gap-1 p-4">
         <p className="text-xs uppercase tracking-wide text-muted">{product.category}</p>
-        <h3 className="font-semibold leading-snug text-foreground">{product.name}</h3>
+        <h3 className="line-clamp-2 min-h-[2.75rem] font-semibold leading-snug text-foreground">
+          {product.name}
+        </h3>
         {product.rating != null && product.reviewCount ? (
           <div className="flex items-center gap-1.5">
             <StarRow rating={product.rating} size="h-3.5 w-3.5" />

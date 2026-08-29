@@ -1,5 +1,5 @@
 import { notFound } from "next/navigation";
-import { getProduct } from "@/lib/api";
+import { getProduct, getProducts } from "@/lib/api";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import ProductDetail from "@/components/ProductDetail";
@@ -14,11 +14,14 @@ export default async function ProductPage({
 
   if (!product) notFound();
 
+  const sameCategory = await getProducts(product.category);
+  const related = sameCategory.filter((p) => p.id !== product.id).slice(0, 12);
+
   return (
     <div>
       <Header />
       <main>
-        <ProductDetail product={product} />
+        <ProductDetail product={product} related={related} />
       </main>
       <Footer />
     </div>

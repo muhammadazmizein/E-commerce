@@ -8,8 +8,15 @@ import Breadcrumb from "@/components/Breadcrumb";
 import { cardAuraClass, hasShine } from "@/lib/badge-effects";
 import ProductBadge from "@/components/ProductBadge";
 import ProductReviews from "@/components/ProductReviews";
+import RelatedProducts from "@/components/RelatedProducts";
 
-export default function ProductDetail({ product }: { product: Product }) {
+export default function ProductDetail({
+  product,
+  related = [],
+}: {
+  product: Product;
+  related?: Product[];
+}) {
   const soldOut = product.badge === "SOLD OUT";
   const hasSizes = !!product.sizes && product.sizes.length > 0;
   const [size, setSize] = useState<string | undefined>(product.sizes?.[0]);
@@ -150,6 +157,7 @@ export default function ProductDetail({ product }: { product: Product }) {
       </div>
 
       <ProductReviews productId={product.id} />
+      <RelatedProducts products={related} />
     </div>
   );
 }

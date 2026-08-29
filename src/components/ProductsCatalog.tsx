@@ -1,8 +1,11 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useMemo, useRef, useState } from "react";
 import ProductCard from "@/components/ProductCard";
+import Pagination from "@/components/Pagination";
 import type { Product } from "@/lib/products";
+
+const PAGE_SIZE = 12;
 
 const PRICE_RANGES = [
   { label: "Di bawah Rp150.000", min: 0, max: 150000 },
@@ -35,6 +38,8 @@ export default function ProductsCatalog({
   const [ketersediaan, setKetersediaan] = useState<Ketersediaan>("semua");
   const [priceRange, setPriceRange] = useState<(typeof PRICE_RANGES)[number] | null>(null);
   const [sortBy, setSortBy] = useState<SortBy>("unggulan");
+  const [page, setPage] = useState(1);
+  const listRef = useRef<HTMLDivElement>(null);
 
   function toggleCategory(category: string) {
     setSelectedCategories((prev) => {
@@ -73,6 +78,30 @@ export default function ProductsCatalog({
 
     return result;
   }, [products, search, selectedCategories, tipeProduk, ketersediaan, priceRange, sortBy]);
+
+  // Reset to page 1 whenever a filter changes, without an effect (React's
+  // recommended pattern for "adjusting state when inputs change").
+  const filterKey = [
+    search,
+    Array.from(selectedCategories).sort().join(","),
+    tipeProduk,
+    ketersediaan,
+    priceRange?.label ?? "",
+    sortBy,
+  ].join("|");
+  const [prevFilterKey, setPrevFilterKey] = useState(filterKey);
+  if (prevFilterKey !== filterKey) {
+    setPrevFilterKey(filterKey);
+    setPage(1);
+  }
+
+  const totalPages = Math.max(1, Math.ceil(filtered.length / PAGE_SIZE));
+  const paged = filtered.slice((page - 1) * PAGE_SIZE, page * PAGE_SIZE);
+
+  function handlePageChange(next: number) {
+    setPage(next);
+    listRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
+  }
 
   return (
     <div className="grid gap-8 lg:grid-cols-12">
@@ -183,7 +212,7 @@ export default function ProductsCatalog({
         </div>
       </aside>
 
-      <div className="lg:col-span-9">
+      <div ref={listRef} className="lg:col-span-9">
         <div className="flex flex-wrap items-center justify-between gap-4">
           <h1 className="font-display text-2xl uppercase tracking-tight">
             Semua Produk <span className="text-base font-sans font-normal normal-case text-muted">({filtered.length})</span>
@@ -207,11 +236,14 @@ export default function ProductsCatalog({
             Nggak ada produk yang cocok sama filter ini.
           </p>
         ) : (
-          <div className="mt-6 grid grid-cols-2 gap-4 sm:gap-5 md:grid-cols-3">
-            {filtered.map((product) => (
-              <ProductCard key={product.id} product={product} />
-            ))}
-          </div>
+          <>
+            <div className="mt-6 grid grid-cols-2 gap-4 sm:gap-5 md:grid-cols-3">
+              {paged.map((product) => (
+                <ProductCard key={product.id} product={product} />
+              ))}
+            </div>
+            <Pagination page={page} totalPages={totalPages} onPageChange={handlePageChange} />
+          </>
         )}
       </div>
     </div>

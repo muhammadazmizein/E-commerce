@@ -14,7 +14,6 @@ import {
   createOrder,
   createQRPayment,
   createVAPayment,
-  createInvoicePayment,
   simulateTestPayment,
   getAddresses,
   getConfigStatus,
@@ -74,7 +73,7 @@ export default function CheckoutPage() {
   const { user, isLoading: isAuthLoading } = useAuth();
   const router = useRouter();
   const { toast } = useToast();
-  const [payment, setPayment] = useState<"qris" | "va" | "card" | "ewallet" | "cod">("qris");
+  const [payment, setPayment] = useState<"qris" | "va" | "cod">("qris");
   const [vaBank, setVaBank] = useState(BANKS[0].code);
   const [orderId, setOrderId] = useState<string | null>(null);
   const [activePayment, setActivePayment] = useState<ActivePayment | null>(null);
@@ -247,13 +246,6 @@ export default function CheckoutPage() {
           accountNumber: va.account_number,
           expiresAt: va.expiration_date,
         });
-        return;
-      }
-
-      if ((payment === "card" || payment === "ewallet") && config?.paymentConfigured) {
-        const invoice = await createInvoicePayment(order.id, payment);
-        clearCart();
-        window.location.href = invoice.invoice_url;
         return;
       }
 
@@ -609,48 +601,6 @@ export default function CheckoutPage() {
                         ))}
                       </div>
                     )}
-                  </label>
-
-                  <label
-                    className={`flex cursor-pointer items-start gap-3 border-2 px-4 py-3 transition-colors ${
-                      payment === "ewallet" ? "border-accent bg-accent/10" : "border-border hover:border-accent/50"
-                    }`}
-                  >
-                    <input
-                      type="radio"
-                      name="payment"
-                      checked={payment === "ewallet"}
-                      onChange={() => setPayment("ewallet")}
-                      className="mt-1 h-4 w-4 accent-[var(--accent)]"
-                    />
-                    <span className="flex flex-col gap-0.5">
-                      <span className="text-sm font-semibold">E-Wallet</span>
-                      <span className="text-xs text-muted">
-                        GoPay atau ShopeePay — buka langsung di app kamu (perlu keluar sebentar dari
-                        halaman ini, cara kerja e-wallet begitu)
-                      </span>
-                    </span>
-                  </label>
-
-                  <label
-                    className={`flex cursor-pointer items-start gap-3 border-2 px-4 py-3 transition-colors ${
-                      payment === "card" ? "border-accent bg-accent/10" : "border-border hover:border-accent/50"
-                    }`}
-                  >
-                    <input
-                      type="radio"
-                      name="payment"
-                      checked={payment === "card"}
-                      onChange={() => setPayment("card")}
-                      className="mt-1 h-4 w-4 accent-[var(--accent)]"
-                    />
-                    <span className="flex flex-col gap-0.5">
-                      <span className="text-sm font-semibold">Kartu Kredit / Debit</span>
-                      <span className="text-xs text-muted">
-                        Perlu verifikasi 3D Secure dari bank kamu, jadi diarahkan sebentar ke halaman
-                        aman Midtrans
-                      </span>
-                    </span>
                   </label>
                 </>
               )}

@@ -1,4 +1,5 @@
 import Image from "next/image";
+import Link from "next/link";
 import type { SiteImage } from "@/lib/api";
 
 export default function Hero({ siteImages }: { siteImages: Record<string, SiteImage> }) {
@@ -49,13 +50,13 @@ export default function Hero({ siteImages }: { siteImages: Record<string, SiteIm
             terbatas, nggak di-restock.
           </p>
           <div className="mt-8 flex flex-wrap items-center gap-3">
-            <a
-              href="#products"
+            <Link
+              href="/products"
               className="btn-tag group inline-flex items-center gap-2 bg-foreground px-7 py-3.5 text-sm font-bold uppercase tracking-wide text-background transition-transform hover:-translate-y-0.5"
             >
-              Belanja New Drop
+              Our Collections
               <span className="transition-transform group-hover:translate-x-1">→</span>
-            </a>
+            </Link>
             <a
               href="#story"
               className="btn-tag border-2 border-border px-7 py-3.5 text-sm font-bold uppercase tracking-wide transition-colors hover:border-foreground hover:bg-pop hover:text-pop-foreground"

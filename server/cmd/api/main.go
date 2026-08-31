@@ -40,7 +40,7 @@ func main() {
 		log.Println("warning: RajaOngkir is not configured (RAJAONGKIR_API_KEY/RAJAONGKIR_ORIGIN_CITY_ID missing) — falling back to flat-rate shipping")
 	}
 
-	router := api.New(db, mt, ro, cfg.AllowedOrigin, cfg.PublicAPIURL).Router(cfg.AllowedOrigin)
+	router := api.New(db, mt, ro, cfg.AllowedOrigin).Router(cfg.AllowedOrigin)
 
 	log.Printf("heyfreak-server listening on :%s", cfg.Port)
 	if err := http.ListenAndServe(":"+cfg.Port, router); err != nil {

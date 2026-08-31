@@ -15,7 +15,6 @@ type Config struct {
 	DBName        string
 	Port          string
 	AllowedOrigin string
-	PublicAPIURL  string
 
 	MidtransServerKey    string
 	MidtransClientKey    string
@@ -63,7 +62,6 @@ func Load() Config {
 		DBName:        getEnv("DB_NAME", "heyfreak"),
 		Port:          port,
 		AllowedOrigin: getEnv("ALLOWED_ORIGIN", "http://localhost:3000"),
-		PublicAPIURL:  getEnv("PUBLIC_API_URL", "https://heyfreak-store.local"),
 
 		MidtransServerKey:    getEnv("MIDTRANS_SERVER_KEY", ""),
 		MidtransClientKey:    getEnv("MIDTRANS_CLIENT_KEY", ""),

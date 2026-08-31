@@ -9,15 +9,17 @@ import (
 )
 
 type API struct {
-	store        *store.Store
-	midtrans     *midtrans.Client
-	rajaongkir   *rajaongkir.Client
-	siteURL      string
-	publicAPIURL string
+	store      *store.Store
+	midtrans   *midtrans.Client
+	rajaongkir *rajaongkir.Client
+	// siteURL is the frontend's own public origin — used to build the
+	// redirect Midtrans Snap sends the buyer back to after a card/e-wallet
+	// payment (e.g. "<siteURL>/order/<id>").
+	siteURL string
 }
 
-func New(s *store.Store, mt *midtrans.Client, ro *rajaongkir.Client, siteURL, publicAPIURL string) *API {
-	return &API{store: s, midtrans: mt, rajaongkir: ro, siteURL: siteURL, publicAPIURL: publicAPIURL}
+func New(s *store.Store, mt *midtrans.Client, ro *rajaongkir.Client, siteURL string) *API {
+	return &API{store: s, midtrans: mt, rajaongkir: ro, siteURL: siteURL}
 }
 
 func (a *API) Router(allowedOrigin string) http.Handler {

@@ -20,7 +20,7 @@ func scanProduct(row interface {
 
 	err := row.Scan(&p.ID, &p.Name, &p.Category, &p.Price, &compareAt, &badge,
 		&p.Colorway[0], &p.Colorway[1], &p.Image, &sizesJSON, &description, &highlightsJSON,
-		&avgRating, &reviewCount)
+		&p.Stock, &avgRating, &reviewCount)
 	if err != nil {
 		return Product{}, err
 	}
@@ -54,7 +54,7 @@ func scanProduct(row interface {
 	return p, nil
 }
 
-const productColumns = `p.id, p.name, p.category, p.price, p.compare_at, p.badge, p.color_1, p.color_2, p.image, p.sizes, p.description, p.highlights, r.avg_rating, r.review_count`
+const productColumns = `p.id, p.name, p.category, p.price, p.compare_at, p.badge, p.color_1, p.color_2, p.image, p.sizes, p.description, p.highlights, p.stock, r.avg_rating, r.review_count`
 
 const productRatingsJoin = ` LEFT JOIN (
 		SELECT product_id, AVG(rating) AS avg_rating, COUNT(*) AS review_count

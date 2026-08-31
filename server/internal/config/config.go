@@ -17,8 +17,9 @@ type Config struct {
 	AllowedOrigin string
 	PublicAPIURL  string
 
-	XenditSecretKey    string
-	XenditWebhookToken string
+	MidtransServerKey    string
+	MidtransClientKey    string
+	MidtransIsProduction bool
 
 	RajaOngkirAPIKey   string
 	RajaOngkirOriginID string
@@ -64,8 +65,9 @@ func Load() Config {
 		AllowedOrigin: getEnv("ALLOWED_ORIGIN", "http://localhost:3000"),
 		PublicAPIURL:  getEnv("PUBLIC_API_URL", "https://heyfreak-store.local"),
 
-		XenditSecretKey:    getEnv("XENDIT_SECRET_KEY", ""),
-		XenditWebhookToken: getEnv("XENDIT_WEBHOOK_TOKEN", ""),
+		MidtransServerKey:    getEnv("MIDTRANS_SERVER_KEY", ""),
+		MidtransClientKey:    getEnv("MIDTRANS_CLIENT_KEY", ""),
+		MidtransIsProduction: getEnv("MIDTRANS_IS_PRODUCTION", "false") == "true",
 
 		RajaOngkirAPIKey:   getEnv("RAJAONGKIR_API_KEY", ""),
 		RajaOngkirOriginID: getEnv("RAJAONGKIR_ORIGIN_CITY_ID", ""),

@@ -132,8 +132,8 @@ ON DUPLICATE KEY UPDATE
 
 INSERT INTO site_images (slot, image, alt) VALUES
 ('hero-main', '/photos/heyfreak/banners/banner-1.webp', 'Model streetwear HEYFREAK mengenakan kemeja boxy hitam'),
-('hero-secondary-1', '/photos/heyfreak/banners/banner-2.webp', 'Detail kemeja boxy HEYFREAK tampak depan dan belakang'),
-('hero-secondary-2', '/photos/heyfreak/banners/banner-3.webp', 'Gaya kasual dengan kemeja boxy stripe HEYFREAK'),
+('hero-secondary-1', '/photos/heyfreak/901277.jpg', 'Kemeja boxy HEYFREAK - flat lay hitam dan putih'),
+('hero-secondary-2', '/photos/heyfreak/882323.jpg', 'Kaos grafis HEYFREAK - Gentle After Ruin'),
 ('brand-story', '/photos/heyfreak/899835.jpg', 'Heyfreak World - Not For Everyone, filosofi brand HEYFREAK')
 ON DUPLICATE KEY UPDATE
   image = VALUES(image),

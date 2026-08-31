@@ -8,9 +8,9 @@ import type { Product } from "@/lib/products";
 export default async function ProductsPage({
   searchParams,
 }: {
-  searchParams: Promise<{ category?: string }>;
+  searchParams: Promise<{ category?: string; tipe?: string; search?: string }>;
 }) {
-  const { category } = await searchParams;
+  const { category, tipe, search } = await searchParams;
 
   let products: Product[] = [];
   try {
@@ -25,7 +25,12 @@ export default async function ProductsPage({
       <main className="mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8">
         <Breadcrumb items={[{ label: "Beranda", href: "/" }, { label: "Semua Produk" }]} />
         <div className="mt-4">
-          <ProductsCatalog products={products} initialCategory={category} />
+          <ProductsCatalog
+            products={products}
+            initialCategory={category}
+            initialTipe={tipe === "diskon" || tipe === "unggulan" ? tipe : undefined}
+            initialSearch={search}
+          />
         </div>
       </main>
       <Footer />

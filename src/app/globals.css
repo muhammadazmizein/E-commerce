@@ -9,6 +9,8 @@
   --border: #e2e2e2;
   --accent: #111111;
   --accent-foreground: #ffffff;
+  --pop: #d7ff3d;
+  --pop-foreground: #111111;
 }
 
 @theme inline {
@@ -20,19 +22,108 @@
   --color-border: var(--border);
   --color-accent: var(--accent);
   --color-accent-foreground: var(--accent-foreground);
+  --color-pop: var(--pop);
+  --color-pop-foreground: var(--pop-foreground);
   --font-display: var(--font-anton);
   --font-sans: var(--font-jakarta);
 }
 
 body {
+  position: relative;
   background: var(--background);
   color: var(--foreground);
   font-family: var(--font-sans), Arial, Helvetica, sans-serif;
 }
 
+body::before {
+  content: "";
+  position: fixed;
+  inset: 0;
+  z-index: 9999;
+  pointer-events: none;
+  opacity: 0.05;
+  mix-blend-mode: overlay;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='120'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+}
+
 ::selection {
   background: var(--accent);
   color: var(--accent-foreground);
+}
+
+@utility shadow-edge {
+  box-shadow:
+    0 1px 0 rgba(0, 0, 0, 0.04) inset,
+    0 10px 30px -14px rgba(0, 0, 0, 0.18);
+}
+
+@utility shadow-edge-lg {
+  box-shadow:
+    0 1px 0 rgba(0, 0, 0, 0.06) inset,
+    0 25px 60px -20px rgba(0, 0, 0, 0.25),
+    0 0 40px -18px rgba(0, 0, 0, 0.15);
+}
+
+/* Cut-corner "tag" shapes — the site's signature motif instead of soft
+   rounded corners. Border strokes only render on the four straight edges;
+   the diagonal cuts are meant to read as a sharp, raw edge. */
+@utility clip-tag {
+  clip-path: polygon(
+    0 0,
+    calc(100% - 22px) 0,
+    100% 22px,
+    100% 100%,
+    22px 100%,
+    0 calc(100% - 22px)
+  );
+}
+
+@utility clip-tag-sm {
+  clip-path: polygon(0 0, calc(100% - 10px) 0, 100% 10px, 100% 100%, 10px 100%, 0 calc(100% - 10px));
+}
+
+@utility btn-tag {
+  clip-path: polygon(0 0, calc(100% - 12px) 0, 100% 12px, 100% 100%, 12px 100%, 0 calc(100% - 12px));
+}
+
+.text-stroke {
+  -webkit-text-stroke: 1.5px var(--foreground);
+  color: transparent;
+}
+
+.text-stroke-pop {
+  -webkit-text-stroke: 1.5px var(--pop);
+  color: transparent;
+}
+
+@keyframes pulse-dot {
+  0%,
+  100% {
+    transform: scale(1);
+    opacity: 1;
+  }
+  50% {
+    transform: scale(1.4);
+    opacity: 0.5;
+  }
+}
+
+.animate-pulse-dot {
+  animation: pulse-dot 1.4s ease-in-out infinite;
+}
+
+@keyframes drift-y {
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-10px);
+  }
+}
+
+.animate-drift {
+  animation: drift-y 4.5s ease-in-out infinite;
 }
 
 .scrollbar-hide {

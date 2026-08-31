@@ -4,17 +4,16 @@ import (
 	"database/sql"
 	"encoding/json"
 	"errors"
-	"fmt"
 	"log"
 	"net/http"
 
+	"heyfreak-server/internal/midtrans"
 	"heyfreak-server/internal/store"
-	"heyfreak-server/internal/xendit"
 )
 
 func (a *API) loadOrderForPayment(w http.ResponseWriter, r *http.Request) (store.Order, bool) {
-	if !a.xendit.Configured() {
-		writeError(w, http.StatusServiceUnavailable, "Xendit belum dikonfigurasi di server")
+	if !a.midtrans.Configured() {
+		writeError(w, http.StatusServiceUnavailable, "Midtrans belum dikonfigurasi di server")
 		return store.Order{}, false
 	}
 
@@ -40,30 +39,30 @@ func (a *API) handleCreateQRPayment(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	qr, err := a.xendit.CreateQRCode(xendit.CreateQRCodeInput{
-		ExternalID:  order.ID,
-		Amount:      order.Total,
-		CallbackURL: a.publicAPIURL + "/xendit/callback",
-	})
+	qr, err := a.midtrans.ChargeQRIS(order.ID, order.Total)
 	if err != nil {
-		log.Printf("create xendit qr code: %v", err)
+		log.Printf("create midtrans qris charge: %v", err)
 		writeError(w, http.StatusBadGateway, "gagal membuat QRIS")
 		return
 	}
 
-	if err := a.store.SetOrderPayment(order.ID, "qris", qr.ID); err != nil {
+	if err := a.store.SetOrderPayment(order.ID, "qris", qr.TransactionID); err != nil {
 		log.Printf("set order payment reference: %v", err)
 	}
 
-	writeJSON(w, http.StatusOK, qr)
+	writeJSON(w, http.StatusOK, map[string]string{
+		"id":         qr.TransactionID,
+		"qr_string":  qr.QRString,
+		"expires_at": qr.ExpiresAt,
+	})
 }
 
 type createVAInput struct {
 	BankCode string `json:"bankCode"`
 }
 
-// handleCreateVAPayment generates a fixed Virtual Account number for an
-// existing order, shown directly on our own checkout page.
+// handleCreateVAPayment generates a Virtual Account for an existing order,
+// shown directly on our own checkout page.
 func (a *API) handleCreateVAPayment(w http.ResponseWriter, r *http.Request) {
 	order, ok := a.loadOrderForPayment(w, r)
 	if !ok {
@@ -76,33 +75,35 @@ func (a *API) handleCreateVAPayment(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	va, err := a.xendit.CreateVirtualAccount(xendit.CreateVirtualAccountInput{
-		ExternalID:     order.ID,
-		BankCode:       input.BankCode,
-		Name:           order.Name,
-		ExpectedAmount: order.Total,
-	})
+	va, err := a.midtrans.ChargeVA(order.ID, order.Total, input.BankCode, order.Name)
 	if err != nil {
-		log.Printf("create xendit virtual account: %v", err)
+		log.Printf("create midtrans va charge: %v", err)
 		writeError(w, http.StatusBadGateway, "gagal membuat Virtual Account")
 		return
 	}
 
-	if err := a.store.SetOrderPayment(order.ID, "va_"+input.BankCode, va.ID); err != nil {
+	if err := a.store.SetOrderPayment(order.ID, "va_"+input.BankCode, va.TransactionID); err != nil {
 		log.Printf("set order payment reference: %v", err)
 	}
 
-	writeJSON(w, http.StatusOK, va)
+	writeJSON(w, http.StatusOK, map[string]string{
+		"id":              va.TransactionID,
+		"external_id":     order.ID,
+		"bank_code":       va.BankCode,
+		"account_number":  va.AccountNumber,
+		"name":            order.Name,
+		"expiration_date": va.ExpirationDate,
+	})
 }
 
-// eWalletMethods are the e-wallet channels Xendit's Invoice product
-// supports; scoping an invoice to just these skips straight to the
-// deep-link picker instead of showing every channel (cards, VA, retail).
-var eWalletMethods = []string{"OVO", "DANA", "SHOPEEPAY", "LINKAJA"}
+// walletPayments are the e-wallet channels Snap can charge directly without
+// extra linking flows (OVO/DANA/LinkAja need a phone-number push-notif or
+// account-linking step that doesn't fit a guest checkout).
+var walletPayments = []string{"gopay", "shopeepay"}
 
-// handleCreateInvoicePayment starts a Xendit hosted-payment session for
-// methods that inherently require leaving our page (cards need a 3D Secure
-// redirect, e-wallets deep-link into their own app) — scoped by the
+// handleCreateInvoicePayment starts a Midtrans Snap hosted-payment session
+// for methods that inherently require leaving our page (cards need a 3D
+// Secure redirect, e-wallets deep-link into their own app) — scoped by the
 // "channel" path segment to either "card" or "ewallet" so the buyer lands
 // on a focused page instead of the full channel list.
 func (a *API) handleCreateInvoicePayment(w http.ResponseWriter, r *http.Request) {
@@ -112,49 +113,49 @@ func (a *API) handleCreateInvoicePayment(w http.ResponseWriter, r *http.Request)
 	}
 
 	channel := r.PathValue("channel")
-	var paymentMethods []string
+	var enabledPayments []string
 	switch channel {
 	case "card":
-		paymentMethods = []string{"CREDIT_CARD"}
+		enabledPayments = []string{"credit_card"}
 	case "ewallet":
-		paymentMethods = eWalletMethods
+		enabledPayments = walletPayments
 	default:
 		writeError(w, http.StatusBadRequest, "channel tidak dikenali")
 		return
 	}
 
-	invoice, err := a.xendit.CreateInvoice(xendit.CreateInvoiceInput{
-		ExternalID:  order.ID,
-		Amount:      order.Total,
-		PayerEmail:  order.Email,
-		Description: fmt.Sprintf("Pesanan HEYFREAK %s", order.ID),
-		Customer: xendit.Customer{
-			GivenNames:   order.Name,
-			Email:        order.Email,
-			MobileNumber: order.Phone,
-		},
-		SuccessRedirectURL: a.siteURL + "/order/" + order.ID,
-		FailureRedirectURL: a.siteURL + "/order/" + order.ID,
-		PaymentMethods:     paymentMethods,
-	})
+	snap, err := a.midtrans.CreateSnapTransaction(
+		order.ID,
+		order.Total,
+		midtrans.SnapCustomer{FirstName: order.Name, Email: order.Email, Phone: order.Phone},
+		enabledPayments,
+		a.siteURL+"/order/"+order.ID,
+	)
 	if err != nil {
-		log.Printf("create xendit invoice: %v", err)
+		log.Printf("create midtrans snap transaction: %v", err)
 		writeError(w, http.StatusBadGateway, "gagal membuat sesi pembayaran")
 		return
 	}
 
-	if err := a.store.SetOrderPayment(order.ID, "invoice_"+channel, invoice.ID); err != nil {
+	if err := a.store.SetOrderPayment(order.ID, "invoice_"+channel, snap.Token); err != nil {
 		log.Printf("set order payment reference: %v", err)
 	}
 
-	writeJSON(w, http.StatusOK, invoice)
+	writeJSON(w, http.StatusOK, map[string]string{
+		"id":          snap.Token,
+		"invoice_url": snap.RedirectURL,
+		"status":      "pending",
+	})
 }
 
-// handleSimulatePayment marks a test-mode order as paid via Xendit's
-// sandbox payment-simulation endpoints, since Xendit's real webhook can't
-// reach an unpublished local dev server. Only works with a development key.
+// handleSimulatePayment marks a test-mode order as paid directly in our own
+// database — Midtrans's sandbox "payment" flow is a web form simulator
+// meant for a human to click through, not a REST call we can trigger
+// server-side, so this dev-only shortcut just fast-forwards the order
+// status without round-tripping to Midtrans at all. Never available once
+// Midtrans is running in production mode.
 func (a *API) handleSimulatePayment(w http.ResponseWriter, r *http.Request) {
-	if !a.xendit.Configured() || !a.xendit.TestMode() {
+	if !a.midtrans.Configured() || !a.midtrans.TestMode() {
 		writeError(w, http.StatusForbidden, "simulasi pembayaran cuma tersedia di mode testing")
 		return
 	}
@@ -177,19 +178,8 @@ func (a *API) handleSimulatePayment(w http.ResponseWriter, r *http.Request) {
 		writeError(w, http.StatusInternalServerError, "failed to load payment reference")
 		return
 	}
-
-	switch {
-	case channel == "qris":
-		err = a.xendit.SimulateQRPayment(order.ID, order.Total)
-	case len(channel) > 3 && channel[:3] == "va_":
-		err = a.xendit.SimulateVAPayment(order.ID, order.Total)
-	default:
+	if channel == "" {
 		writeError(w, http.StatusBadRequest, "metode pembayaran order ini nggak bisa disimulasikan")
-		return
-	}
-	if err != nil {
-		log.Printf("simulate payment: %v", err)
-		writeError(w, http.StatusBadGateway, "gagal simulasi pembayaran")
 		return
 	}
 
@@ -202,29 +192,30 @@ func (a *API) handleSimulatePayment(w http.ResponseWriter, r *http.Request) {
 	writeJSON(w, http.StatusOK, map[string]bool{"ok": true})
 }
 
-// handleXenditCallback receives Xendit's async payment-status webhook —
-// Invoice, QR Code, or Virtual Account, each with a different payload
-// shape — and updates the matching order's status.
-func (a *API) handleXenditCallback(w http.ResponseWriter, r *http.Request) {
-	if !a.xendit.VerifyToken(r.Header.Get("x-callback-token")) {
-		writeError(w, http.StatusForbidden, "invalid callback token")
+// handleMidtransNotification receives Midtrans's async payment-status
+// webhook (configured as the account's "Payment Notification URL" in the
+// Midtrans dashboard, rather than passed per-request like Xendit's
+// callback_url was) and updates the matching order's status.
+func (a *API) handleMidtransNotification(w http.ResponseWriter, r *http.Request) {
+	var n midtrans.Notification
+	if err := json.NewDecoder(r.Body).Decode(&n); err != nil {
+		writeError(w, http.StatusBadRequest, "invalid notification body")
 		return
 	}
 
-	var body map[string]any
-	if err := json.NewDecoder(r.Body).Decode(&body); err != nil {
-		writeError(w, http.StatusBadRequest, "invalid callback body")
+	if !a.midtrans.VerifySignature(n) {
+		writeError(w, http.StatusForbidden, "invalid signature")
 		return
 	}
 
-	orderID, status := xendit.ParseCallback(body)
-	if status == "" || orderID == "" {
+	status := midtrans.ResolveStatus(n)
+	if status == "" || n.OrderID == "" {
 		writeJSON(w, http.StatusOK, map[string]bool{"ok": true})
 		return
 	}
 
-	if err := a.store.UpdateOrderStatus(orderID, status); err != nil {
-		log.Printf("update order status from xendit callback: %v", err)
+	if err := a.store.UpdateOrderStatus(n.OrderID, status); err != nil {
+		log.Printf("update order status from midtrans notification: %v", err)
 		writeError(w, http.StatusInternalServerError, "failed to update order")
 		return
 	}

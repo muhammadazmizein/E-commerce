@@ -88,8 +88,8 @@ export default async function OrderStatusPage({
           />
         </div>
 
-        <div className="mt-6 rounded-2xl border border-border bg-surface p-6 shadow-sm print:mt-0 print:rounded-none print:border-0 print:p-0 print:shadow-none sm:p-8">
-          <div className="flex flex-wrap items-start justify-between gap-4 border-b border-border pb-6">
+        <div className="mt-6 border-2 border-border bg-surface p-6 shadow-edge print:mt-0 print:border-0 print:p-0 print:shadow-none sm:p-8">
+          <div className="flex flex-wrap items-start justify-between gap-4 border-b-2 border-border pb-6">
             <div>
               <p className="font-display text-3xl tracking-wide">
                 HEY<span className="text-accent">FREAK</span>
@@ -104,7 +104,7 @@ export default async function OrderStatusPage({
           </div>
 
           <div className="mt-6 flex flex-wrap items-center justify-between gap-4">
-            <span className={`rounded-full px-3 py-1 text-xs font-bold uppercase tracking-wide ${toneStyles[copy.tone]}`}>
+            <span className={`clip-tag-sm px-3 py-1 text-xs font-bold uppercase tracking-wide ${toneStyles[copy.tone]}`}>
               {copy.label}
             </span>
             {copy.desc && <p className="text-sm text-muted">{copy.desc}</p>}
@@ -176,7 +176,7 @@ export default async function OrderStatusPage({
                 <span>Ongkir</span>
                 <span className="text-foreground">{formatIDR(order.shipping)}</span>
               </div>
-              <div className="flex justify-between border-t border-border pt-2 text-base font-bold">
+              <div className="flex justify-between border-t-2 border-border pt-2 text-base font-bold">
                 <span>Total</span>
                 <span className="font-display text-lg">{formatIDR(order.total)}</span>
               </div>
@@ -184,17 +184,17 @@ export default async function OrderStatusPage({
           </div>
 
           {order.notes && (
-            <div className="mt-6 border-t border-border pt-4">
+            <div className="mt-6 border-t-2 border-border pt-4">
               <h2 className="text-xs font-bold uppercase tracking-widest text-muted">Catatan</h2>
               <p className="mt-1 text-sm text-muted">{order.notes}</p>
             </div>
           )}
 
-          <div className="mt-8 flex justify-center gap-3 border-t border-border pt-6 print:hidden">
+          <div className="mt-8 flex justify-center gap-3 border-t-2 border-border pt-6 print:hidden">
             <PrintInvoiceButton />
             <Link
               href="/"
-              className="rounded-full bg-accent px-6 py-2.5 text-sm font-bold uppercase tracking-wide text-accent-foreground transition-transform hover:-translate-y-0.5"
+              className="btn-tag bg-accent px-6 py-2.5 text-sm font-bold uppercase tracking-wide text-accent-foreground transition-transform hover:-translate-y-0.5"
             >
               Balik ke Toko
             </Link>

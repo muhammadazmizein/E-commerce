@@ -33,12 +33,12 @@ export default function ProductGrid({ products }: { products: Product[] }) {
 
   return (
     <section ref={sectionRef} id="products" className="mx-auto max-w-7xl px-4 py-14 sm:px-6 lg:px-8">
-      <div className="mb-8 flex flex-col gap-6 sm:flex-row sm:items-end sm:justify-between">
+      <div className="mb-8 flex flex-col gap-6 border-b-2 border-border pb-8 sm:flex-row sm:items-end sm:justify-between">
         <div>
-          <span className="text-xs font-bold uppercase tracking-widest text-accent">
+          <span className="btn-tag inline-block border-2 border-accent px-2 py-0.5 text-xs font-bold uppercase tracking-widest text-accent">
             New Drop
           </span>
-          <h2 className="mt-1 font-display text-3xl uppercase tracking-tight sm:text-4xl">
+          <h2 className="mt-3 font-display text-3xl uppercase tracking-tight sm:text-4xl">
             Semua Produk
           </h2>
         </div>
@@ -48,7 +48,7 @@ export default function ProductGrid({ products }: { products: Product[] }) {
             <button
               key={f}
               onClick={() => handleFilterChange(f)}
-              className={`rounded-full border px-4 py-2 text-xs font-bold uppercase tracking-wide transition-colors ${
+              className={`btn-tag border-2 px-4 py-2 text-xs font-bold uppercase tracking-wide transition-colors ${
                 active === f
                   ? "border-accent bg-accent text-accent-foreground"
                   : "border-border text-muted hover:border-accent hover:text-foreground"
@@ -61,7 +61,7 @@ export default function ProductGrid({ products }: { products: Product[] }) {
       </div>
 
       {filtered.length === 0 ? (
-        <p className="rounded-2xl border border-border bg-surface px-4 py-10 text-center text-sm text-muted">
+        <p className="border-2 border-border bg-surface px-4 py-10 text-center text-sm text-muted">
           Produk belum bisa dimuat. Coba refresh beberapa saat lagi.
         </p>
       ) : (

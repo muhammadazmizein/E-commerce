@@ -12,8 +12,17 @@ const shippingFlatRate = 15000
 
 var ErrValidation = errors.New("validation error")
 
+// validationErr carries a clean, user-facing message while still matching
+// errors.Is(err, ErrValidation) — handlers write err.Error() straight back
+// to the client, so it must not carry the "validation error: " wrapper text
+// fmt.Errorf("%w: ...") would otherwise bake in.
+type validationErr struct{ msg string }
+
+func (e *validationErr) Error() string { return e.msg }
+func (e *validationErr) Unwrap() error { return ErrValidation }
+
 func validationError(format string, args ...any) error {
-	return fmt.Errorf("%w: %s", ErrValidation, fmt.Sprintf(format, args...))
+	return &validationErr{msg: fmt.Sprintf(format, args...)}
 }
 
 func generateOrderID() (string, error) {
@@ -52,7 +61,7 @@ func (s *Store) CreateOrder(input CreateOrderInput, userID string) (Order, error
 			return Order{}, validationError("invalid quantity for product %s", in.ProductID)
 		}
 
-		row := tx.QueryRow(`SELECT `+productColumns+` FROM products WHERE id = ?`, in.ProductID)
+		row := tx.QueryRow(`SELECT `+productColumns+` FROM products p`+productRatingsJoin+` WHERE p.id = ?`, in.ProductID)
 		product, err := scanProduct(row)
 		if errors.Is(err, sql.ErrNoRows) {
 			return Order{}, validationError("product %s not found", in.ProductID)
@@ -65,6 +74,25 @@ func (s *Store) CreateOrder(input CreateOrderInput, userID string) (Order, error
 			if in.Size == "" || !contains(product.Sizes, in.Size) {
 				return Order{}, validationError("invalid size for product %s", in.ProductID)
 			}
+		}
+
+		// Atomic within this transaction: the WHERE guard means a second
+		// line item for the same product (e.g. two sizes) — or a
+		// concurrent order racing this one — can't both succeed past
+		// what's actually left in stock.
+		result, err := tx.Exec(
+			`UPDATE products SET stock = stock - ? WHERE id = ? AND stock >= ?`,
+			in.Qty, in.ProductID, in.Qty,
+		)
+		if err != nil {
+			return Order{}, fmt.Errorf("reserve stock for %s: %w", in.ProductID, err)
+		}
+		affected, err := result.RowsAffected()
+		if err != nil {
+			return Order{}, fmt.Errorf("reserve stock for %s: %w", in.ProductID, err)
+		}
+		if affected == 0 {
+			return Order{}, validationError("stok %s tinggal %d, kurangi jumlahnya ya", product.Name, product.Stock)
 		}
 
 		items = append(items, OrderItem{

@@ -236,9 +236,33 @@ export async function deleteAddress(id: string): Promise<void> {
   if (!res.ok) throw new Error("Gagal menghapus alamat");
 }
 
+export async function getWishlist(): Promise<Product[]> {
+  const res = await fetch(new URL("/wishlist", API_URL), { credentials: "include", cache: "no-store" });
+  if (!res.ok) throw new Error("Gagal memuat wishlist");
+  return res.json();
+}
+
+export async function addToWishlist(productId: string): Promise<void> {
+  const res = await fetch(new URL("/wishlist", API_URL), {
+    method: "POST",
+    credentials: "include",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ productId }),
+  });
+  if (!res.ok) throw new Error("Gagal menyimpan ke wishlist");
+}
+
+export async function removeFromWishlist(productId: string): Promise<void> {
+  const res = await fetch(new URL(`/wishlist/${productId}`, API_URL), {
+    method: "DELETE",
+    credentials: "include",
+  });
+  if (!res.ok) throw new Error("Gagal menghapus dari wishlist");
+}
+
 export type ConfigStatus = {
-  xenditConfigured: boolean;
-  xenditTestMode: boolean;
+  paymentConfigured: boolean;
+  paymentTestMode: boolean;
   rajaongkirConfigured: boolean;
 };
 
@@ -299,15 +323,26 @@ export async function simulateTestPayment(orderId: string): Promise<void> {
   await postPayment(orderId, "simulate-payment");
 }
 
+// A destination search result from RajaOngkir. Despite the historical name
+// "City", this is actually subdistrict-level (the granularity the shipping
+// cost API requires) since RajaOngkir's 2025 API migration.
 export type City = {
-  city_id: string;
+  id: number;
+  label: string;
+  subdistrict_name: string;
+  district_name: string;
   city_name: string;
-  province: string;
+  province_name: string;
+  zip_code: string;
 };
 
-export async function searchCities(query: string): Promise<{ configured: boolean; cities: City[] }> {
+export async function searchCities(
+  query: string,
+  limit?: number
+): Promise<{ configured: boolean; cities: City[] }> {
   const url = new URL("/shipping/cities", API_URL);
   url.searchParams.set("search", query);
+  if (limit) url.searchParams.set("limit", String(limit));
   const res = await fetch(url, { cache: "no-store" });
   if (!res.ok) throw new Error("Failed to search cities");
   return res.json();

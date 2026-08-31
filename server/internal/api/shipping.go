@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"log"
 	"net/http"
+	"strconv"
 
 	"heyfreak-server/internal/rajaongkir"
 )
@@ -15,7 +16,8 @@ func (a *API) handleSearchCities(w http.ResponseWriter, r *http.Request) {
 	}
 
 	query := r.URL.Query().Get("search")
-	cities, err := a.rajaongkir.SearchCities(query)
+	limit, _ := strconv.Atoi(r.URL.Query().Get("limit"))
+	cities, err := a.rajaongkir.SearchCities(query, limit)
 	if err != nil {
 		log.Printf("search cities: %v", err)
 		writeError(w, http.StatusBadGateway, "gagal mencari kota")

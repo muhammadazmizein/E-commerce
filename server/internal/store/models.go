@@ -21,6 +21,7 @@ type Product struct {
 	Highlights  []Highlight `json:"highlights,omitempty"`
 	Rating      *float64    `json:"rating,omitempty"`
 	ReviewCount int         `json:"reviewCount,omitempty"`
+	Stock       int         `json:"stock"`
 }
 
 type OrderItemInput struct {

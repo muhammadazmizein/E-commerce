@@ -6,7 +6,12 @@ import { useRouter } from "next/navigation";
 import { useEffect, useMemo, useState, type FormEvent } from "react";
 import { useAuth } from "@/lib/auth-context";
 import { useCart } from "@/lib/cart-context";
+import { useToast } from "@/lib/toast-context";
+import { useWishlist } from "@/lib/wishlist-context";
 import Breadcrumb from "@/components/Breadcrumb";
+import LocationPicker from "@/components/LocationPicker";
+import ProductCard from "@/components/ProductCard";
+import Select from "@/components/Select";
 import {
   getAddresses,
   createAddress,
@@ -46,12 +51,18 @@ const STATUS_TABS: { key: "semua" | "pending" | "paid" | "failed"; label: string
 export default function AccountPage() {
   const { user, isLoading, logout } = useAuth();
   const { addItem } = useCart();
+  const { toast } = useToast();
+  const { items: wishlistItems, isLoading: loadingWishlist } = useWishlist();
   const router = useRouter();
-  const [tab, setTab] = useState<"alamat" | "transaksi">("alamat");
+  const [tab, setTab] = useState<"alamat" | "wishlist" | "transaksi">("alamat");
 
   const [addresses, setAddresses] = useState<Address[]>([]);
   const [loadingAddresses, setLoadingAddresses] = useState(true);
   const [editingId, setEditingId] = useState<string | null>(null);
+  // Captured once when a saved address is opened for editing — the location
+  // picker uses this to seed itself, but must not track the picker's own
+  // live edits to form.city or it'd re-trigger its auto-resolve in a loop.
+  const [editingInitialCity, setEditingInitialCity] = useState<string | undefined>(undefined);
   const [showForm, setShowForm] = useState(false);
   const [form, setForm] = useState<AddressInput>(emptyForm);
   const [error, setError] = useState<string | null>(null);
@@ -123,6 +134,7 @@ export default function AccountPage() {
   function openNewForm() {
     setForm(emptyForm);
     setEditingId(null);
+    setEditingInitialCity(undefined);
     setShowForm(true);
     setError(null);
   }
@@ -138,6 +150,7 @@ export default function AccountPage() {
       isDefault: a.isDefault,
     });
     setEditingId(a.id);
+    setEditingInitialCity(a.city);
     setShowForm(true);
     setError(null);
   }
@@ -173,7 +186,7 @@ export default function AccountPage() {
 
   return (
     <main className="min-h-screen">
-      <div className="border-b border-border">
+      <div className="border-b-2 border-border">
         <div className="mx-auto flex max-w-4xl items-center justify-between px-4 py-4 sm:px-6">
           <Link href="/" className="font-display text-2xl tracking-wide">
             HEY<span className="text-accent">FREAK</span>
@@ -194,10 +207,11 @@ export default function AccountPage() {
           {user.name} — {user.email}
         </p>
 
-        <div className="mt-8 flex gap-2 border-b border-border">
+        <div className="mt-8 flex gap-2 border-b-2 border-border">
           {(
             [
               ["alamat", "Alamat"],
+              ["wishlist", "Wishlist"],
               ["transaksi", "Transaksi"],
             ] as const
           ).map(([key, label]) => (
@@ -221,7 +235,7 @@ export default function AccountPage() {
               <h2 className="font-display text-xl uppercase tracking-tight">Alamat Tersimpan</h2>
               <button
                 onClick={openNewForm}
-                className="rounded-full border border-border px-4 py-2 text-xs font-bold uppercase tracking-wide transition-colors hover:border-accent hover:text-accent"
+                className="btn-tag border-2 border-border px-4 py-2 text-xs font-bold uppercase tracking-wide transition-colors hover:border-accent hover:text-accent"
               >
                 + Tambah Alamat
               </button>
@@ -230,7 +244,7 @@ export default function AccountPage() {
             {loadingAddresses ? (
               <p className="mt-6 text-sm text-muted">Memuat alamat...</p>
             ) : addresses.length === 0 ? (
-              <p className="mt-6 rounded-xl border border-border bg-surface px-4 py-8 text-center text-sm text-muted">
+              <p className="mt-6 border-2 border-border bg-surface px-4 py-8 text-center text-sm text-muted">
                 Belum ada alamat tersimpan.
               </p>
             ) : (
@@ -238,13 +252,13 @@ export default function AccountPage() {
                 {addresses.map((a) => (
                   <li
                     key={a.id}
-                    className="rounded-xl border border-border bg-surface p-4 shadow-sm"
+                    className="clip-tag border-2 border-border bg-surface p-4 shadow-edge"
                   >
                     <div className="flex items-start justify-between gap-2">
                       <div className="flex items-center gap-2">
                         <span className="font-display text-sm uppercase tracking-tight">{a.label}</span>
                         {a.isDefault && (
-                          <span className="rounded-full bg-accent px-2 py-0.5 text-[10px] font-bold uppercase text-accent-foreground">
+                          <span className="btn-tag bg-accent px-2 py-0.5 text-[10px] font-bold uppercase text-accent-foreground">
                             Utama
                           </span>
                         )}
@@ -271,7 +285,8 @@ export default function AccountPage() {
             {showForm && (
               <form
                 onSubmit={handleSubmit}
-                className="mt-8 flex flex-col gap-4 rounded-2xl border border-border bg-surface p-5"
+                onInvalidCapture={() => toast("Lengkapi dulu semua data yang wajib diisi ya", "error")}
+                className="clip-tag mt-8 flex flex-col gap-4 border-2 border-border bg-surface p-5"
               >
                 <h3 className="font-display text-lg uppercase tracking-tight">
                   {editingId ? "Ubah Alamat" : "Alamat Baru"}
@@ -284,7 +299,7 @@ export default function AccountPage() {
                       value={form.label}
                       onChange={(e) => setForm({ ...form, label: e.target.value })}
                       placeholder="Rumah / Kantor"
-                      className="rounded-lg border border-border bg-background px-3.5 py-2.5 text-foreground outline-none focus:border-accent"
+                      className="border-2 border-border bg-background px-3.5 py-2.5 text-foreground outline-none focus:border-accent"
                     />
                   </label>
                   <label className="flex flex-col gap-1.5 text-sm">
@@ -293,7 +308,7 @@ export default function AccountPage() {
                       required
                       value={form.recipientName}
                       onChange={(e) => setForm({ ...form, recipientName: e.target.value })}
-                      className="rounded-lg border border-border bg-background px-3.5 py-2.5 text-foreground outline-none focus:border-accent"
+                      className="border-2 border-border bg-background px-3.5 py-2.5 text-foreground outline-none focus:border-accent"
                     />
                   </label>
                   <label className="flex flex-col gap-1.5 text-sm">
@@ -302,16 +317,7 @@ export default function AccountPage() {
                       required
                       value={form.phone}
                       onChange={(e) => setForm({ ...form, phone: e.target.value })}
-                      className="rounded-lg border border-border bg-background px-3.5 py-2.5 text-foreground outline-none focus:border-accent"
-                    />
-                  </label>
-                  <label className="flex flex-col gap-1.5 text-sm">
-                    <span className="font-semibold text-foreground">Kota</span>
-                    <input
-                      required
-                      value={form.city}
-                      onChange={(e) => setForm({ ...form, city: e.target.value })}
-                      className="rounded-lg border border-border bg-background px-3.5 py-2.5 text-foreground outline-none focus:border-accent"
+                      className="border-2 border-border bg-background px-3.5 py-2.5 text-foreground outline-none focus:border-accent"
                     />
                   </label>
                   <label className="flex flex-col gap-1.5 text-sm sm:col-span-2">
@@ -321,16 +327,24 @@ export default function AccountPage() {
                       rows={2}
                       value={form.address}
                       onChange={(e) => setForm({ ...form, address: e.target.value })}
-                      className="resize-none rounded-lg border border-border bg-background px-3.5 py-2.5 text-foreground outline-none focus:border-accent"
+                      className="resize-none border-2 border-border bg-background px-3.5 py-2.5 text-foreground outline-none focus:border-accent"
                     />
                   </label>
+                  <LocationPicker
+                    key={editingId ?? "new"}
+                    initialCityText={editingInitialCity}
+                    onChange={(location) => {
+                      if (!location) return;
+                      setForm((f) => ({ ...f, city: location.label, postalCode: location.postalCode }));
+                    }}
+                  />
                   <label className="flex flex-col gap-1.5 text-sm">
                     <span className="font-semibold text-foreground">Kode Pos</span>
                     <input
                       required
                       value={form.postalCode}
                       onChange={(e) => setForm({ ...form, postalCode: e.target.value })}
-                      className="rounded-lg border border-border bg-background px-3.5 py-2.5 text-foreground outline-none focus:border-accent"
+                      className="border-2 border-border bg-background px-3.5 py-2.5 text-foreground outline-none focus:border-accent"
                     />
                   </label>
                   <label className="flex items-center gap-2 pt-6 text-sm">
@@ -345,7 +359,7 @@ export default function AccountPage() {
                 </div>
 
                 {error && (
-                  <p className="rounded-lg border border-red-500/40 bg-red-500/10 px-3 py-2 text-sm text-red-500">
+                  <p className="border-2 border-red-500/40 bg-red-500/10 px-3 py-2 text-sm text-red-500">
                     {error}
                   </p>
                 )}
@@ -354,19 +368,38 @@ export default function AccountPage() {
                   <button
                     type="submit"
                     disabled={isSaving}
-                    className="rounded-full bg-accent px-6 py-2.5 text-sm font-bold uppercase tracking-wide text-accent-foreground transition-transform hover:-translate-y-0.5 disabled:cursor-not-allowed disabled:opacity-60"
+                    className="btn-tag bg-accent px-6 py-2.5 text-sm font-bold uppercase tracking-wide text-accent-foreground transition-transform hover:-translate-y-0.5 disabled:cursor-not-allowed disabled:opacity-60"
                   >
                     {isSaving ? "Menyimpan..." : "Simpan"}
                   </button>
                   <button
                     type="button"
                     onClick={() => setShowForm(false)}
-                    className="rounded-full border border-border px-6 py-2.5 text-sm font-bold uppercase tracking-wide hover:border-accent hover:text-accent"
+                    className="btn-tag border-2 border-border px-6 py-2.5 text-sm font-bold uppercase tracking-wide hover:border-accent hover:text-accent"
                   >
                     Batal
                   </button>
                 </div>
               </form>
+            )}
+          </div>
+        )}
+
+        {tab === "wishlist" && (
+          <div className="mt-8">
+            <h2 className="font-display text-xl uppercase tracking-tight">Wishlist</h2>
+            {loadingWishlist ? (
+              <p className="mt-6 text-sm text-muted">Memuat wishlist...</p>
+            ) : wishlistItems.length === 0 ? (
+              <p className="mt-6 border-2 border-border bg-surface px-4 py-8 text-center text-sm text-muted">
+                Belum ada produk di wishlist. Klik ikon hati di produk buat nyimpen.
+              </p>
+            ) : (
+              <div className="mt-6 grid grid-cols-2 gap-4 sm:gap-5 md:grid-cols-3">
+                {wishlistItems.map((product) => (
+                  <ProductCard key={product.id} product={product} />
+                ))}
+              </div>
             )}
           </div>
         )}
@@ -392,26 +425,22 @@ export default function AccountPage() {
                   value={search}
                   onChange={(e) => setSearch(e.target.value)}
                   placeholder="Cari transaksimu di sini"
-                  className="w-full rounded-full border border-border bg-surface py-2.5 pl-10 pr-4 text-sm text-foreground outline-none focus:border-accent"
+                  className="w-full border-2 border-border bg-surface py-2.5 pl-10 pr-4 text-sm text-foreground outline-none focus:border-accent"
                 />
               </div>
-              <select
+              <Select
                 value={categoryFilter}
-                onChange={(e) => setCategoryFilter(e.target.value)}
-                className="rounded-full border border-border bg-surface px-4 py-2.5 text-sm font-semibold text-foreground outline-none focus:border-accent"
-              >
-                <option value="Semua Produk">Semua Produk</option>
-                {categories.map((c) => (
-                  <option key={c} value={c}>
-                    {c}
-                  </option>
-                ))}
-              </select>
+                onChange={setCategoryFilter}
+                options={[
+                  { value: "Semua Produk", label: "Semua Produk" },
+                  ...categories.map((c) => ({ value: c, label: c })),
+                ]}
+              />
               <input
                 type="date"
                 value={dateFilter}
                 onChange={(e) => setDateFilter(e.target.value)}
-                className="rounded-full border border-border bg-surface px-4 py-2.5 text-sm text-foreground outline-none focus:border-accent"
+                className="border-2 border-border bg-surface px-4 py-2.5 text-sm text-foreground outline-none focus:border-accent"
               />
             </div>
 
@@ -420,7 +449,7 @@ export default function AccountPage() {
                 <button
                   key={t.key}
                   onClick={() => setStatusFilter(t.key)}
-                  className={`rounded-full border px-4 py-1.5 text-xs font-bold uppercase tracking-wide transition-colors ${
+                  className={`btn-tag border-2 px-4 py-1.5 text-xs font-bold uppercase tracking-wide transition-colors ${
                     statusFilter === t.key
                       ? "border-accent bg-accent text-accent-foreground"
                       : "border-border text-muted hover:border-accent hover:text-foreground"
@@ -442,11 +471,11 @@ export default function AccountPage() {
             {loadingOrders ? (
               <p className="mt-6 text-sm text-muted">Memuat transaksi...</p>
             ) : orders.length === 0 ? (
-              <p className="mt-6 rounded-xl border border-border bg-surface px-4 py-8 text-center text-sm text-muted">
+              <p className="mt-6 border-2 border-border bg-surface px-4 py-8 text-center text-sm text-muted">
                 Belum ada transaksi.
               </p>
             ) : filteredOrders.length === 0 ? (
-              <p className="mt-6 rounded-xl border border-border bg-surface px-4 py-8 text-center text-sm text-muted">
+              <p className="mt-6 border-2 border-border bg-surface px-4 py-8 text-center text-sm text-muted">
                 Tidak ada transaksi yang cocok dengan filter.
               </p>
             ) : (
@@ -462,8 +491,8 @@ export default function AccountPage() {
                   const extraCount = items.length - 1;
 
                   return (
-                    <li key={o.id} className="rounded-2xl border border-border bg-surface p-4 shadow-sm sm:p-5">
-                      <div className="flex flex-wrap items-center justify-between gap-2 border-b border-border pb-3">
+                    <li key={o.id} className="clip-tag border-2 border-border bg-surface p-4 shadow-edge sm:p-5">
+                      <div className="flex flex-wrap items-center justify-between gap-2 border-b-2 border-border pb-3">
                         <div className="flex items-center gap-2">
                           <span aria-hidden className="text-base">
                             🛍️
@@ -472,7 +501,7 @@ export default function AccountPage() {
                           <span className="text-xs text-muted">
                             {new Date(o.createdAt).toLocaleDateString("id-ID", { dateStyle: "medium" })}
                           </span>
-                          <span className={`rounded-full px-2.5 py-1 text-[11px] font-bold uppercase tracking-wide ${status.className}`}>
+                          <span className={`clip-tag-sm px-2.5 py-1 text-[11px] font-bold uppercase tracking-wide ${status.className}`}>
                             {status.label}
                           </span>
                         </div>
@@ -481,7 +510,7 @@ export default function AccountPage() {
 
                       {firstItem && (
                         <div className="mt-3 flex items-center gap-3">
-                          <div className="relative h-14 w-14 shrink-0 overflow-hidden rounded-lg border border-border bg-surface-2">
+                          <div className="relative h-14 w-14 shrink-0 overflow-hidden border-2 border-border bg-surface-2">
                             {product && (
                               <Image src={product.image} alt={firstItem.productName} fill sizes="56px" className="object-cover" />
                             )}
@@ -508,13 +537,13 @@ export default function AccountPage() {
                       <div className="mt-4 flex flex-wrap items-center justify-end gap-2">
                         <Link
                           href={`/order/${o.id}`}
-                          className="rounded-full border border-border px-4 py-2 text-xs font-bold uppercase tracking-wide text-foreground transition-colors hover:border-accent hover:text-accent"
+                          className="btn-tag border-2 border-border px-4 py-2 text-xs font-bold uppercase tracking-wide text-foreground transition-colors hover:border-accent hover:text-accent"
                         >
                           Lihat Detail Transaksi
                         </Link>
                         <button
                           onClick={() => handleBuyAgain(o)}
-                          className="rounded-full bg-accent px-4 py-2 text-xs font-bold uppercase tracking-wide text-accent-foreground transition-transform hover:-translate-y-0.5"
+                          className="btn-tag bg-accent px-4 py-2 text-xs font-bold uppercase tracking-wide text-accent-foreground transition-transform hover:-translate-y-0.5"
                         >
                           Beli Lagi
                         </button>

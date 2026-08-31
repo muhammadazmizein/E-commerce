@@ -3,21 +3,21 @@ package api
 import (
 	"net/http"
 
+	"heyfreak-server/internal/midtrans"
 	"heyfreak-server/internal/rajaongkir"
 	"heyfreak-server/internal/store"
-	"heyfreak-server/internal/xendit"
 )
 
 type API struct {
 	store        *store.Store
-	xendit       *xendit.Client
+	midtrans     *midtrans.Client
 	rajaongkir   *rajaongkir.Client
 	siteURL      string
 	publicAPIURL string
 }
 
-func New(s *store.Store, xd *xendit.Client, ro *rajaongkir.Client, siteURL, publicAPIURL string) *API {
-	return &API{store: s, xendit: xd, rajaongkir: ro, siteURL: siteURL, publicAPIURL: publicAPIURL}
+func New(s *store.Store, mt *midtrans.Client, ro *rajaongkir.Client, siteURL, publicAPIURL string) *API {
+	return &API{store: s, midtrans: mt, rajaongkir: ro, siteURL: siteURL, publicAPIURL: publicAPIURL}
 }
 
 func (a *API) Router(allowedOrigin string) http.Handler {
@@ -29,8 +29,8 @@ func (a *API) Router(allowedOrigin string) http.Handler {
 
 	mux.HandleFunc("GET /config/status", func(w http.ResponseWriter, r *http.Request) {
 		writeJSON(w, http.StatusOK, map[string]any{
-			"xenditConfigured":     a.xendit.Configured(),
-			"xenditTestMode":       a.xendit.TestMode(),
+			"paymentConfigured":    a.midtrans.Configured(),
+			"paymentTestMode":      a.midtrans.TestMode(),
 			"rajaongkirConfigured": a.rajaongkir.Configured(),
 		})
 	})
@@ -56,11 +56,15 @@ func (a *API) Router(allowedOrigin string) http.Handler {
 	mux.HandleFunc("PUT /addresses/{id}", requireAuth(a.handleUpdateAddress))
 	mux.HandleFunc("DELETE /addresses/{id}", requireAuth(a.handleDeleteAddress))
 
+	mux.HandleFunc("GET /wishlist", requireAuth(a.handleListWishlist))
+	mux.HandleFunc("POST /wishlist", requireAuth(a.handleAddWishlist))
+	mux.HandleFunc("DELETE /wishlist/{productId}", requireAuth(a.handleRemoveWishlist))
+
 	mux.HandleFunc("POST /orders/{id}/pay/qris", a.handleCreateQRPayment)
 	mux.HandleFunc("POST /orders/{id}/pay/va", a.handleCreateVAPayment)
 	mux.HandleFunc("POST /orders/{id}/pay/invoice/{channel}", a.handleCreateInvoicePayment)
 	mux.HandleFunc("POST /orders/{id}/simulate-payment", a.handleSimulatePayment)
-	mux.HandleFunc("POST /xendit/callback", a.handleXenditCallback)
+	mux.HandleFunc("POST /midtrans/notification", a.handleMidtransNotification)
 
 	mux.HandleFunc("GET /shipping/cities", a.handleSearchCities)
 	mux.HandleFunc("POST /shipping/cost", a.handleShippingCost)

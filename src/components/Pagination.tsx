@@ -26,12 +26,12 @@ export default function Pagination({
   if (totalPages <= 1) return null;
 
   return (
-    <nav aria-label="Navigasi halaman" className="mt-10 flex items-center justify-center gap-1.5">
+    <nav aria-label="Navigasi halaman" className="mt-10 flex items-center justify-center gap-1 border-2 border-border p-1 w-fit mx-auto">
       <button
         onClick={() => onPageChange(page - 1)}
         disabled={page === 1}
         aria-label="Halaman sebelumnya"
-        className="flex h-9 w-9 items-center justify-center rounded-full border border-border text-foreground transition-colors hover:border-accent hover:text-accent disabled:cursor-not-allowed disabled:opacity-40"
+        className="flex h-9 w-9 items-center justify-center text-foreground transition-colors hover:bg-surface-2 hover:text-accent disabled:cursor-not-allowed disabled:opacity-30"
       >
         ‹
       </button>
@@ -46,7 +46,7 @@ export default function Pagination({
             key={p}
             onClick={() => onPageChange(p)}
             aria-current={p === page ? "page" : undefined}
-            className={`flex h-9 w-9 items-center justify-center rounded-full text-sm font-semibold transition-colors ${
+            className={`btn-tag flex h-9 w-9 items-center justify-center text-sm font-bold transition-colors ${
               p === page
                 ? "bg-accent text-accent-foreground"
                 : "text-foreground hover:bg-surface-2"
@@ -61,7 +61,7 @@ export default function Pagination({
         onClick={() => onPageChange(page + 1)}
         disabled={page === totalPages}
         aria-label="Halaman berikutnya"
-        className="flex h-9 w-9 items-center justify-center rounded-full border border-border text-foreground transition-colors hover:border-accent hover:text-accent disabled:cursor-not-allowed disabled:opacity-40"
+        className="flex h-9 w-9 items-center justify-center text-foreground transition-colors hover:bg-surface-2 hover:text-accent disabled:cursor-not-allowed disabled:opacity-30"
       >
         ›
       </button>

@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { useEffect, useState, type FormEvent } from "react";
 import { useAuth } from "@/lib/auth-context";
+import { useToast } from "@/lib/toast-context";
 import { getReviews, createReview, type ReviewSummary } from "@/lib/api";
 import { Star, StarRow } from "@/components/StarRating";
 
@@ -31,6 +32,7 @@ function StarPicker({ value, onChange }: { value: number; onChange: (n: number) 
 
 export default function ProductReviews({ productId }: { productId: string }) {
   const { user } = useAuth();
+  const { toast } = useToast();
   const [summary, setSummary] = useState<ReviewSummary | null>(null);
   const [loading, setLoading] = useState(true);
   const [rating, setRating] = useState(0);
@@ -49,6 +51,7 @@ export default function ProductReviews({ productId }: { productId: string }) {
     setError(null);
     if (rating === 0) {
       setError("Pilih rating dulu ya.");
+      toast("Pilih rating dulu ya", "error");
       return;
     }
     setSubmitting(true);
@@ -66,15 +69,17 @@ export default function ProductReviews({ productId }: { productId: string }) {
   }
 
   return (
-    <section className="mt-16 border-t border-border pt-10">
-      <h2 className="font-display text-2xl uppercase tracking-tight">Ulasan Produk</h2>
+    <section className="mt-16 border-t-2 border-border pt-10">
+      <h2 className="font-display text-2xl uppercase tracking-tight">
+        <span className="text-accent">/</span> Ulasan Produk
+      </h2>
 
       {loading ? (
         <p className="mt-4 text-sm text-muted">Memuat ulasan...</p>
       ) : (
         <>
-          <div className="mt-4 flex items-center gap-4">
-            <span className="font-display text-4xl tracking-tight">
+          <div className="mt-4 flex w-fit items-center gap-4 border-2 border-border p-4">
+            <span className="font-display text-4xl tracking-tight text-accent">
               {summary && summary.count > 0 ? summary.average.toFixed(1) : "—"}
             </span>
             <div>
@@ -83,9 +88,13 @@ export default function ProductReviews({ productId }: { productId: string }) {
             </div>
           </div>
 
-          <div className="mt-8 max-w-xl rounded-2xl border border-border bg-surface p-5">
+          <div className="clip-tag mt-8 max-w-xl border-2 border-border bg-surface p-5">
             {user ? (
-              <form onSubmit={handleSubmit} className="flex flex-col gap-3">
+              <form
+                onSubmit={handleSubmit}
+                onInvalidCapture={() => toast("Lengkapi dulu semua data yang wajib diisi ya", "error")}
+                className="flex flex-col gap-3"
+              >
                 <h3 className="font-display text-sm uppercase tracking-tight">Tulis Ulasan</h3>
                 <StarPicker value={rating} onChange={setRating} />
                 <textarea
@@ -94,13 +103,13 @@ export default function ProductReviews({ productId }: { productId: string }) {
                   value={comment}
                   onChange={(e) => setComment(e.target.value)}
                   placeholder="Ceritakan pengalamanmu pakai produk ini..."
-                  className="resize-none rounded-lg border border-border bg-background px-3.5 py-2.5 text-sm text-foreground outline-none focus:border-accent"
+                  className="resize-none border-2 border-border bg-background px-3.5 py-2.5 text-sm text-foreground outline-none focus:border-accent"
                 />
                 {error && <p className="text-xs text-red-500">{error}</p>}
                 <button
                   type="submit"
                   disabled={submitting}
-                  className="w-fit rounded-full bg-accent px-6 py-2.5 text-xs font-bold uppercase tracking-wide text-accent-foreground transition-transform hover:-translate-y-0.5 disabled:cursor-not-allowed disabled:opacity-60"
+                  className="btn-tag w-fit bg-accent px-6 py-2.5 text-xs font-bold uppercase tracking-wide text-accent-foreground transition-transform hover:-translate-y-0.5 disabled:cursor-not-allowed disabled:opacity-60"
                 >
                   {submitting ? "Mengirim..." : "Kirim Ulasan"}
                 </button>
@@ -118,12 +127,12 @@ export default function ProductReviews({ productId }: { productId: string }) {
           {summary && summary.reviews.length > 0 ? (
             <ul className="mt-8 flex flex-col gap-6">
               {summary.reviews.map((rv) => (
-                <li key={rv.id} className="border-b border-border pb-6 last:border-0">
+                <li key={rv.id} className="border-b-2 border-border pb-6 last:border-0">
                   <div className="flex flex-wrap items-center gap-2">
                     <StarRow rating={rv.rating} />
                     <span className="text-sm font-semibold text-foreground">{rv.userName}</span>
                     {rv.verifiedPurchase && (
-                      <span className="rounded-full bg-surface-2 px-2 py-0.5 text-[10px] font-bold uppercase tracking-wide text-muted">
+                      <span className="border border-border bg-surface-2 px-2 py-0.5 text-[10px] font-bold uppercase tracking-wide text-muted">
                         Pembeli Terverifikasi
                       </span>
                     )}

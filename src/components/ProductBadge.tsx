@@ -2,10 +2,10 @@ import type { Product } from "@/lib/products";
 
 const badgeStyles: Record<NonNullable<Product["badge"]>, string> = {
   NEW: "bg-accent text-accent-foreground",
-  HOT: "bg-gradient-to-r from-orange-500 to-red-500 text-white",
-  SALE: "bg-red-500 text-white",
-  LIMITED: "border border-foreground bg-background text-foreground",
-  "SOLD OUT": "bg-surface-2 text-muted",
+  HOT: "bg-foreground text-background",
+  SALE: "bg-foreground text-background",
+  LIMITED: "border-2 border-foreground bg-background text-foreground",
+  "SOLD OUT": "border-2 border-border bg-surface-2 text-muted",
 };
 
 const badgeIcons: Partial<Record<NonNullable<Product["badge"]>, { icon: string; animation: string }>> = {
@@ -26,10 +26,10 @@ export default function ProductBadge({
 
   return (
     <span
-      className={`relative inline-flex items-center gap-1 overflow-hidden rounded-full px-2.5 py-1 text-[11px] font-bold uppercase tracking-wide shadow-sm ${badgeStyles[badge]} ${className}`}
+      className={`clip-tag-sm relative inline-flex -rotate-3 items-center gap-1 overflow-hidden px-2.5 py-1 text-[11px] font-bold uppercase tracking-wide shadow-edge ${badgeStyles[badge]} ${className}`}
     >
       {iconData && (
-        <span aria-hidden className={`inline-block ${iconData.animation}`}>
+        <span aria-hidden className={`inline-block grayscale ${iconData.animation}`}>
           {iconData.icon}
         </span>
       )}

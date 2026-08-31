@@ -12,6 +12,7 @@ export type Product = {
   highlights?: { title: string; desc: string }[];
   rating?: number;
   reviewCount?: number;
+  stock: number;
 };
 
 export function formatIDR(value: number) {

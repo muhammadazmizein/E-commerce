@@ -256,6 +256,34 @@ export default function CheckoutPage() {
     }
   }
 
+  function copyAccountNumber(text: string) {
+    if (navigator.clipboard && window.isSecureContext) {
+      navigator.clipboard
+        .writeText(text)
+        .then(() => toast("Nomor VA disalin", "success"))
+        .catch(() => toast("Gagal menyalin nomor", "error"));
+      return;
+    }
+
+    // navigator.clipboard requires a secure context (HTTPS/localhost) and is
+    // undefined otherwise, so fall back to the legacy execCommand approach.
+    const textarea = document.createElement("textarea");
+    textarea.value = text;
+    textarea.style.position = "fixed";
+    textarea.style.opacity = "0";
+    document.body.appendChild(textarea);
+    textarea.focus();
+    textarea.select();
+    try {
+      document.execCommand("copy");
+      toast("Nomor VA disalin", "success");
+    } catch {
+      toast("Gagal menyalin nomor", "error");
+    } finally {
+      document.body.removeChild(textarea);
+    }
+  }
+
   async function handleSimulate() {
     if (!activePayment) return;
     setIsSimulating(true);
@@ -297,7 +325,7 @@ export default function CheckoutPage() {
             <p className="text-xs uppercase tracking-wide text-muted">{bank?.name ?? activePayment.bankCode}</p>
             <p className="mt-2 font-display text-3xl tracking-tight">{activePayment.accountNumber}</p>
             <button
-              onClick={() => navigator.clipboard.writeText(activePayment.accountNumber)}
+              onClick={() => copyAccountNumber(activePayment.accountNumber)}
               className="btn-tag mt-3 border-2 border-border px-4 py-2 text-xs font-bold uppercase tracking-wide hover:border-accent hover:text-accent"
             >
               Salin Nomor

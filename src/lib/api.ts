@@ -11,8 +11,20 @@ const API_URL =
     ? (process.env.INTERNAL_API_URL ?? process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:8080")
     : (process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:8080");
 
+// `new URL(path, base)` treats a leading "/" in `path` as root-absolute,
+// which silently discards any path segment `base` itself has (e.g.
+// new URL("/auth/login", "http://host/api") resolves to
+// "http://host/auth/login", dropping "/api" entirely). API_URL can carry a
+// path segment (reverse-proxied deployments use e.g. ".../api"), so every
+// call needs to go through here instead of the URL constructor directly.
+function apiURL(path: string): URL {
+  const base = API_URL.endsWith("/") ? API_URL.slice(0, -1) : API_URL;
+  const suffix = path.startsWith("/") ? path : `/${path}`;
+  return new URL(base + suffix);
+}
+
 export async function getProducts(category?: string): Promise<Product[]> {
-  const url = new URL("/products", API_URL);
+  const url = apiURL("/products");
   if (category) url.searchParams.set("category", category);
 
   const res = await fetch(url, { cache: "no-store" });
@@ -21,7 +33,7 @@ export async function getProducts(category?: string): Promise<Product[]> {
 }
 
 export async function getProduct(id: string): Promise<Product | null> {
-  const res = await fetch(new URL(`/products/${id}`, API_URL), { cache: "no-store" });
+  const res = await fetch(apiURL(`/products/${id}`), { cache: "no-store" });
   if (res.status === 404) return null;
   if (!res.ok) throw new Error("Failed to load product");
   return res.json();
@@ -34,7 +46,7 @@ export type Category = {
 };
 
 export async function getCategories(): Promise<Category[]> {
-  const res = await fetch(new URL("/categories", API_URL), { cache: "no-store" });
+  const res = await fetch(apiURL("/categories"), { cache: "no-store" });
   if (!res.ok) throw new Error("Failed to load categories");
   return res.json();
 }
@@ -49,7 +61,7 @@ export type Banner = {
 };
 
 export async function getBanners(): Promise<Banner[]> {
-  const res = await fetch(new URL("/banners", API_URL), { cache: "no-store" });
+  const res = await fetch(apiURL("/banners"), { cache: "no-store" });
   if (!res.ok) throw new Error("Failed to load banners");
   return res.json();
 }
@@ -61,7 +73,7 @@ export type SiteImage = {
 };
 
 export async function getSiteImages(): Promise<Record<string, SiteImage>> {
-  const res = await fetch(new URL("/site-images", API_URL), { cache: "no-store" });
+  const res = await fetch(apiURL("/site-images"), { cache: "no-store" });
   if (!res.ok) throw new Error("Failed to load site images");
   return res.json();
 }
@@ -125,20 +137,20 @@ export type Order = {
 };
 
 export async function getOrder(id: string): Promise<Order | null> {
-  const res = await fetch(new URL(`/orders/${id}`, API_URL), { cache: "no-store" });
+  const res = await fetch(apiURL(`/orders/${id}`), { cache: "no-store" });
   if (res.status === 404) return null;
   if (!res.ok) throw new Error("Failed to load order");
   return res.json();
 }
 
 export async function getMyOrders(): Promise<Order[]> {
-  const res = await fetch(new URL("/orders/mine", API_URL), { credentials: "include", cache: "no-store" });
+  const res = await fetch(apiURL("/orders/mine"), { credentials: "include", cache: "no-store" });
   if (!res.ok) throw new Error("Failed to load orders");
   return res.json();
 }
 
 export async function createOrder(payload: CreateOrderPayload): Promise<OrderResult> {
-  const res = await fetch(new URL("/orders", API_URL), {
+  const res = await fetch(apiURL("/orders"), {
     method: "POST",
     credentials: "include",
     headers: { "Content-Type": "application/json" },
@@ -160,7 +172,7 @@ export type User = {
 };
 
 async function authRequest<T>(path: string, body: unknown): Promise<T> {
-  const res = await fetch(new URL(path, API_URL), {
+  const res = await fetch(apiURL(path), {
     method: "POST",
     credentials: "include",
     headers: { "Content-Type": "application/json" },
@@ -182,11 +194,11 @@ export function login(email: string, password: string): Promise<User> {
 }
 
 export async function logout(): Promise<void> {
-  await fetch(new URL("/auth/logout", API_URL), { method: "POST", credentials: "include" });
+  await fetch(apiURL("/auth/logout"), { method: "POST", credentials: "include" });
 }
 
 export async function getMe(): Promise<User | null> {
-  const res = await fetch(new URL("/auth/me", API_URL), { credentials: "include", cache: "no-store" });
+  const res = await fetch(apiURL("/auth/me"), { credentials: "include", cache: "no-store" });
   if (!res.ok) throw new Error("Failed to load session");
   return res.json();
 }
@@ -205,13 +217,13 @@ export type Address = {
 export type AddressInput = Omit<Address, "id">;
 
 export async function getAddresses(): Promise<Address[]> {
-  const res = await fetch(new URL("/addresses", API_URL), { credentials: "include", cache: "no-store" });
+  const res = await fetch(apiURL("/addresses"), { credentials: "include", cache: "no-store" });
   if (!res.ok) throw new Error("Failed to load addresses");
   return res.json();
 }
 
 export async function createAddress(input: AddressInput): Promise<Address> {
-  const res = await fetch(new URL("/addresses", API_URL), {
+  const res = await fetch(apiURL("/addresses"), {
     method: "POST",
     credentials: "include",
     headers: { "Content-Type": "application/json" },
@@ -225,7 +237,7 @@ export async function createAddress(input: AddressInput): Promise<Address> {
 }
 
 export async function updateAddress(id: string, input: AddressInput): Promise<void> {
-  const res = await fetch(new URL(`/addresses/${id}`, API_URL), {
+  const res = await fetch(apiURL(`/addresses/${id}`), {
     method: "PUT",
     credentials: "include",
     headers: { "Content-Type": "application/json" },
@@ -238,7 +250,7 @@ export async function updateAddress(id: string, input: AddressInput): Promise<vo
 }
 
 export async function deleteAddress(id: string): Promise<void> {
-  const res = await fetch(new URL(`/addresses/${id}`, API_URL), {
+  const res = await fetch(apiURL(`/addresses/${id}`), {
     method: "DELETE",
     credentials: "include",
   });
@@ -246,13 +258,13 @@ export async function deleteAddress(id: string): Promise<void> {
 }
 
 export async function getWishlist(): Promise<Product[]> {
-  const res = await fetch(new URL("/wishlist", API_URL), { credentials: "include", cache: "no-store" });
+  const res = await fetch(apiURL("/wishlist"), { credentials: "include", cache: "no-store" });
   if (!res.ok) throw new Error("Gagal memuat wishlist");
   return res.json();
 }
 
 export async function addToWishlist(productId: string): Promise<void> {
-  const res = await fetch(new URL("/wishlist", API_URL), {
+  const res = await fetch(apiURL("/wishlist"), {
     method: "POST",
     credentials: "include",
     headers: { "Content-Type": "application/json" },
@@ -262,7 +274,7 @@ export async function addToWishlist(productId: string): Promise<void> {
 }
 
 export async function removeFromWishlist(productId: string): Promise<void> {
-  const res = await fetch(new URL(`/wishlist/${productId}`, API_URL), {
+  const res = await fetch(apiURL(`/wishlist/${productId}`), {
     method: "DELETE",
     credentials: "include",
   });
@@ -276,13 +288,13 @@ export type ConfigStatus = {
 };
 
 export async function getConfigStatus(): Promise<ConfigStatus> {
-  const res = await fetch(new URL("/config/status", API_URL), { cache: "no-store" });
+  const res = await fetch(apiURL("/config/status"), { cache: "no-store" });
   if (!res.ok) throw new Error("Failed to load config status");
   return res.json();
 }
 
 async function postPayment<T>(orderId: string, path: string, body?: unknown): Promise<T> {
-  const res = await fetch(new URL(`/orders/${orderId}/${path}`, API_URL), {
+  const res = await fetch(apiURL(`/orders/${orderId}/${path}`), {
     method: "POST",
     credentials: "include",
     headers: body ? { "Content-Type": "application/json" } : undefined,
@@ -349,7 +361,7 @@ export async function searchCities(
   query: string,
   limit?: number
 ): Promise<{ configured: boolean; cities: City[] }> {
-  const url = new URL("/shipping/cities", API_URL);
+  const url = apiURL("/shipping/cities");
   url.searchParams.set("search", query);
   if (limit) url.searchParams.set("limit", String(limit));
   const res = await fetch(url, { cache: "no-store" });
@@ -369,7 +381,7 @@ export async function getShippingCost(
   destinationCityId: string,
   weightGrams: number
 ): Promise<{ configured: boolean; services: ShippingService[] }> {
-  const res = await fetch(new URL("/shipping/cost", API_URL), {
+  const res = await fetch(apiURL("/shipping/cost"), {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({ destinationCityId, weightGrams }),
@@ -395,7 +407,7 @@ export type ReviewSummary = {
 };
 
 export async function getReviews(productId: string): Promise<ReviewSummary> {
-  const res = await fetch(new URL(`/products/${productId}/reviews`, API_URL), { cache: "no-store" });
+  const res = await fetch(apiURL(`/products/${productId}/reviews`), { cache: "no-store" });
   if (!res.ok) throw new Error("Failed to load reviews");
   return res.json();
 }
@@ -404,7 +416,7 @@ export async function createReview(
   productId: string,
   input: { rating: number; comment: string }
 ): Promise<Review> {
-  const res = await fetch(new URL(`/products/${productId}/reviews`, API_URL), {
+  const res = await fetch(apiURL(`/products/${productId}/reviews`), {
     method: "POST",
     credentials: "include",
     headers: { "Content-Type": "application/json" },

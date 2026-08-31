@@ -73,7 +73,7 @@ export default function CheckoutPage() {
   const { user, isLoading: isAuthLoading } = useAuth();
   const router = useRouter();
   const { toast } = useToast();
-  const [payment, setPayment] = useState<"qris" | "va" | "cod">("qris");
+  const [payment, setPayment] = useState<"qris" | "va">("qris");
   const [vaBank, setVaBank] = useState(BANKS[0].code);
   const [orderId, setOrderId] = useState<string | null>(null);
   const [activePayment, setActivePayment] = useState<ActivePayment | null>(null);
@@ -114,10 +114,7 @@ export default function CheckoutPage() {
 
   useEffect(() => {
     getConfigStatus()
-      .then((status) => {
-        setConfig(status);
-        if (!status.paymentConfigured) setPayment("cod");
-      })
+      .then(setConfig)
       .catch(() => setConfig(null));
   }, []);
 
@@ -547,7 +544,7 @@ export default function CheckoutPage() {
           <section>
             <h2 className="font-display text-xl uppercase tracking-tight">Metode Pembayaran</h2>
             <div className="mt-4 flex flex-col gap-2.5">
-              {config?.paymentConfigured && (
+              {config?.paymentConfigured ? (
                 <>
                   <label
                     className={`flex cursor-pointer items-center gap-3 border-2 px-4 py-3 transition-colors ${
@@ -603,25 +600,12 @@ export default function CheckoutPage() {
                     )}
                   </label>
                 </>
-              )}
-              <label
-                className={`flex cursor-pointer items-center gap-3 border-2 px-4 py-3 transition-colors ${
-                  payment === "cod" ? "border-accent bg-accent/10" : "border-border hover:border-accent/50"
-                }`}
-              >
-                <input
-                  type="radio"
-                  name="payment"
-                  checked={payment === "cod"}
-                  onChange={() => setPayment("cod")}
-                  className="h-4 w-4 accent-[var(--accent)]"
-                />
-                <span className="text-sm font-semibold">COD (Bayar di Tempat)</span>
-              </label>
-              {!config?.paymentConfigured && config && (
-                <p className="text-xs text-muted">
-                  Pembayaran online belum aktif — sementara cuma bisa COD.
-                </p>
+              ) : (
+                config && (
+                  <p className="text-xs text-muted">
+                    Pembayaran online belum aktif. Hubungi kami buat lanjut pesanan ya.
+                  </p>
+                )
               )}
             </div>
           </section>

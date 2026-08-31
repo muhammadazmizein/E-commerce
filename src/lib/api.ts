@@ -1,6 +1,15 @@
 import type { Product } from "@/lib/products";
 
-const API_URL = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:8080";
+// Server-side rendering runs inside the same Next.js process as the
+// deployed box, so it should hit the backend directly over localhost
+// instead of round-tripping out through the public URL and back in —
+// that hairpin path isn't guaranteed to work on every VPS/NAT setup, and
+// is pointless latency even when it does. The browser (client-side fetch)
+// has no such shortcut and always needs the public NEXT_PUBLIC_API_URL.
+const API_URL =
+  typeof window === "undefined"
+    ? (process.env.INTERNAL_API_URL ?? process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:8080")
+    : (process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:8080");
 
 export async function getProducts(category?: string): Promise<Product[]> {
   const url = new URL("/products", API_URL);

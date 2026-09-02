@@ -43,6 +43,7 @@ export default function ProductReviews({ productId }: { productId: string }) {
   useEffect(() => {
     getReviews(productId)
       .then(setSummary)
+      .catch(() => setSummary(null))
       .finally(() => setLoading(false));
   }, [productId]);
 

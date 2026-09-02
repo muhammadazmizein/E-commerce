@@ -86,11 +86,15 @@ export default function AccountPage() {
     if (!user) return;
     getAddresses()
       .then(setAddresses)
+      .catch(() => setAddresses([]))
       .finally(() => setLoadingAddresses(false));
     getMyOrders()
       .then(setOrders)
+      .catch(() => setOrders([]))
       .finally(() => setLoadingOrders(false));
-    getProducts().then(setProducts);
+    getProducts()
+      .then(setProducts)
+      .catch(() => setProducts([]));
   }, [user]);
 
   const productMap = useMemo(() => new Map(products.map((p) => [p.id, p])), [products]);

@@ -134,12 +134,14 @@ export default function CheckoutPage() {
 
   useEffect(() => {
     if (!user) return;
-    getAddresses().then((addresses) => {
-      setFields((f) => ({ ...f, name: f.name || user.name, email: f.email || user.email }));
-      setSavedAddresses(addresses);
-      const def = addresses.find((a) => a.isDefault) ?? addresses[0];
-      if (def) applyAddress(def);
-    });
+    getAddresses()
+      .then((addresses) => {
+        setFields((f) => ({ ...f, name: f.name || user.name, email: f.email || user.email }));
+        setSavedAddresses(addresses);
+        const def = addresses.find((a) => a.isDefault) ?? addresses[0];
+        if (def) applyAddress(def);
+      })
+      .catch(() => setSavedAddresses([]));
   }, [user]);
 
   function applyAddress(a: Address) {

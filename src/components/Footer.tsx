@@ -9,9 +9,9 @@ const links = [
 export default function Footer() {
   return (
     <footer className="mt-auto border-t border-border bg-surface">
-      <div className="mx-auto flex max-w-7xl flex-col gap-4 px-4 py-6 text-xs text-muted sm:flex-row sm:items-center sm:justify-between sm:px-6 lg:px-8">
-        <p className="font-display text-sm tracking-tight text-foreground">
-          © 2026 HEYFREAK<span className="font-normal">. Semua hak dilindungi.</span>
+      <div className="mx-auto flex max-w-7xl flex-col gap-3 px-4 py-4 text-xs text-muted sm:flex-row sm:items-center sm:justify-between sm:px-6 lg:px-8">
+        <p className="text-xs tracking-tight text-foreground">
+          © 2026 HEYFREAK<span className="font-normal text-muted">. Semua hak dilindungi.</span>
         </p>
 
         <div className="flex flex-wrap items-center gap-x-5 gap-y-2">
@@ -22,12 +22,12 @@ export default function Footer() {
           ))}
         </div>
 
-        <div className="flex gap-2.5">
+        <div className="flex gap-2">
           {["IG", "TT", "SH"].map((s) => (
             <a
               key={s}
               href="#"
-              className="btn-tag flex h-8 w-8 items-center justify-center border border-border text-[11px] font-bold text-foreground transition-colors hover:border-accent hover:text-accent"
+              className="btn-tag flex h-6 w-6 items-center justify-center border border-border text-[10px] font-bold text-foreground transition-colors hover:border-accent hover:text-accent"
             >
               {s}
             </a>

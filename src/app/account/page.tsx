@@ -213,7 +213,7 @@ export default function AccountPage() {
 
       <div className="mx-auto max-w-4xl px-4 py-10 sm:px-6">
         <Breadcrumb items={[{ label: tBreadcrumb("home"), href: "/" }, { label: t("myAccount") }]} />
-        <h1 className="mt-4 font-display text-3xl uppercase tracking-tight">{t("myAccount")}</h1>
+        <h1 className="mt-4 font-display text-3xl uppercase tracking-wide">{t("myAccount")}</h1>
         <p className="mt-1 text-muted">
           {user.name} — {user.email}
         </p>
@@ -243,7 +243,7 @@ export default function AccountPage() {
         {tab === "alamat" && (
           <div className="mt-8">
             <div className="flex items-center justify-between">
-              <h2 className="font-display text-xl uppercase tracking-tight">{t("savedAddresses")}</h2>
+              <h2 className="font-display text-xl uppercase tracking-wide">{t("savedAddresses")}</h2>
               <button
                 onClick={openNewForm}
                 className="btn-tag border border-border px-4 py-2 text-xs font-bold uppercase tracking-wide transition-colors hover:border-accent hover:text-accent"
@@ -267,7 +267,7 @@ export default function AccountPage() {
                   >
                     <div className="flex items-start justify-between gap-2">
                       <div className="flex items-center gap-2">
-                        <span className="font-display text-sm uppercase tracking-tight">{a.label}</span>
+                        <span className="font-display text-sm uppercase tracking-wide">{a.label}</span>
                         {a.isDefault && (
                           <span className="btn-tag bg-accent px-2 py-0.5 text-[10px] font-bold uppercase text-accent-foreground">
                             {t("default")}
@@ -299,7 +299,7 @@ export default function AccountPage() {
                 onInvalidCapture={() => toast(tAuth("requiredFieldsError"), "error")}
                 className="clip-tag mt-8 flex flex-col gap-4 border border-border bg-surface p-5"
               >
-                <h3 className="font-display text-lg uppercase tracking-tight">
+                <h3 className="font-display text-lg uppercase tracking-wide">
                   {editingId ? t("editAddress") : t("newAddress")}
                 </h3>
                 <div className="grid gap-4 sm:grid-cols-2">
@@ -398,7 +398,7 @@ export default function AccountPage() {
 
         {tab === "wishlist" && (
           <div className="mt-8">
-            <h2 className="font-display text-xl uppercase tracking-tight">{t("wishlist")}</h2>
+            <h2 className="font-display text-xl uppercase tracking-wide">{t("wishlist")}</h2>
             {loadingWishlist ? (
               <p className="mt-6 text-sm text-muted">{t("loadingWishlist")}</p>
             ) : wishlistItems.length === 0 ? (
@@ -417,7 +417,7 @@ export default function AccountPage() {
 
         {tab === "transaksi" && (
           <div className="mt-8">
-            <h2 className="font-display text-xl uppercase tracking-tight">{t("orderList")}</h2>
+            <h2 className="font-display text-xl uppercase tracking-wide">{t("orderList")}</h2>
 
             <div className="mt-6 flex flex-col gap-3 sm:flex-row sm:flex-wrap sm:items-center">
               <div className="relative flex-1 sm:min-w-[220px]">
@@ -540,7 +540,7 @@ export default function AccountPage() {
                           </div>
                           <div className="shrink-0 text-right">
                             <p className="text-xs text-muted">{t("totalSpent")}</p>
-                            <p className="font-display text-base tracking-tight">{formatIDR(o.total)}</p>
+                            <p className="font-mono text-base font-bold">{formatIDR(o.total)}</p>
                           </div>
                         </div>
                       )}

@@ -75,7 +75,7 @@ export default function ProductReviews({ productId }: { productId: string }) {
 
   return (
     <section className="mt-16 border-t border-border pt-10">
-      <h2 className="font-display text-2xl uppercase tracking-tight">
+      <h2 className="font-display text-2xl uppercase tracking-wide">
         <span className="text-accent">/</span> {t("title")}
       </h2>
 
@@ -84,7 +84,7 @@ export default function ProductReviews({ productId }: { productId: string }) {
       ) : (
         <>
           <div className="mt-4 flex w-fit items-center gap-4 border border-border p-4">
-            <span className="font-display text-4xl tracking-tight text-accent">
+            <span className="font-mono text-4xl font-bold text-accent">
               {summary && summary.count > 0 ? summary.average.toFixed(1) : "—"}
             </span>
             <div>
@@ -100,7 +100,7 @@ export default function ProductReviews({ productId }: { productId: string }) {
                 onInvalidCapture={() => toast(tAuth("requiredFieldsError"), "error")}
                 className="flex flex-col gap-3"
               >
-                <h3 className="font-display text-sm uppercase tracking-tight">{t("writeReview")}</h3>
+                <h3 className="font-display text-sm uppercase tracking-wide">{t("writeReview")}</h3>
                 <StarPicker value={rating} onChange={setRating} rateAria={(n) => t("rateAria", { n })} />
                 <textarea
                   required

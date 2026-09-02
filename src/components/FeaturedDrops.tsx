@@ -17,7 +17,7 @@ export default async function FeaturedDrops({ products }: { products: Product[] 
           <span className="h-px w-6 bg-red-600" />
           {t("kicker")}
         </p>
-        <h2 className="mt-2 font-[family-name:var(--font-editorial)] text-4xl uppercase tracking-wide text-white sm:text-5xl">
+        <h2 className="mt-2 font-[family-name:var(--font-editorial)] text-2xl uppercase tracking-wide text-white sm:text-3xl">
           {t("title")}
         </h2>
       </div>
@@ -42,7 +42,7 @@ export default async function FeaturedDrops({ products }: { products: Product[] 
               />
             </div>
             <p className="mt-3 text-sm font-semibold uppercase leading-snug text-white">{product.name}</p>
-            <p className="mt-1 text-sm text-white/60">{formatIDR(product.price)}</p>
+            <p className="mt-1 font-mono text-sm text-white/60">{formatIDR(product.price)}</p>
           </Link>
         ))}
       </div>

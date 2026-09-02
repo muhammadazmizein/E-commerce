@@ -30,7 +30,7 @@ export default function RelatedProducts({ products }: { products: Product[] }) {
   return (
     <section className="mt-16 border-t border-border pt-10">
       <div className="mb-6 flex items-center justify-between">
-        <h2 className="font-display text-xl uppercase tracking-tight sm:text-2xl">
+        <h2 className="font-display text-xl uppercase tracking-wide sm:text-2xl">
           <span className="text-accent">/</span> {t("title")}
         </h2>
         <div className="hidden gap-2 sm:flex">

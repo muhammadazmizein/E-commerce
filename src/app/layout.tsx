@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { Inter, Bebas_Neue } from "next/font/google";
+import { Cinzel, Space_Mono } from "next/font/google";
 import { NextIntlClientProvider } from "next-intl";
 import { getLocale, getMessages } from "next-intl/server";
 import { CartProvider } from "@/lib/cart-context";
@@ -9,18 +9,18 @@ import { WishlistProvider } from "@/lib/wishlist-context";
 import CartDrawer from "@/components/CartDrawer";
 import "./globals.css";
 
-const inter = Inter({
-  variable: "--font-inter",
-  weight: ["300", "400", "500", "600", "700", "900"],
+// Body/UI text uses the system Helvetica/Arial stack directly (see
+// globals.css) — no webfont needed there. Cinzel is the display serif for
+// every heading, Space Mono for prices and other numeric/technical text.
+const cinzel = Cinzel({
+  variable: "--font-headline",
+  weight: ["700", "900"],
   subsets: ["latin"],
 });
 
-// Bold condensed display face for the hero/featured-drops "campaign"
-// sections only — a punchier, more streetwear-native shout than the plain
-// grotesque used for the rest of the shop.
-const bebasNeue = Bebas_Neue({
-  variable: "--font-headline",
-  weight: "400",
+const spaceMono = Space_Mono({
+  variable: "--font-space-mono",
+  weight: ["400", "700"],
   subsets: ["latin"],
 });
 
@@ -37,7 +37,7 @@ export default async function RootLayout({ children }: LayoutProps<"/">) {
   return (
     <html
       lang={locale}
-      className={`${inter.variable} ${bebasNeue.variable} h-full antialiased`}
+      className={`${cinzel.variable} ${spaceMono.variable} h-full antialiased`}
     >
       <body className="min-h-full flex flex-col bg-background text-foreground">
         <NextIntlClientProvider locale={locale} messages={messages}>

@@ -24,16 +24,17 @@
   --color-accent-foreground: var(--accent-foreground);
   --color-pop: var(--pop);
   --color-pop-foreground: var(--pop-foreground);
-  --font-display: var(--font-inter);
-  --font-sans: var(--font-inter);
+  --font-display: var(--font-headline);
+  --font-sans: Helvetica, Arial, sans-serif;
   --font-editorial: var(--font-headline);
+  --font-mono: var(--font-space-mono);
 }
 
 body {
   position: relative;
   background: var(--background);
   color: var(--foreground);
-  font-family: var(--font-sans), Helvetica, Arial, sans-serif;
+  font-family: var(--font-sans);
 }
 
 ::selection {

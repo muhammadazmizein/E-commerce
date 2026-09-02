@@ -92,7 +92,7 @@ export default async function OrderStatusPage({
               <p className="mt-1 text-sm text-muted">{t("originalStreetwear")}</p>
             </div>
             <div className="text-right">
-              <h1 className="font-display text-2xl uppercase tracking-tight">{t("invoice")}</h1>
+              <h1 className="font-display text-2xl uppercase tracking-wide">{t("invoice")}</h1>
               <p className="mt-1 text-sm text-muted">#{order.id}</p>
               <p className="text-sm text-muted">{orderDate}</p>
             </div>
@@ -151,8 +151,8 @@ export default async function OrderStatusPage({
                     <td className="py-3 font-semibold text-foreground">{item.productName}</td>
                     <td className="py-3 text-center text-muted">{item.size ?? "—"}</td>
                     <td className="py-3 text-center text-muted">{item.qty}</td>
-                    <td className="py-3 text-right text-muted">{formatIDR(item.price)}</td>
-                    <td className="py-3 text-right font-semibold text-foreground">
+                    <td className="py-3 text-right font-mono text-muted">{formatIDR(item.price)}</td>
+                    <td className="py-3 text-right font-mono font-semibold text-foreground">
                       {formatIDR(item.price * item.qty)}
                     </td>
                   </tr>
@@ -165,15 +165,15 @@ export default async function OrderStatusPage({
             <div className="flex w-full max-w-xs flex-col gap-2 text-sm sm:max-w-sm">
               <div className="flex justify-between text-muted">
                 <span>{t("subtotal")}</span>
-                <span className="text-foreground">{formatIDR(order.subtotal)}</span>
+                <span className="font-mono text-foreground">{formatIDR(order.subtotal)}</span>
               </div>
               <div className="flex justify-between text-muted">
                 <span>{t("shipping")}</span>
-                <span className="text-foreground">{formatIDR(order.shipping)}</span>
+                <span className="font-mono text-foreground">{formatIDR(order.shipping)}</span>
               </div>
               <div className="flex justify-between border-t border-border pt-2 text-base font-bold">
                 <span>{t("total")}</span>
-                <span className="font-display text-lg">{formatIDR(order.total)}</span>
+                <span className="font-mono text-lg font-bold">{formatIDR(order.total)}</span>
               </div>
             </div>
           </div>

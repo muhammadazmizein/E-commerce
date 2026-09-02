@@ -13,7 +13,7 @@ export default function ProductCard({
   const href = `/product/${product.id}`;
 
   return (
-    <Link href={href} className="group flex h-full flex-col">
+    <Link href={href} className="group flex h-full min-w-0 flex-col">
       <div className="relative aspect-[4/5] overflow-hidden bg-surface-2">
         <Image
           src={product.image}
@@ -32,10 +32,10 @@ export default function ProductCard({
       </div>
       <div className="mt-3 flex flex-col gap-1">
         <h3 className="line-clamp-2 text-sm text-foreground">{product.name}</h3>
-        <div className="flex items-center gap-2">
-          <span className="text-sm text-foreground">{formatIDR(product.price)}</span>
+        <div className="flex flex-wrap items-center gap-x-2 gap-y-0.5">
+          <span className="font-mono text-xs text-foreground">{formatIDR(product.price)}</span>
           {product.compareAt && (
-            <span className="text-sm text-muted line-through">{formatIDR(product.compareAt)}</span>
+            <span className="font-mono text-xs text-muted line-through">{formatIDR(product.compareAt)}</span>
           )}
         </div>
       </div>

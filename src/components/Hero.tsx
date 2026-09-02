@@ -58,7 +58,7 @@ export default function Hero({ siteImages }: { siteImages: Record<string, SiteIm
           {t("tag")}
         </p>
         <h1
-          className="mt-4 max-w-3xl font-[family-name:var(--font-editorial)] text-5xl uppercase leading-[0.95] tracking-wide text-white sm:text-7xl lg:text-8xl"
+          className="mt-4 max-w-3xl font-[family-name:var(--font-editorial)] text-4xl uppercase leading-[0.95] tracking-wide text-white sm:text-5xl lg:text-6xl"
         >
           Stay Weird. Stay Freak.
         </h1>

@@ -319,7 +319,7 @@ export default function CheckoutPage() {
     const bank = BANKS.find((b) => b.code === (activePayment.type === "va" ? activePayment.bankCode : ""));
     return (
       <main className="mx-auto flex min-h-screen max-w-lg flex-col items-center justify-center px-4 py-16 text-center sm:px-6">
-        <p className="font-display text-2xl uppercase tracking-tight">
+        <p className="font-display text-2xl uppercase tracking-wide">
           {activePayment.type === "qris" ? t("scanQris") : t("transferToVA")}
         </p>
         <p className="mt-1 text-sm text-muted">{t("orderNumber", { id: activePayment.orderId })}</p>
@@ -331,7 +331,7 @@ export default function CheckoutPage() {
         ) : (
           <div className="clip-tag mt-6 w-full border border-border bg-surface p-6">
             <p className="text-xs uppercase tracking-wide text-muted">{bank?.name ?? activePayment.bankCode}</p>
-            <p className="mt-2 font-display text-3xl tracking-tight">{activePayment.accountNumber}</p>
+            <p className="mt-2 font-mono text-3xl font-bold tracking-wide">{activePayment.accountNumber}</p>
             <button
               onClick={() => copyAccountNumber(activePayment.accountNumber)}
               className="btn-tag mt-3 border border-border px-4 py-2 text-xs font-bold uppercase tracking-wide hover:border-accent hover:text-accent"
@@ -343,7 +343,7 @@ export default function CheckoutPage() {
 
         {secondsLeft !== null && (
           <p
-            className={`mt-4 font-display text-2xl tracking-tight ${
+            className={`mt-4 font-mono text-2xl font-bold tracking-wide ${
               secondsLeft === 0 ? "text-red-500" : "text-foreground"
             }`}
           >
@@ -390,7 +390,7 @@ export default function CheckoutPage() {
             <path d="M20 6 9 17l-5-5" />
           </svg>
         </span>
-        <h1 className="mt-6 font-display text-3xl uppercase tracking-tight">{t("orderReceived")}</h1>
+        <h1 className="mt-6 font-display text-3xl uppercase tracking-wide">{t("orderReceived")}</h1>
         <p className="mt-3 text-muted">
           {t("yourOrderNumber")} <span className="font-semibold text-foreground">{orderId}</span>
         </p>
@@ -408,7 +408,7 @@ export default function CheckoutPage() {
   if (items.length === 0) {
     return (
       <main className="mx-auto flex min-h-screen max-w-lg flex-col items-center justify-center px-4 py-16 text-center sm:px-6">
-        <h1 className="font-display text-3xl uppercase tracking-tight">{t("emptyCartTitle")}</h1>
+        <h1 className="font-display text-3xl uppercase tracking-wide">{t("emptyCartTitle")}</h1>
         <p className="mt-3 text-muted">{t("emptyCartHint")}</p>
         <Link
           href="/"
@@ -445,7 +445,7 @@ export default function CheckoutPage() {
           className="flex flex-col gap-8 lg:col-span-7"
         >
           <section>
-            <h2 className="font-display text-xl uppercase tracking-tight">{t("buyerData")}</h2>
+            <h2 className="font-display text-xl uppercase tracking-wide">{t("buyerData")}</h2>
 
             {savedAddresses.length > 0 && (
               <div className="mt-4 flex flex-col gap-1.5 text-sm">
@@ -554,7 +554,7 @@ export default function CheckoutPage() {
                               </span>
                             </span>
                           </span>
-                          <span className="text-sm font-semibold">{formatIDR(s.cost)}</span>
+                          <span className="font-mono text-sm font-semibold">{formatIDR(s.cost)}</span>
                         </label>
                       ))}
                     </div>
@@ -576,7 +576,7 @@ export default function CheckoutPage() {
           </section>
 
           <section>
-            <h2 className="font-display text-xl uppercase tracking-tight">{t("paymentMethod")}</h2>
+            <h2 className="font-display text-xl uppercase tracking-wide">{t("paymentMethod")}</h2>
             <div className="mt-4 flex flex-col gap-2.5">
               {config?.paymentConfigured ? (
                 <>
@@ -645,7 +645,7 @@ export default function CheckoutPage() {
 
         <aside className="lg:col-span-5">
           <div className="clip-tag border border-border bg-surface p-5">
-            <h2 className="font-display text-xl uppercase tracking-tight">{t("orderSummary")}</h2>
+            <h2 className="font-display text-xl uppercase tracking-wide">{t("orderSummary")}</h2>
             <ul className="mt-4 flex flex-col gap-4">
               {items.map((line) => (
                 <li key={`${line.productId}-${line.size ?? "x"}`} className="flex gap-3">
@@ -659,7 +659,7 @@ export default function CheckoutPage() {
                     <p className="text-sm font-semibold leading-snug">{line.name}</p>
                     {line.size && <p className="text-xs text-muted">Size: {line.size}</p>}
                   </div>
-                  <span className="text-sm font-semibold">{formatIDR(line.price * line.qty)}</span>
+                  <span className="font-mono text-sm font-semibold">{formatIDR(line.price * line.qty)}</span>
                 </li>
               ))}
             </ul>
@@ -667,18 +667,18 @@ export default function CheckoutPage() {
             <div className="mt-5 flex flex-col gap-2 border-t border-border pt-4 text-sm">
               <div className="flex justify-between text-muted">
                 <span>{t("subtotal")}</span>
-                <span className="text-foreground">{formatIDR(subtotal)}</span>
+                <span className="font-mono text-foreground">{formatIDR(subtotal)}</span>
               </div>
               <div className="flex justify-between text-muted">
                 <span>
                   {t("shipping")}{" "}
                   {selectedService ? `(${selectedService.courier} ${selectedService.service})` : t("shippingEstimate")}
                 </span>
-                <span className="text-foreground">{formatIDR(shipping)}</span>
+                <span className="font-mono text-foreground">{formatIDR(shipping)}</span>
               </div>
               <div className="flex justify-between border-t border-border pt-2 text-base font-bold">
                 <span>{t("total")}</span>
-                <span className="font-display text-lg">{formatIDR(total)}</span>
+                <span className="font-mono text-lg font-bold">{formatIDR(total)}</span>
               </div>
             </div>
 

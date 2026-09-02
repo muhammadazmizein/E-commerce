@@ -45,7 +45,7 @@ export default function CartDrawer() {
         }`}
       >
         <div className="flex items-center justify-between border-b border-border px-5 py-4">
-          <h2 className="font-display text-xl uppercase tracking-tight">{t("title")}</h2>
+          <h2 className="font-display text-xl uppercase tracking-wide">{t("title")}</h2>
           <button
             aria-label={t("close")}
             onClick={closeCart}
@@ -59,7 +59,7 @@ export default function CartDrawer() {
 
         {items.length === 0 ? (
           <div className="flex flex-1 flex-col items-center justify-center gap-2 px-6 text-center">
-            <p className="font-display text-lg uppercase tracking-tight text-foreground">
+            <p className="font-display text-lg uppercase tracking-wide text-foreground">
               {t("empty")}
             </p>
             <p className="text-sm text-muted">{t("emptyHint")}</p>
@@ -122,7 +122,7 @@ export default function CartDrawer() {
                           +
                         </button>
                       </div>
-                      <span className="font-display text-sm tracking-tight">
+                      <span className="font-mono text-sm font-bold">
                         {formatIDR(line.price * line.qty)}
                       </span>
                     </div>
@@ -134,7 +134,7 @@ export default function CartDrawer() {
             <div className="border-t border-border px-5 py-5">
               <div className="flex items-center justify-between text-sm text-muted">
                 <span>{t("subtotal")}</span>
-                <span className="font-display text-lg text-accent">{formatIDR(subtotal)}</span>
+                <span className="font-mono text-lg font-bold text-accent">{formatIDR(subtotal)}</span>
               </div>
               <p className="mt-1 text-xs text-muted">{t("shippingNote")}</p>
               <Link

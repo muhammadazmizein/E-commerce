@@ -59,7 +59,7 @@ function LoginForm() {
             <span className="btn-tag inline-block border border-background px-3 py-1 text-xs font-bold uppercase tracking-widest">
               {t("memberArea")}
             </span>
-            <h1 className="mt-5 font-display text-6xl uppercase leading-[0.88] xl:text-7xl">
+            <h1 className="mt-5 font-display text-4xl uppercase leading-[0.95] tracking-wide xl:text-5xl">
               {t("loginHeadline").split("\n").map((line, i) => (
                 <span key={i}>
                   {i > 0 && <br />}
@@ -85,7 +85,7 @@ function LoginForm() {
           <span className="btn-tag mt-8 inline-block border border-accent px-3 py-1 text-xs font-bold uppercase tracking-widest text-accent lg:mt-0">
             {t("memberArea")}
           </span>
-          <h1 className="mt-4 font-display text-4xl uppercase tracking-tight sm:text-5xl">
+          <h1 className="mt-4 font-display text-4xl uppercase tracking-wide sm:text-5xl">
             {t("loginTitle")}
           </h1>
           <p className="mt-2 text-sm text-muted">

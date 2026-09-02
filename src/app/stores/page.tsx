@@ -24,7 +24,7 @@ export default async function StoresPage() {
       <main className="mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8">
         <Breadcrumb items={[{ label: tBreadcrumb("home"), href: "/" }, { label: t("breadcrumb") }]} />
         <div className="mt-6 text-center">
-          <h1 className="font-display text-3xl uppercase tracking-tight">{t("title")}</h1>
+          <h1 className="font-display text-3xl uppercase tracking-wide">{t("title")}</h1>
         </div>
         <div className="mt-8">
           <StoresGrid stores={STORES} />

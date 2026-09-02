@@ -264,7 +264,7 @@ export default function ProductsCatalog({
           }`}
         >
           <div className="flex items-center justify-between border-b border-border px-5 py-4">
-            <h2 className="font-display text-xl uppercase tracking-tight">{t("filter")}</h2>
+            <h2 className="font-display text-xl uppercase tracking-wide">{t("filter")}</h2>
             <button
               aria-label={t("closeFilter")}
               onClick={() => setMobileFiltersOpen(false)}
@@ -289,7 +289,7 @@ export default function ProductsCatalog({
 
       <div ref={listRef} className="lg:col-span-9">
         <div className="flex flex-wrap items-center justify-between gap-3 border-b border-border pb-5">
-          <h1 className="font-display text-2xl uppercase tracking-tight">
+          <h1 className="font-display text-2xl uppercase tracking-wide">
             {t("allProductsTitle")} <span className="text-base font-sans font-normal normal-case text-accent">({filtered.length})</span>
           </h1>
           <div className="flex items-center gap-2">

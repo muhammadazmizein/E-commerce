@@ -127,11 +127,11 @@ export default function ProductDetail({
           </h1>
 
           <div className="mt-3 flex items-baseline gap-2.5">
-            <span className="text-xl font-bold text-foreground">
+            <span className="font-mono text-xl font-bold text-foreground">
               {formatIDR(product.price)}
             </span>
             {product.compareAt && (
-              <span className="text-sm text-muted line-through">
+              <span className="font-mono text-sm text-muted line-through">
                 {formatIDR(product.compareAt)}
               </span>
             )}

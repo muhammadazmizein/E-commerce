@@ -258,11 +258,34 @@ export default function ProductDetail({
               </AccordionSection>
             )}
             <AccordionSection title="Shipping & Returns">
-              <p>
-                Ongkos kirim dihitung otomatis saat checkout sesuai kota tujuan. Ada masalah
-                dengan pesananmu? Hubungi kami lewat Instagram, TikTok, atau Shopee — link
-                ada di footer.
-              </p>
+              <div className="flex flex-col gap-4">
+                <div>
+                  <p className="font-semibold text-foreground">Kebijakan Pengiriman & Proses</p>
+                  <p className="mt-1.5">
+                    Pesanan diproses pada hari kerja, Senin sampai Sabtu. Pesanan yang masuk
+                    sebelum jam 19.00 WIB akan diproses di hari yang sama, sementara pesanan
+                    yang masuk setelah jam tersebut diproses pada hari kerja berikutnya. Ongkos
+                    kirim dihitung otomatis saat checkout sesuai kota tujuan.
+                  </p>
+                </div>
+                <div>
+                  <p className="font-semibold text-foreground">Kebijakan Retur & Tukar Barang</p>
+                  <ul className="mt-1.5 list-disc space-y-1.5 pl-4">
+                    <li>
+                      Penukaran ukuran atau permintaan retur hanya diterima maksimal 3 hari
+                      setelah barang diterima.
+                    </li>
+                    <li>
+                      Pelanggan wajib menyertakan video unboxing lengkap sebagai bukti sah saat
+                      mengajukan retur atau penukaran.
+                    </li>
+                  </ul>
+                </div>
+                <p>
+                  Ada masalah dengan pesananmu? Hubungi kami lewat Instagram, TikTok, atau
+                  Shopee — link ada di footer.
+                </p>
+              </div>
             </AccordionSection>
           </div>
         </div>

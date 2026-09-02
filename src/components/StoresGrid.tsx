@@ -2,10 +2,12 @@
 
 import Image from "next/image";
 import { useMemo, useState } from "react";
+import { useTranslations } from "next-intl";
 import Select from "@/components/Select";
 import { getRegions, type Store } from "@/lib/stores";
 
 export default function StoresGrid({ stores }: { stores: Store[] }) {
+  const t = useTranslations("stores");
   const regions = useMemo(() => getRegions(stores), [stores]);
   const [region, setRegion] = useState("all");
   const filtered = region === "all" ? stores : stores.filter((s) => s.region === region);
@@ -17,7 +19,7 @@ export default function StoresGrid({ stores }: { stores: Store[] }) {
           value={region}
           onChange={setRegion}
           options={[
-            { value: "all", label: "Semua Wilayah" },
+            { value: "all", label: t("allRegions") },
             ...regions.map((r) => ({ value: r, label: r })),
           ]}
         />
@@ -25,7 +27,7 @@ export default function StoresGrid({ stores }: { stores: Store[] }) {
 
       {filtered.length === 0 ? (
         <p className="mt-10 border border-border bg-surface px-4 py-16 text-center text-sm text-muted">
-          Belum ada toko di wilayah ini.
+          {t("empty")}
         </p>
       ) : (
         <div className="mt-10 grid grid-cols-2 gap-5 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5">

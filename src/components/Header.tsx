@@ -3,17 +3,19 @@
 import { useEffect, useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
+import { useTranslations } from "next-intl";
 import { useCart } from "@/lib/cart-context";
 import { useAuth } from "@/lib/auth-context";
 import Logo from "@/components/Logo";
-
-const navLinks = [
-  { label: "New Drop", href: "/#drop" },
-  { label: "Our Collections", href: "/products" },
-  { label: "Store", href: "/stores" },
-];
+import LanguageSwitcher from "@/components/LanguageSwitcher";
 
 export default function Header() {
+  const t = useTranslations("nav");
+  const navLinks = [
+    { label: t("newDrop"), href: "/#drop" },
+    { label: t("ourCollections"), href: "/products" },
+    { label: t("store"), href: "/stores" },
+  ];
   const { count, openCart } = useCart();
   const { user, isLoading } = useAuth();
   const router = useRouter();
@@ -58,7 +60,7 @@ export default function Header() {
         <div className="flex items-center">
           <button
             type="button"
-            aria-label="Buka menu"
+            aria-label={t("openMenu")}
             onClick={() => setMobileMenuOpen(true)}
             className="mr-1 flex h-11 w-11 items-center justify-center text-foreground md:hidden"
           >
@@ -107,12 +109,12 @@ export default function Header() {
                 value={query}
                 onChange={(e) => setQuery(e.target.value)}
                 onBlur={() => !query && setSearchOpen(false)}
-                placeholder="Cari produk..."
+                placeholder={t("searchPlaceholder")}
                 className="h-11 w-40 bg-transparent px-3 text-sm text-foreground outline-none placeholder:text-muted"
               />
               <button
                 type="submit"
-                aria-label="Cari"
+                aria-label={t("search")}
                 className="flex h-11 w-11 items-center justify-center text-foreground transition-colors hover:bg-surface-2"
               >
                 <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
@@ -124,7 +126,7 @@ export default function Header() {
           ) : (
             <button
               type="button"
-              aria-label="Cari"
+              aria-label={t("search")}
               onClick={() => setSearchOpen(true)}
               className="hidden h-11 w-11 items-center justify-center border-l border-border text-foreground transition-colors hover:bg-surface-2 sm:flex"
             >
@@ -143,9 +145,10 @@ export default function Header() {
                 <circle cx="12" cy="8" r="4" />
                 <path d="M4 20c0-4.4 3.6-8 8-8s8 3.6 8 8" />
               </svg>
-              {user ? user.name.split(" ")[0] : "Masuk"}
+              {user ? user.name.split(" ")[0] : t("login")}
             </Link>
           )}
+          <LanguageSwitcher className="my-auto hidden sm:flex" />
           <button
             onClick={openCart}
             className="flex h-11 items-center gap-2 border-l border-border pl-4 pr-3 text-xs font-bold uppercase tracking-widest text-foreground transition-colors hover:bg-surface-2"
@@ -156,7 +159,7 @@ export default function Header() {
               <circle cx="9" cy="20" r="1" />
               <circle cx="18" cy="20" r="1" />
             </svg>
-            <span className="hidden sm:inline">Keranjang</span>
+            <span className="hidden sm:inline">{t("cart")}</span>
             {count > 0 && (
               <span className="btn-tag flex h-5 min-w-5 items-center justify-center bg-pop px-1 text-xs font-bold text-pop-foreground">
                 {count}
@@ -193,7 +196,7 @@ export default function Header() {
           <div className="flex items-center justify-between border-b border-border px-5 py-4">
             <Logo className="h-6 w-auto" />
             <button
-              aria-label="Tutup menu"
+              aria-label={t("closeMenu")}
               onClick={() => setMobileMenuOpen(false)}
               className="btn-tag flex h-9 w-9 items-center justify-center border border-border text-foreground transition-colors hover:border-accent hover:text-accent"
             >
@@ -211,7 +214,7 @@ export default function Header() {
             <input
               value={mobileQuery}
               onChange={(e) => setMobileQuery(e.target.value)}
-              placeholder="Cari produk..."
+              placeholder={t("searchPlaceholder")}
               className="w-full bg-transparent text-sm text-foreground outline-none placeholder:text-muted"
             />
           </form>
@@ -229,6 +232,10 @@ export default function Header() {
             ))}
           </nav>
 
+          <div className="border-t border-border px-5 py-4">
+            <LanguageSwitcher />
+          </div>
+
           {!isLoading && (
             <Link
               href={user ? "/account" : "/login"}
@@ -239,7 +246,7 @@ export default function Header() {
                 <circle cx="12" cy="8" r="4" />
                 <path d="M4 20c0-4.4 3.6-8 8-8s8 3.6 8 8" />
               </svg>
-              {user ? user.name : "Masuk / Daftar"}
+              {user ? user.name : t("login")}
             </Link>
           )}
         </aside>

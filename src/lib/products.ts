@@ -15,14 +15,6 @@ export type Product = {
   stock: number;
 };
 
-export function badgeLabel(badge: NonNullable<Product["badge"]>) {
-  return badge
-    .toLowerCase()
-    .split(" ")
-    .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
-    .join(" ");
-}
-
 export function formatIDR(value: number) {
   return new Intl.NumberFormat("id-ID", {
     style: "currency",

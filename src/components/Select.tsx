@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useMemo, useRef, useState } from "react";
+import { useTranslations } from "next-intl";
 
 export type SelectOption = { value: string; label: string; disabled?: boolean };
 
@@ -34,6 +35,7 @@ export default function Select({
   searchable?: boolean;
   className?: string;
 }) {
+  const t = useTranslations("common");
   const [open, setOpen] = useState(false);
   const [query, setQuery] = useState("");
   const [highlighted, setHighlighted] = useState(0);
@@ -125,7 +127,7 @@ export default function Select({
         }`}
       >
         <span className={`truncate ${!selected ? "font-normal text-muted" : ""}`}>
-          {selected ? selected.label : (placeholder ?? "Pilih...")}
+          {selected ? selected.label : (placeholder ?? t("select"))}
         </span>
         <svg
           aria-hidden
@@ -154,7 +156,7 @@ export default function Select({
                 value={query}
                 onChange={(e) => setQuery(e.target.value)}
                 onKeyDown={handleListKeyDown}
-                placeholder="Cari..."
+                placeholder={t("search")}
                 className="w-full bg-transparent text-sm text-foreground outline-none placeholder:text-muted"
               />
             </div>
@@ -167,7 +169,7 @@ export default function Select({
             className="max-h-60 overflow-y-auto p-1.5 outline-none"
           >
             {filteredOptions.length === 0 ? (
-              <li className="px-3 py-2 text-sm text-muted">Tidak ada yang cocok</li>
+              <li className="px-3 py-2 text-sm text-muted">{t("noMatch")}</li>
             ) : (
               filteredOptions.map((o, idx) => (
                 <li key={o.value} role="option" aria-selected={o.value === value}>

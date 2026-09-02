@@ -1,6 +1,7 @@
 "use client";
 
 import { useRef } from "react";
+import { useTranslations } from "next-intl";
 import type { Product } from "@/lib/products";
 import ProductCard from "@/components/ProductCard";
 
@@ -17,6 +18,7 @@ function ArrowIcon({ direction }: { direction: "left" | "right" }) {
 }
 
 export default function RelatedProducts({ products }: { products: Product[] }) {
+  const t = useTranslations("relatedProducts");
   const scrollerRef = useRef<HTMLDivElement>(null);
 
   if (products.length === 0) return null;
@@ -29,18 +31,18 @@ export default function RelatedProducts({ products }: { products: Product[] }) {
     <section className="mt-16 border-t border-border pt-10">
       <div className="mb-6 flex items-center justify-between">
         <h2 className="font-display text-xl uppercase tracking-tight sm:text-2xl">
-          <span className="text-accent">/</span> Rekomendasi Produk Lainnya
+          <span className="text-accent">/</span> {t("title")}
         </h2>
         <div className="hidden gap-2 sm:flex">
           <button
-            aria-label="Geser ke kiri"
+            aria-label={t("scrollLeft")}
             onClick={() => scrollByAmount(-480)}
             className="btn-tag flex h-10 w-10 items-center justify-center border border-border bg-surface text-foreground transition-colors hover:border-accent hover:text-accent"
           >
             <ArrowIcon direction="left" />
           </button>
           <button
-            aria-label="Geser ke kanan"
+            aria-label={t("scrollRight")}
             onClick={() => scrollByAmount(480)}
             className="btn-tag flex h-10 w-10 items-center justify-center border border-border bg-surface text-foreground transition-colors hover:border-accent hover:text-accent"
           >

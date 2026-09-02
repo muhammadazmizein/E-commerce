@@ -3,6 +3,7 @@
 import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
+import { useTranslations } from "next-intl";
 import { formatIDR, type Product } from "@/lib/products";
 import { useCart } from "@/lib/cart-context";
 import { useWishlist } from "@/lib/wishlist-context";
@@ -45,6 +46,9 @@ export default function ProductDetail({
   product: Product;
   related?: Product[];
 }) {
+  const t = useTranslations("productDetail");
+  const tBreadcrumb = useTranslations("breadcrumb");
+  const tSizeChart = useTranslations("sizeChart");
   const router = useRouter();
   const soldOut = product.badge === "SOLD OUT" || product.stock <= 0;
   const lowStock = !soldOut && product.stock <= 5;
@@ -57,7 +61,17 @@ export default function ProductDetail({
   const wishlisted = isWishlisted(product.id);
 
   const needsSize = hasSizes && !size;
-  const sizeChart = hasSizes ? getSizeChart(product.category, product.sizes!) : null;
+  const sizeChart = hasSizes
+    ? getSizeChart(product.category, product.sizes!, {
+        size: tSizeChart("size"),
+        chest: tSizeChart("chest"),
+        length: tSizeChart("length"),
+        sleeve: tSizeChart("sleeve"),
+        waist: tSizeChart("waist"),
+        pantsLength: tSizeChart("pantsLength"),
+        thigh: tSizeChart("thigh"),
+      })
+    : null;
 
   function handleAddToCart() {
     if (soldOut || needsSize) return;
@@ -77,8 +91,8 @@ export default function ProductDetail({
       <div className="mb-6">
         <Breadcrumb
           items={[
-            { label: "Beranda", href: "/" },
-            { label: "Semua Produk", href: "/products" },
+            { label: tBreadcrumb("home"), href: "/" },
+            { label: tBreadcrumb("allProducts"), href: "/products" },
             { label: product.category, href: `/products?category=${encodeURIComponent(product.category)}` },
             { label: product.name },
           ]}
@@ -123,12 +137,16 @@ export default function ProductDetail({
             )}
           </div>
           <p className={`mt-2 text-xs font-medium ${soldOut || lowStock ? "text-red-500" : "text-muted"}`}>
-            {soldOut ? "Stok habis" : lowStock ? `Sisa ${product.stock} — buruan!` : `Stok tersedia: ${product.stock}`}
+            {soldOut
+              ? t("outOfStock")
+              : lowStock
+                ? t("lowStock", { stock: product.stock })
+                : t("inStock", { stock: product.stock })}
           </p>
 
           {hasSizes && (
             <div className="mt-5">
-              <p className="text-xs font-semibold text-foreground">Ukuran</p>
+              <p className="text-xs font-semibold text-foreground">{t("size")}</p>
               <div className="mt-2 flex flex-wrap gap-2">
                 {product.sizes!.map((s) => (
                   <button
@@ -148,10 +166,10 @@ export default function ProductDetail({
           )}
 
           <div className="mt-5">
-            <p className="text-xs font-semibold text-foreground">Jumlah</p>
+            <p className="text-xs font-semibold text-foreground">{t("quantity")}</p>
             <div className="mt-2 flex w-fit items-center border border-border">
               <button
-                aria-label="Kurangi jumlah"
+                aria-label={t("decreaseQty")}
                 onClick={() => setQty((q) => Math.max(1, q - 1))}
                 className="flex h-9 w-9 items-center justify-center text-base text-foreground hover:text-accent"
               >
@@ -159,7 +177,7 @@ export default function ProductDetail({
               </button>
               <span className="w-8 text-center text-sm font-medium">{qty}</span>
               <button
-                aria-label="Tambah jumlah"
+                aria-label={t("increaseQty")}
                 disabled={qty >= product.stock}
                 onClick={() => setQty((q) => Math.min(product.stock, q + 1))}
                 className="flex h-9 w-9 items-center justify-center text-base text-foreground hover:text-accent disabled:cursor-not-allowed disabled:text-muted"
@@ -176,11 +194,11 @@ export default function ProductDetail({
                 disabled={soldOut || needsSize}
                 className="flex h-11 flex-1 items-center justify-center border border-foreground text-xs font-semibold uppercase tracking-wide text-foreground transition-colors hover:bg-surface-2 disabled:cursor-not-allowed disabled:border-border disabled:text-muted"
               >
-                {soldOut ? "Stok Habis" : added ? "Ditambahkan ✓" : "Add to Cart"}
+                {soldOut ? t("outOfStockButton") : added ? t("added") : t("addToCart")}
               </button>
               <button
                 type="button"
-                aria-label={wishlisted ? "Hapus dari wishlist" : "Simpan ke wishlist"}
+                aria-label={wishlisted ? t("removeFromWishlist") : t("saveToWishlist")}
                 onClick={() => toggle(product)}
                 className={`flex h-11 w-11 shrink-0 items-center justify-center border transition-colors ${
                   wishlisted ? "border-red-400 text-red-500" : "border-border text-foreground hover:border-red-400 hover:text-red-500"
@@ -196,15 +214,15 @@ export default function ProductDetail({
               disabled={soldOut || needsSize}
               className="flex h-11 items-center justify-center bg-foreground text-xs font-semibold uppercase tracking-wide text-background transition-opacity hover:opacity-90 disabled:cursor-not-allowed disabled:bg-surface-2 disabled:text-muted"
             >
-              Buy It Now
+              {t("buyItNow")}
             </button>
           </div>
           {needsSize && !soldOut && (
-            <p className="mt-2 text-xs text-red-500">Pilih ukuran dulu ya.</p>
+            <p className="mt-2 text-xs text-red-500">{t("pickSizeFirst")}</p>
           )}
 
           <div className="mt-8">
-            <AccordionSection title="Detail">
+            <AccordionSection title={t("detail")}>
               {product.description && <p>{product.description}</p>}
               {product.highlights && product.highlights.length > 0 && (
                 <ul className="mt-3 list-disc space-y-1.5 pl-4">
@@ -217,7 +235,7 @@ export default function ProductDetail({
               )}
             </AccordionSection>
             {hasSizes && (
-              <AccordionSection title="Panduan Ukuran">
+              <AccordionSection title={t("sizeGuide")}>
                 {sizeChart ? (
                   <>
                     <div className="overflow-x-auto">
@@ -245,46 +263,27 @@ export default function ProductDetail({
                         </tbody>
                       </table>
                     </div>
-                    <p className="mt-3 text-xs text-muted">
-                      Ukuran dalam cm, diukur secara manual — toleransi ±2 cm.
-                    </p>
+                    <p className="mt-3 text-xs text-muted">{t("sizeGuideNote")}</p>
                   </>
                 ) : (
-                  <p>
-                    Ukuran tersedia: {product.sizes!.join(", ")} — satu ukuran yang fit untuk
-                    kebanyakan orang, bisa disesuaikan sesuai kebutuhan.
-                  </p>
+                  <p>{t("sizeGuideFallback", { sizes: product.sizes!.join(", ") })}</p>
                 )}
               </AccordionSection>
             )}
-            <AccordionSection title="Shipping & Returns">
+            <AccordionSection title={t("shippingReturns")}>
               <div className="flex flex-col gap-4">
                 <div>
-                  <p className="font-semibold text-foreground">Kebijakan Pengiriman & Proses</p>
-                  <p className="mt-1.5">
-                    Pesanan diproses pada hari kerja, Senin sampai Sabtu. Pesanan yang masuk
-                    sebelum jam 19.00 WIB akan diproses di hari yang sama, sementara pesanan
-                    yang masuk setelah jam tersebut diproses pada hari kerja berikutnya. Ongkos
-                    kirim dihitung otomatis saat checkout sesuai kota tujuan.
-                  </p>
+                  <p className="font-semibold text-foreground">{t("shippingPolicyTitle")}</p>
+                  <p className="mt-1.5">{t("shippingPolicyBody")}</p>
                 </div>
                 <div>
-                  <p className="font-semibold text-foreground">Kebijakan Retur & Tukar Barang</p>
+                  <p className="font-semibold text-foreground">{t("returnPolicyTitle")}</p>
                   <ul className="mt-1.5 list-disc space-y-1.5 pl-4">
-                    <li>
-                      Penukaran ukuran atau permintaan retur hanya diterima maksimal 3 hari
-                      setelah barang diterima.
-                    </li>
-                    <li>
-                      Pelanggan wajib menyertakan video unboxing lengkap sebagai bukti sah saat
-                      mengajukan retur atau penukaran.
-                    </li>
+                    <li>{t("returnPolicyItem1")}</li>
+                    <li>{t("returnPolicyItem2")}</li>
                   </ul>
                 </div>
-                <p>
-                  Ada masalah dengan pesananmu? Hubungi kami lewat Instagram, TikTok, atau
-                  Shopee — link ada di footer.
-                </p>
+                <p>{t("contactNote")}</p>
               </div>
             </AccordionSection>
           </div>

@@ -1,5 +1,7 @@
 import type { Metadata } from "next";
 import { Inter, Bebas_Neue } from "next/font/google";
+import { NextIntlClientProvider } from "next-intl";
+import { getLocale, getMessages } from "next-intl/server";
 import { CartProvider } from "@/lib/cart-context";
 import { AuthProvider } from "@/lib/auth-context";
 import { ToastProvider } from "@/lib/toast-context";
@@ -28,23 +30,28 @@ export const metadata: Metadata = {
     "HEYFREAK — kaos oversize cotton combed 24s, sablon plastisol, dan aksesoris statement. Desain original, stok terbatas.",
 };
 
-export default function RootLayout({ children }: LayoutProps<"/">) {
+export default async function RootLayout({ children }: LayoutProps<"/">) {
+  const locale = await getLocale();
+  const messages = await getMessages();
+
   return (
     <html
-      lang="id"
+      lang={locale}
       className={`${inter.variable} ${bebasNeue.variable} h-full antialiased`}
     >
       <body className="min-h-full flex flex-col bg-background text-foreground">
-        <ToastProvider>
-          <AuthProvider>
-            <WishlistProvider>
-              <CartProvider>
-                {children}
-                <CartDrawer />
-              </CartProvider>
-            </WishlistProvider>
-          </AuthProvider>
-        </ToastProvider>
+        <NextIntlClientProvider locale={locale} messages={messages}>
+          <ToastProvider>
+            <AuthProvider>
+              <WishlistProvider>
+                <CartProvider>
+                  {children}
+                  <CartDrawer />
+                </CartProvider>
+              </WishlistProvider>
+            </AuthProvider>
+          </ToastProvider>
+        </NextIntlClientProvider>
       </body>
     </html>
   );

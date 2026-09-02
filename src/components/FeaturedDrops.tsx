@@ -1,9 +1,11 @@
 import Image from "next/image";
 import Link from "next/link";
+import { getTranslations } from "next-intl/server";
 import type { Product } from "@/lib/products";
 import { formatIDR } from "@/lib/products";
 
-export default function FeaturedDrops({ products }: { products: Product[] }) {
+export default async function FeaturedDrops({ products }: { products: Product[] }) {
+  const t = await getTranslations("featuredDrops");
   const newDrops = products.filter((p) => p.badge === "NEW");
   const drops = (newDrops.length > 0 ? newDrops : products).slice(0, 8);
   if (drops.length === 0) return null;
@@ -13,10 +15,10 @@ export default function FeaturedDrops({ products }: { products: Product[] }) {
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
         <p className="flex items-center gap-2 text-xs font-semibold uppercase tracking-[0.2em] text-white/50">
           <span className="h-px w-6 bg-red-600" />
-          HEYFREAK — New Drop
+          {t("kicker")}
         </p>
         <h2 className="mt-2 font-[family-name:var(--font-editorial)] text-4xl uppercase tracking-wide text-white sm:text-5xl">
-          Featured Drops
+          {t("title")}
         </h2>
       </div>
 
@@ -29,7 +31,7 @@ export default function FeaturedDrops({ products }: { products: Product[] }) {
           >
             <div className="relative aspect-square overflow-hidden bg-surface-2">
               <span className="absolute left-0 top-0 z-10 bg-red-600 px-3 py-1 text-[11px] font-bold uppercase tracking-wide text-white">
-                Release
+                {t("release")}
               </span>
               <Image
                 src={product.image}

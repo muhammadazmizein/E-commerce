@@ -23,15 +23,25 @@ export type SizeChart = {
   rows: { size: string; values: string[] }[];
 };
 
-export function getSizeChart(category: string, sizes: string[]): SizeChart | null {
+export type SizeChartLabels = {
+  size: string;
+  chest: string;
+  length: string;
+  sleeve: string;
+  waist: string;
+  pantsLength: string;
+  thigh: string;
+};
+
+export function getSizeChart(category: string, sizes: string[], labels: SizeChartLabels): SizeChart | null {
   const isPants = category.toLowerCase() === "pants";
   const isApparel = ["t-shirt", "s-shirt", "polo"].includes(category.toLowerCase());
   if (!isPants && !isApparel) return null;
 
   const table = isPants ? PANTS_CM : APPAREL_CM;
   const columns = isPants
-    ? ["Ukuran", "Lingkar Pinggang (cm)", "Panjang (cm)", "Lingkar Paha (cm)"]
-    : ["Ukuran", "Lebar Dada (cm)", "Panjang Baju (cm)", "Panjang Lengan (cm)"];
+    ? [labels.size, labels.waist, labels.pantsLength, labels.thigh]
+    : [labels.size, labels.chest, labels.length, labels.sleeve];
 
   const rows = sizes
     .filter((s) => table[s.toUpperCase()])

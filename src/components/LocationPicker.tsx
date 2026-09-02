@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { useTranslations } from "next-intl";
 import { searchCities, type City } from "@/lib/api";
 import Select from "@/components/Select";
 
@@ -25,6 +26,7 @@ export default function LocationPicker({
   initialCityText?: string;
   onChange: (location: ResolvedLocation | null) => void;
 }) {
+  const t = useTranslations("locationPicker");
   const [kabKotaQuery, setKabKotaQuery] = useState("");
   const [kabKotaOptions, setKabKotaOptions] = useState<{ cityName: string; provinceName: string }[]>([]);
   const [isSearchingKabKota, setIsSearchingKabKota] = useState(false);
@@ -164,7 +166,7 @@ export default function LocationPicker({
     <div className="grid gap-4 sm:col-span-2 sm:grid-cols-2">
       <div className="relative flex flex-col gap-1.5 text-sm">
         <label className="flex flex-col gap-1.5">
-          <span className="font-semibold text-foreground">Kabupaten / Kota</span>
+          <span className="font-semibold text-foreground">{t("cityLabel")}</span>
           <input
             required
             value={kabKotaQuery}
@@ -181,14 +183,14 @@ export default function LocationPicker({
             onFocus={() => setKabKotaDropdownOpen(true)}
             onBlur={() => setTimeout(() => setKabKotaDropdownOpen(false), 150)}
             className="border border-border bg-surface px-3.5 py-2.5 text-foreground outline-none focus:border-accent"
-            placeholder="Ketik nama kabupaten/kota..."
+            placeholder={t("cityPlaceholder")}
             autoComplete="off"
           />
         </label>
         {kabKotaDropdownOpen && (isSearchingKabKota || kabKotaOptions.length > 0) && (
           <ul className="absolute top-full z-10 mt-1 flex max-h-56 w-full flex-col gap-1 overflow-y-auto border border-border bg-surface p-2 shadow-edge-lg">
             {isSearchingKabKota ? (
-              <li className="px-2 py-1.5 text-sm text-muted">Mencari...</li>
+              <li className="px-2 py-1.5 text-sm text-muted">{t("searching")}</li>
             ) : (
               kabKotaOptions.map((o) => (
                 <li key={`${o.cityName}-${o.provinceName}`}>
@@ -208,25 +210,25 @@ export default function LocationPicker({
       </div>
 
       <label className="flex flex-col gap-1.5 text-sm">
-        <span className="font-semibold text-foreground">Kecamatan</span>
+        <span className="font-semibold text-foreground">{t("districtLabel")}</span>
         <Select
           required
           value={selectedDistrict}
           onChange={handleDistrictPick}
           disabled={districtOptions.length === 0}
-          placeholder={isLoadingCityRows ? "Memuat..." : "-- Pilih kecamatan --"}
+          placeholder={isLoadingCityRows ? t("loading") : t("selectDistrict")}
           options={districtOptions.map((d) => ({ value: d, label: d }))}
         />
       </label>
 
       <label className="flex flex-col gap-1.5 text-sm sm:col-span-2">
-        <span className="font-semibold text-foreground">Kelurahan</span>
+        <span className="font-semibold text-foreground">{t("subdistrictLabel")}</span>
         <Select
           required
           value={selectedSubdistrictId}
           onChange={handleSubdistrictPick}
           disabled={subdistrictOptions.length === 0}
-          placeholder="-- Pilih kelurahan --"
+          placeholder={t("selectSubdistrict")}
           options={subdistrictOptions.map((s) => ({
             value: String(s.id),
             label: `${s.subdistrict_name} (${s.zip_code})`,

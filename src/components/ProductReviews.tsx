@@ -2,12 +2,13 @@
 
 import Link from "next/link";
 import { useEffect, useState, type FormEvent } from "react";
+import { useLocale, useTranslations } from "next-intl";
 import { useAuth } from "@/lib/auth-context";
 import { useToast } from "@/lib/toast-context";
 import { getReviews, createReview, type ReviewSummary } from "@/lib/api";
 import { Star, StarRow } from "@/components/StarRating";
 
-function StarPicker({ value, onChange }: { value: number; onChange: (n: number) => void }) {
+function StarPicker({ value, onChange, rateAria }: { value: number; onChange: (n: number) => void; rateAria: (n: number) => string }) {
   const [hover, setHover] = useState(0);
   return (
     <div className="flex items-center gap-1">
@@ -19,7 +20,7 @@ function StarPicker({ value, onChange }: { value: number; onChange: (n: number) 
           onMouseEnter={() => setHover(n)}
           onMouseLeave={() => setHover(0)}
           className="p-0.5"
-          aria-label={`Beri rating ${n}`}
+          aria-label={rateAria(n)}
         >
           <span className="block h-6 w-6">
             <Star filled={n <= (hover || value)} />
@@ -31,6 +32,9 @@ function StarPicker({ value, onChange }: { value: number; onChange: (n: number) 
 }
 
 export default function ProductReviews({ productId }: { productId: string }) {
+  const t = useTranslations("reviews");
+  const tAuth = useTranslations("auth");
+  const locale = useLocale();
   const { user } = useAuth();
   const { toast } = useToast();
   const [summary, setSummary] = useState<ReviewSummary | null>(null);
@@ -51,8 +55,8 @@ export default function ProductReviews({ productId }: { productId: string }) {
     e.preventDefault();
     setError(null);
     if (rating === 0) {
-      setError("Pilih rating dulu ya.");
-      toast("Pilih rating dulu ya", "error");
+      setError(t("rateFirst"));
+      toast(t("rateFirst"), "error");
       return;
     }
     setSubmitting(true);
@@ -63,7 +67,7 @@ export default function ProductReviews({ productId }: { productId: string }) {
       setRating(0);
       setComment("");
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Gagal mengirim ulasan");
+      setError(err instanceof Error ? err.message : t("sendFailed"));
     } finally {
       setSubmitting(false);
     }
@@ -72,11 +76,11 @@ export default function ProductReviews({ productId }: { productId: string }) {
   return (
     <section className="mt-16 border-t border-border pt-10">
       <h2 className="font-display text-2xl uppercase tracking-tight">
-        <span className="text-accent">/</span> Ulasan Produk
+        <span className="text-accent">/</span> {t("title")}
       </h2>
 
       {loading ? (
-        <p className="mt-4 text-sm text-muted">Memuat ulasan...</p>
+        <p className="mt-4 text-sm text-muted">{t("loading")}</p>
       ) : (
         <>
           <div className="mt-4 flex w-fit items-center gap-4 border border-border p-4">
@@ -85,7 +89,7 @@ export default function ProductReviews({ productId }: { productId: string }) {
             </span>
             <div>
               <StarRow rating={summary?.average ?? 0} size="h-5 w-5" />
-              <p className="mt-1 text-xs text-muted">{summary?.count ?? 0} ulasan</p>
+              <p className="mt-1 text-xs text-muted">{t("reviewCount", { count: summary?.count ?? 0 })}</p>
             </div>
           </div>
 
@@ -93,17 +97,17 @@ export default function ProductReviews({ productId }: { productId: string }) {
             {user ? (
               <form
                 onSubmit={handleSubmit}
-                onInvalidCapture={() => toast("Lengkapi dulu semua data yang wajib diisi ya", "error")}
+                onInvalidCapture={() => toast(tAuth("requiredFieldsError"), "error")}
                 className="flex flex-col gap-3"
               >
-                <h3 className="font-display text-sm uppercase tracking-tight">Tulis Ulasan</h3>
-                <StarPicker value={rating} onChange={setRating} />
+                <h3 className="font-display text-sm uppercase tracking-tight">{t("writeReview")}</h3>
+                <StarPicker value={rating} onChange={setRating} rateAria={(n) => t("rateAria", { n })} />
                 <textarea
                   required
                   rows={3}
                   value={comment}
                   onChange={(e) => setComment(e.target.value)}
-                  placeholder="Ceritakan pengalamanmu pakai produk ini..."
+                  placeholder={t("commentPlaceholder")}
                   className="resize-none border border-border bg-background px-3.5 py-2.5 text-sm text-foreground outline-none focus:border-accent"
                 />
                 {error && <p className="text-xs text-red-500">{error}</p>}
@@ -112,15 +116,15 @@ export default function ProductReviews({ productId }: { productId: string }) {
                   disabled={submitting}
                   className="btn-tag w-fit bg-accent px-6 py-2.5 text-xs font-bold uppercase tracking-wide text-accent-foreground transition-transform hover:-translate-y-0.5 disabled:cursor-not-allowed disabled:opacity-60"
                 >
-                  {submitting ? "Mengirim..." : "Kirim Ulasan"}
+                  {submitting ? t("sending") : t("send")}
                 </button>
               </form>
             ) : (
               <p className="text-sm text-muted">
                 <Link href="/login" className="font-semibold text-accent hover:underline">
-                  Masuk
+                  {t("login")}
                 </Link>{" "}
-                untuk memberi ulasan produk ini.
+                {t("loginToReview")}
               </p>
             )}
           </div>
@@ -134,11 +138,11 @@ export default function ProductReviews({ productId }: { productId: string }) {
                     <span className="text-sm font-semibold text-foreground">{rv.userName}</span>
                     {rv.verifiedPurchase && (
                       <span className="border border-border bg-surface-2 px-2 py-0.5 text-[10px] font-bold uppercase tracking-wide text-muted">
-                        Pembeli Terverifikasi
+                        {t("verifiedPurchase")}
                       </span>
                     )}
                     <span className="text-xs text-muted">
-                      {new Date(rv.createdAt).toLocaleDateString("id-ID", { dateStyle: "medium" })}
+                      {new Date(rv.createdAt).toLocaleDateString(locale === "en" ? "en-US" : "id-ID", { dateStyle: "medium" })}
                     </span>
                   </div>
                   <p className="mt-2 text-sm leading-relaxed text-foreground">{rv.comment}</p>
@@ -146,7 +150,7 @@ export default function ProductReviews({ productId }: { productId: string }) {
               ))}
             </ul>
           ) : (
-            <p className="mt-8 text-sm text-muted">Belum ada ulasan. Jadilah yang pertama!</p>
+            <p className="mt-8 text-sm text-muted">{t("empty")}</p>
           )}
         </>
       )}

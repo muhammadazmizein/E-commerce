@@ -4,11 +4,14 @@ import Image from "next/image";
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
 import { Suspense, useState, type FormEvent } from "react";
+import { useTranslations } from "next-intl";
 import { useAuth } from "@/lib/auth-context";
 import { useToast } from "@/lib/toast-context";
 import Logo from "@/components/Logo";
 
 function LoginForm() {
+  const t = useTranslations("auth");
+  const tCommon = useTranslations("common");
   const { login } = useAuth();
   const { toast } = useToast();
   const router = useRouter();
@@ -28,7 +31,7 @@ function LoginForm() {
       await login(String(form.get("email") ?? ""), String(form.get("password") ?? ""));
       router.push(redirectTo || "/account");
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Gagal login");
+      setError(err instanceof Error ? err.message : t("loginFailed"));
     } finally {
       setIsSubmitting(false);
     }
@@ -54,21 +57,21 @@ function LoginForm() {
 
           <div>
             <span className="btn-tag inline-block border border-background px-3 py-1 text-xs font-bold uppercase tracking-widest">
-              Member Area
+              {t("memberArea")}
             </span>
             <h1 className="mt-5 font-display text-6xl uppercase leading-[0.88] xl:text-7xl">
-              Masuk Ke
-              <br />
-              Dunia Freak.
+              {t("loginHeadline").split("\n").map((line, i) => (
+                <span key={i}>
+                  {i > 0 && <br />}
+                  {line}
+                </span>
+              ))}
             </h1>
-            <p className="mt-5 max-w-sm text-sm text-background/70">
-              Lacak pesanan, simpan alamat, dan checkout lebih cepat tiap kali belanja drop
-              terbaru HEYFREAK.
-            </p>
+            <p className="mt-5 max-w-sm text-sm text-background/70">{t("loginBenefits")}</p>
           </div>
 
           <p className="text-xs uppercase tracking-widest text-background/50">
-            © {new Date().getFullYear()} HEYFREAK — Not for everyone
+            © {new Date().getFullYear()} HEYFREAK — {t("tagline")}
           </p>
         </div>
       </div>
@@ -80,35 +83,35 @@ function LoginForm() {
           </Link>
 
           <span className="btn-tag mt-8 inline-block border border-accent px-3 py-1 text-xs font-bold uppercase tracking-widest text-accent lg:mt-0">
-            Member Area
+            {t("memberArea")}
           </span>
           <h1 className="mt-4 font-display text-4xl uppercase tracking-tight sm:text-5xl">
-            Masuk
+            {t("loginTitle")}
           </h1>
           <p className="mt-2 text-sm text-muted">
-            Belum punya akun?{" "}
+            {t("noAccount")}{" "}
             <Link href={registerHref} className="font-semibold text-accent hover:underline">
-              Daftar di sini
+              {t("registerHere")}
             </Link>
           </p>
 
           <form
             onSubmit={handleSubmit}
-            onInvalidCapture={() => toast("Lengkapi dulu semua data yang wajib diisi ya", "error")}
+            onInvalidCapture={() => toast(t("requiredFieldsError"), "error")}
             className="mt-8 flex flex-col gap-5"
           >
             <label className="flex flex-col gap-1.5 text-sm">
-              <span className="text-xs font-bold uppercase tracking-widest text-muted">Email</span>
+              <span className="text-xs font-bold uppercase tracking-widest text-muted">{t("email")}</span>
               <input
                 required
                 type="email"
                 name="email"
                 className="border border-border bg-surface px-4 py-3 text-base text-foreground outline-none focus:border-accent"
-                placeholder="kamu@email.com"
+                placeholder="you@email.com"
               />
             </label>
             <label className="flex flex-col gap-1.5 text-sm">
-              <span className="text-xs font-bold uppercase tracking-widest text-muted">Password</span>
+              <span className="text-xs font-bold uppercase tracking-widest text-muted">{t("password")}</span>
               <input
                 required
                 type="password"
@@ -129,7 +132,7 @@ function LoginForm() {
               disabled={isSubmitting}
               className="btn-tag mt-2 flex w-full items-center justify-center bg-accent py-3.5 text-sm font-bold uppercase tracking-wide text-accent-foreground transition-transform hover:-translate-y-0.5 disabled:cursor-not-allowed disabled:opacity-60"
             >
-              {isSubmitting ? "Memproses..." : "Masuk"}
+              {isSubmitting ? tCommon("processing") : t("login")}
             </button>
           </form>
         </div>

@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useMemo, useRef, useState } from "react";
+import { useTranslations } from "next-intl";
 import ProductCard from "@/components/ProductCard";
 import Pagination from "@/components/Pagination";
 import Select from "@/components/Select";
@@ -8,16 +9,17 @@ import type { Product } from "@/lib/products";
 
 const PAGE_SIZE = 12;
 
-const PRICE_RANGES = [
-  { label: "Di bawah Rp150.000", min: 0, max: 150000 },
-  { label: "Rp150.000 – Rp180.000", min: 150000, max: 180000 },
-  { label: "Rp180.000 – Rp210.000", min: 180000, max: 210000 },
-  { label: "Di atas Rp210.000", min: 210000, max: Infinity },
+const PRICE_RANGE_DEFS = [
+  { key: "priceUnder", min: 0, max: 150000 },
+  { key: "priceMid1", min: 150000, max: 180000 },
+  { key: "priceMid2", min: 180000, max: 210000 },
+  { key: "priceOver", min: 210000, max: Infinity },
 ] as const;
 
 type TipeProduk = "semua" | "unggulan" | "diskon";
 type Ketersediaan = "semua" | "stok";
 type SortBy = "unggulan" | "harga-rendah" | "harga-tinggi";
+type PriceRange = { key: string; label: string; min: number; max: number };
 
 export default function ProductsCatalog({
   products,
@@ -30,6 +32,9 @@ export default function ProductsCatalog({
   initialTipe?: TipeProduk;
   initialSearch?: string;
 }) {
+  const t = useTranslations("productsCatalog");
+  const priceRanges: PriceRange[] = PRICE_RANGE_DEFS.map((r) => ({ ...r, label: t(r.key) }));
+
   const allCategories = useMemo(
     () => Array.from(new Set(products.map((p) => p.category))),
     [products]
@@ -41,7 +46,7 @@ export default function ProductsCatalog({
   );
   const [tipeProduk, setTipeProduk] = useState<TipeProduk>(initialTipe ?? "semua");
   const [ketersediaan, setKetersediaan] = useState<Ketersediaan>("semua");
-  const [priceRange, setPriceRange] = useState<(typeof PRICE_RANGES)[number] | null>(null);
+  const [priceRange, setPriceRange] = useState<PriceRange | null>(null);
   const [sortBy, setSortBy] = useState<SortBy>("unggulan");
   const [page, setPage] = useState(1);
   const [mobileFiltersOpen, setMobileFiltersOpen] = useState(false);
@@ -111,7 +116,7 @@ export default function ProductsCatalog({
     Array.from(selectedCategories).sort().join(","),
     tipeProduk,
     ketersediaan,
-    priceRange?.label ?? "",
+    priceRange?.key ?? "",
     sortBy,
   ].join("|");
   const [prevFilterKey, setPrevFilterKey] = useState(filterKey);
@@ -138,13 +143,13 @@ export default function ProductsCatalog({
         <input
           value={search}
           onChange={(e) => setSearch(e.target.value)}
-          placeholder="Cari produk..."
+          placeholder={t("searchPlaceholder")}
           className="w-full bg-transparent text-sm text-foreground outline-none placeholder:text-muted"
         />
       </label>
 
       <div className="mt-6 border-t border-border pt-5">
-        <h3 className="text-xs font-bold uppercase tracking-widest text-accent">Kategori</h3>
+        <h3 className="text-xs font-bold uppercase tracking-widest text-accent">{t("category")}</h3>
         <div className="mt-3 flex flex-col gap-2.5">
           {allCategories.map((cat) => (
             <label key={cat} className="flex cursor-pointer items-center gap-2.5 text-sm">
@@ -161,13 +166,13 @@ export default function ProductsCatalog({
       </div>
 
       <div className="mt-6 border-t border-border pt-5">
-        <h3 className="text-xs font-bold uppercase tracking-widest text-accent">Tipe Produk</h3>
+        <h3 className="text-xs font-bold uppercase tracking-widest text-accent">{t("productType")}</h3>
         <div className="mt-3 flex flex-col gap-2.5">
           {(
             [
-              ["semua", "Semua Produk"],
-              ["unggulan", "Produk Unggulan"],
-              ["diskon", "Diskon"],
+              ["semua", t("allProducts")],
+              ["unggulan", t("featuredProducts")],
+              ["diskon", t("discount")],
             ] as const
           ).map(([value, label]) => (
             <label key={value} className="flex cursor-pointer items-center gap-2.5 text-sm">
@@ -185,12 +190,12 @@ export default function ProductsCatalog({
       </div>
 
       <div className="mt-6 border-t border-border pt-5">
-        <h3 className="text-xs font-bold uppercase tracking-widest text-accent">Ketersediaan</h3>
+        <h3 className="text-xs font-bold uppercase tracking-widest text-accent">{t("availability")}</h3>
         <div className="mt-3 flex flex-col gap-2.5">
           {(
             [
-              ["semua", "Semua"],
-              ["stok", "Ada Stok"],
+              ["semua", t("all")],
+              ["stok", t("inStock")],
             ] as const
           ).map(([value, label]) => (
             <label key={value} className="flex cursor-pointer items-center gap-2.5 text-sm">
@@ -208,7 +213,7 @@ export default function ProductsCatalog({
       </div>
 
       <div className="mt-6 border-t border-border pt-5">
-        <h3 className="text-xs font-bold uppercase tracking-widest text-accent">Harga</h3>
+        <h3 className="text-xs font-bold uppercase tracking-widest text-accent">{t("price")}</h3>
         <div className="mt-3 flex flex-col gap-2.5">
           <label className="flex cursor-pointer items-center gap-2.5 text-sm">
             <input
@@ -218,14 +223,14 @@ export default function ProductsCatalog({
               onChange={() => setPriceRange(null)}
               className="h-4 w-4 accent-[var(--accent)]"
             />
-            Semua Harga
+            {t("allPrices")}
           </label>
-          {PRICE_RANGES.map((range) => (
-            <label key={range.label} className="flex cursor-pointer items-center gap-2.5 text-sm">
+          {priceRanges.map((range) => (
+            <label key={range.key} className="flex cursor-pointer items-center gap-2.5 text-sm">
               <input
                 type="radio"
                 name="harga"
-                checked={priceRange?.label === range.label}
+                checked={priceRange?.key === range.key}
                 onChange={() => setPriceRange(range)}
                 className="h-4 w-4 accent-[var(--accent)]"
               />
@@ -253,15 +258,15 @@ export default function ProductsCatalog({
         <aside
           role="dialog"
           aria-modal="true"
-          aria-label="Filter produk"
+          aria-label={t("filter")}
           className={`absolute left-0 top-0 flex h-full w-full max-w-xs flex-col border-r border-border bg-surface transition-transform duration-300 ${
             mobileFiltersOpen ? "translate-x-0" : "-translate-x-full"
           }`}
         >
           <div className="flex items-center justify-between border-b border-border px-5 py-4">
-            <h2 className="font-display text-xl uppercase tracking-tight">Filter</h2>
+            <h2 className="font-display text-xl uppercase tracking-tight">{t("filter")}</h2>
             <button
-              aria-label="Tutup filter"
+              aria-label={t("closeFilter")}
               onClick={() => setMobileFiltersOpen(false)}
               className="btn-tag flex h-9 w-9 items-center justify-center border border-border text-foreground transition-colors hover:border-accent hover:text-accent"
             >
@@ -276,7 +281,7 @@ export default function ProductsCatalog({
               onClick={() => setMobileFiltersOpen(false)}
               className="btn-tag flex w-full items-center justify-center bg-accent py-3 text-sm font-bold uppercase tracking-wide text-accent-foreground"
             >
-              Tampilkan {filtered.length} Produk
+              {t("showResults", { count: filtered.length })}
             </button>
           </div>
         </aside>
@@ -285,7 +290,7 @@ export default function ProductsCatalog({
       <div ref={listRef} className="lg:col-span-9">
         <div className="flex flex-wrap items-center justify-between gap-3 border-b border-border pb-5">
           <h1 className="font-display text-2xl uppercase tracking-tight">
-            Semua Produk <span className="text-base font-sans font-normal normal-case text-accent">({filtered.length})</span>
+            {t("allProductsTitle")} <span className="text-base font-sans font-normal normal-case text-accent">({filtered.length})</span>
           </h1>
           <div className="flex items-center gap-2">
             <button
@@ -296,7 +301,7 @@ export default function ProductsCatalog({
               <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
                 <path d="M4 6h16M7 12h10M10 18h4" strokeLinecap="round" />
               </svg>
-              Filter
+              {t("filter")}
               {activeFilterCount > 0 && (
                 <span className="btn-tag flex h-4 min-w-4 items-center justify-center bg-pop px-1 text-[10px] font-bold text-pop-foreground">
                   {activeFilterCount}
@@ -304,15 +309,15 @@ export default function ProductsCatalog({
               )}
             </button>
             <label className="flex items-center gap-2 text-sm">
-              <span className="hidden text-muted sm:inline">Urutan:</span>
+              <span className="hidden text-muted sm:inline">{t("sortBy")}</span>
               <Select
                 value={sortBy}
                 onChange={(v) => setSortBy(v as SortBy)}
                 className="min-w-[9rem]"
                 options={[
-                  { value: "unggulan", label: "Unggulan" },
-                  { value: "harga-rendah", label: "Harga Terendah" },
-                  { value: "harga-tinggi", label: "Harga Tertinggi" },
+                  { value: "unggulan", label: t("sortFeatured") },
+                  { value: "harga-rendah", label: t("sortPriceLow") },
+                  { value: "harga-tinggi", label: t("sortPriceHigh") },
                 ]}
               />
             </label>
@@ -321,7 +326,7 @@ export default function ProductsCatalog({
 
         {filtered.length === 0 ? (
           <p className="mt-8 border border-border bg-surface px-4 py-16 text-center text-sm text-muted">
-            Nggak ada produk yang cocok sama filter ini.
+            {t("noResults")}
           </p>
         ) : (
           <>

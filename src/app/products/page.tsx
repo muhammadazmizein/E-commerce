@@ -1,3 +1,4 @@
+import { getTranslations } from "next-intl/server";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import Breadcrumb from "@/components/Breadcrumb";
@@ -19,11 +20,13 @@ export default async function ProductsPage({
     console.error("Failed to load products from API:", err);
   }
 
+  const tBreadcrumb = await getTranslations("breadcrumb");
+
   return (
     <div>
       <Header />
       <main className="mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8">
-        <Breadcrumb items={[{ label: "Beranda", href: "/" }, { label: "Semua Produk" }]} />
+        <Breadcrumb items={[{ label: tBreadcrumb("home"), href: "/" }, { label: tBreadcrumb("allProducts") }]} />
         <div className="mt-4">
           <ProductsCatalog
             products={products}

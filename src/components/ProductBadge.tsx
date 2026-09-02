@@ -1,8 +1,22 @@
-import { badgeLabel, type Product } from "@/lib/products";
+"use client";
+
+import { useTranslations } from "next-intl";
+import type { Product } from "@/lib/products";
+
+const KEYS: Record<NonNullable<Product["badge"]>, string> = {
+  NEW: "new",
+  HOT: "hot",
+  SALE: "sale",
+  "SOLD OUT": "soldOut",
+  LIMITED: "limited",
+};
 
 export default function ProductBadge({ badge }: { badge: NonNullable<Product["badge"]> }) {
+  const t = useTranslations("productBadge");
+  const label = t(KEYS[badge]);
+
   if (badge !== "SALE") {
-    return <>{badgeLabel(badge)}</>;
+    return <>{label}</>;
   }
 
   return (
@@ -10,7 +24,7 @@ export default function ProductBadge({ badge }: { badge: NonNullable<Product["ba
       <span className="animate-flame inline-block" aria-hidden="true">
         🔥
       </span>
-      {badgeLabel(badge)}
+      {label}
     </span>
   );
 }

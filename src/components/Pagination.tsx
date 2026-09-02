@@ -1,5 +1,7 @@
 "use client";
 
+import { useTranslations } from "next-intl";
+
 function getPageList(current: number, total: number): (number | "...")[] {
   const delta = 1;
   const left = Math.max(2, current - delta);
@@ -23,14 +25,15 @@ export default function Pagination({
   totalPages: number;
   onPageChange: (page: number) => void;
 }) {
+  const t = useTranslations("pagination");
   if (totalPages <= 1) return null;
 
   return (
-    <nav aria-label="Navigasi halaman" className="mt-10 flex items-center justify-center gap-1 border border-border p-1 w-fit mx-auto">
+    <nav aria-label={t("nav")} className="mt-10 flex items-center justify-center gap-1 border border-border p-1 w-fit mx-auto">
       <button
         onClick={() => onPageChange(page - 1)}
         disabled={page === 1}
-        aria-label="Halaman sebelumnya"
+        aria-label={t("prev")}
         className="flex h-9 w-9 items-center justify-center text-foreground transition-colors hover:bg-surface-2 hover:text-accent disabled:cursor-not-allowed disabled:opacity-30"
       >
         ‹
@@ -60,7 +63,7 @@ export default function Pagination({
       <button
         onClick={() => onPageChange(page + 1)}
         disabled={page === totalPages}
-        aria-label="Halaman berikutnya"
+        aria-label={t("next")}
         className="flex h-9 w-9 items-center justify-center text-foreground transition-colors hover:bg-surface-2 hover:text-accent disabled:cursor-not-allowed disabled:opacity-30"
       >
         ›

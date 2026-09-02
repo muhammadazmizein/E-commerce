@@ -9,6 +9,7 @@ import {
   useState,
   type ReactNode,
 } from "react";
+import { useTranslations } from "next-intl";
 import { addToWishlist, getWishlist, removeFromWishlist } from "@/lib/api";
 import type { Product } from "@/lib/products";
 import { useAuth } from "@/lib/auth-context";
@@ -26,6 +27,7 @@ const WishlistContext = createContext<WishlistContextValue | null>(null);
 // Wishlist is per-account (server-side), not per-browser like the cart —
 // there's no guest wishlist, it just sits empty until the buyer logs in.
 export function WishlistProvider({ children }: { children: ReactNode }) {
+  const t = useTranslations("wishlist");
   const { user, isLoading: isAuthLoading } = useAuth();
   const { toast } = useToast();
   const [items, setItems] = useState<Product[]>([]);
@@ -53,7 +55,7 @@ export function WishlistProvider({ children }: { children: ReactNode }) {
   const toggle = useCallback(
     (product: Product) => {
       if (!user) {
-        toast("Login dulu buat nyimpen wishlist ya", "info");
+        toast(t("loginToSave"), "info");
         return;
       }
       const already = items.some((p) => p.id === product.id);
@@ -61,17 +63,17 @@ export function WishlistProvider({ children }: { children: ReactNode }) {
         setItems((prev) => prev.filter((p) => p.id !== product.id));
         removeFromWishlist(product.id).catch(() => {
           setItems((prev) => [...prev, product]);
-          toast("Gagal menghapus dari wishlist", "error");
+          toast(t("removeFailed"), "error");
         });
       } else {
         setItems((prev) => [product, ...prev]);
         addToWishlist(product.id).catch(() => {
           setItems((prev) => prev.filter((p) => p.id !== product.id));
-          toast("Gagal menyimpan ke wishlist", "error");
+          toast(t("addFailed"), "error");
         });
       }
     },
-    [items, user, toast]
+    [items, user, toast, t]
   );
 
   const value = useMemo(

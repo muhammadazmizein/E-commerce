@@ -4,6 +4,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useEffect, useMemo, useState, type FormEvent } from "react";
+import { useLocale, useTranslations } from "next-intl";
 import { useAuth } from "@/lib/auth-context";
 import { useCart } from "@/lib/cart-context";
 import { useToast } from "@/lib/toast-context";
@@ -36,26 +37,31 @@ const emptyForm: AddressInput = {
   isDefault: false,
 };
 
-const STATUS_STYLES: Record<string, { label: string; className: string }> = {
-  paid: { label: "Berhasil", className: "bg-green-100 text-green-700" },
-  pending: { label: "Berlangsung", className: "bg-amber-100 text-amber-700" },
-  failed: { label: "Tidak Berhasil", className: "bg-red-100 text-red-600" },
-};
-
-const STATUS_TABS: { key: "semua" | "pending" | "paid" | "failed"; label: string }[] = [
-  { key: "semua", label: "Semua" },
-  { key: "pending", label: "Berlangsung" },
-  { key: "paid", label: "Berhasil" },
-  { key: "failed", label: "Tidak Berhasil" },
-];
-
 export default function AccountPage() {
+  const t = useTranslations("account");
+  const tBreadcrumb = useTranslations("breadcrumb");
+  const tAuth = useTranslations("auth");
+  const tProductsCatalog = useTranslations("productsCatalog");
+  const locale = useLocale();
   const { user, isLoading, logout } = useAuth();
   const { addItem } = useCart();
   const { toast } = useToast();
   const { items: wishlistItems, isLoading: loadingWishlist } = useWishlist();
   const router = useRouter();
   const [tab, setTab] = useState<"alamat" | "wishlist" | "transaksi">("alamat");
+
+  const STATUS_STYLES: Record<string, { label: string; className: string }> = {
+    paid: { label: t("statusPaid"), className: "bg-green-100 text-green-700" },
+    pending: { label: t("statusPending"), className: "bg-amber-100 text-amber-700" },
+    failed: { label: t("statusFailed"), className: "bg-red-100 text-red-600" },
+  };
+
+  const STATUS_TABS: { key: "semua" | "pending" | "paid" | "failed"; label: string }[] = [
+    { key: "semua", label: t("statusAll") },
+    { key: "pending", label: t("statusPending") },
+    { key: "paid", label: t("statusPaid") },
+    { key: "failed", label: t("statusFailed") },
+  ];
 
   const [addresses, setAddresses] = useState<Address[]>([]);
   const [loadingAddresses, setLoadingAddresses] = useState(true);
@@ -174,7 +180,7 @@ export default function AccountPage() {
       setAddresses(fresh);
       setShowForm(false);
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Gagal menyimpan alamat");
+      setError(err instanceof Error ? err.message : t("saveAddressFailed"));
     } finally {
       setIsSaving(false);
     }
@@ -200,14 +206,14 @@ export default function AccountPage() {
             onClick={() => logout().then(() => router.push("/"))}
             className="text-sm font-semibold uppercase tracking-wide text-muted hover:text-foreground"
           >
-            Keluar
+            {t("logout")}
           </button>
         </div>
       </div>
 
       <div className="mx-auto max-w-4xl px-4 py-10 sm:px-6">
-        <Breadcrumb items={[{ label: "Beranda", href: "/" }, { label: "Akun Saya" }]} />
-        <h1 className="mt-4 font-display text-3xl uppercase tracking-tight">Akun Saya</h1>
+        <Breadcrumb items={[{ label: tBreadcrumb("home"), href: "/" }, { label: t("myAccount") }]} />
+        <h1 className="mt-4 font-display text-3xl uppercase tracking-tight">{t("myAccount")}</h1>
         <p className="mt-1 text-muted">
           {user.name} — {user.email}
         </p>
@@ -215,9 +221,9 @@ export default function AccountPage() {
         <div className="mt-8 flex gap-2 border-b border-border">
           {(
             [
-              ["alamat", "Alamat"],
-              ["wishlist", "Wishlist"],
-              ["transaksi", "Transaksi"],
+              ["alamat", t("tabAddress")],
+              ["wishlist", t("tabWishlist")],
+              ["transaksi", t("tabOrders")],
             ] as const
           ).map(([key, label]) => (
             <button
@@ -237,20 +243,20 @@ export default function AccountPage() {
         {tab === "alamat" && (
           <div className="mt-8">
             <div className="flex items-center justify-between">
-              <h2 className="font-display text-xl uppercase tracking-tight">Alamat Tersimpan</h2>
+              <h2 className="font-display text-xl uppercase tracking-tight">{t("savedAddresses")}</h2>
               <button
                 onClick={openNewForm}
                 className="btn-tag border border-border px-4 py-2 text-xs font-bold uppercase tracking-wide transition-colors hover:border-accent hover:text-accent"
               >
-                + Tambah Alamat
+                {t("addAddress")}
               </button>
             </div>
 
             {loadingAddresses ? (
-              <p className="mt-6 text-sm text-muted">Memuat alamat...</p>
+              <p className="mt-6 text-sm text-muted">{t("loadingAddresses")}</p>
             ) : addresses.length === 0 ? (
               <p className="mt-6 border border-border bg-surface px-4 py-8 text-center text-sm text-muted">
-                Belum ada alamat tersimpan.
+                {t("noAddresses")}
               </p>
             ) : (
               <ul className="mt-6 grid gap-4 sm:grid-cols-2">
@@ -264,16 +270,16 @@ export default function AccountPage() {
                         <span className="font-display text-sm uppercase tracking-tight">{a.label}</span>
                         {a.isDefault && (
                           <span className="btn-tag bg-accent px-2 py-0.5 text-[10px] font-bold uppercase text-accent-foreground">
-                            Utama
+                            {t("default")}
                           </span>
                         )}
                       </div>
                       <div className="flex gap-2 text-xs font-semibold uppercase">
                         <button onClick={() => openEditForm(a)} className="text-muted hover:text-accent">
-                          Ubah
+                          {t("edit")}
                         </button>
                         <button onClick={() => handleDelete(a.id)} className="text-muted hover:text-red-500">
-                          Hapus
+                          {t("delete")}
                         </button>
                       </div>
                     </div>
@@ -290,25 +296,25 @@ export default function AccountPage() {
             {showForm && (
               <form
                 onSubmit={handleSubmit}
-                onInvalidCapture={() => toast("Lengkapi dulu semua data yang wajib diisi ya", "error")}
+                onInvalidCapture={() => toast(tAuth("requiredFieldsError"), "error")}
                 className="clip-tag mt-8 flex flex-col gap-4 border border-border bg-surface p-5"
               >
                 <h3 className="font-display text-lg uppercase tracking-tight">
-                  {editingId ? "Ubah Alamat" : "Alamat Baru"}
+                  {editingId ? t("editAddress") : t("newAddress")}
                 </h3>
                 <div className="grid gap-4 sm:grid-cols-2">
                   <label className="flex flex-col gap-1.5 text-sm">
-                    <span className="font-semibold text-foreground">Label</span>
+                    <span className="font-semibold text-foreground">{t("label")}</span>
                     <input
                       required
                       value={form.label}
                       onChange={(e) => setForm({ ...form, label: e.target.value })}
-                      placeholder="Rumah / Kantor"
+                      placeholder={t("labelPlaceholder")}
                       className="border border-border bg-background px-3.5 py-2.5 text-foreground outline-none focus:border-accent"
                     />
                   </label>
                   <label className="flex flex-col gap-1.5 text-sm">
-                    <span className="font-semibold text-foreground">Nama Penerima</span>
+                    <span className="font-semibold text-foreground">{t("recipientName")}</span>
                     <input
                       required
                       value={form.recipientName}
@@ -317,7 +323,7 @@ export default function AccountPage() {
                     />
                   </label>
                   <label className="flex flex-col gap-1.5 text-sm">
-                    <span className="font-semibold text-foreground">No. WhatsApp</span>
+                    <span className="font-semibold text-foreground">{t("whatsapp")}</span>
                     <input
                       required
                       value={form.phone}
@@ -326,7 +332,7 @@ export default function AccountPage() {
                     />
                   </label>
                   <label className="flex flex-col gap-1.5 text-sm sm:col-span-2">
-                    <span className="font-semibold text-foreground">Alamat Lengkap</span>
+                    <span className="font-semibold text-foreground">{t("fullAddress")}</span>
                     <textarea
                       required
                       rows={2}
@@ -344,7 +350,7 @@ export default function AccountPage() {
                     }}
                   />
                   <label className="flex flex-col gap-1.5 text-sm">
-                    <span className="font-semibold text-foreground">Kode Pos</span>
+                    <span className="font-semibold text-foreground">{t("postalCode")}</span>
                     <input
                       required
                       value={form.postalCode}
@@ -359,7 +365,7 @@ export default function AccountPage() {
                       onChange={(e) => setForm({ ...form, isDefault: e.target.checked })}
                       className="h-4 w-4 accent-[var(--accent)]"
                     />
-                    <span className="font-semibold text-foreground">Jadikan alamat utama</span>
+                    <span className="font-semibold text-foreground">{t("setDefault")}</span>
                   </label>
                 </div>
 
@@ -375,14 +381,14 @@ export default function AccountPage() {
                     disabled={isSaving}
                     className="btn-tag bg-accent px-6 py-2.5 text-sm font-bold uppercase tracking-wide text-accent-foreground transition-transform hover:-translate-y-0.5 disabled:cursor-not-allowed disabled:opacity-60"
                   >
-                    {isSaving ? "Menyimpan..." : "Simpan"}
+                    {isSaving ? t("saving") : t("save")}
                   </button>
                   <button
                     type="button"
                     onClick={() => setShowForm(false)}
                     className="btn-tag border border-border px-6 py-2.5 text-sm font-bold uppercase tracking-wide hover:border-accent hover:text-accent"
                   >
-                    Batal
+                    {t("cancel")}
                   </button>
                 </div>
               </form>
@@ -392,12 +398,12 @@ export default function AccountPage() {
 
         {tab === "wishlist" && (
           <div className="mt-8">
-            <h2 className="font-display text-xl uppercase tracking-tight">Wishlist</h2>
+            <h2 className="font-display text-xl uppercase tracking-tight">{t("wishlist")}</h2>
             {loadingWishlist ? (
-              <p className="mt-6 text-sm text-muted">Memuat wishlist...</p>
+              <p className="mt-6 text-sm text-muted">{t("loadingWishlist")}</p>
             ) : wishlistItems.length === 0 ? (
               <p className="mt-6 border border-border bg-surface px-4 py-8 text-center text-sm text-muted">
-                Belum ada produk di wishlist. Buka halaman produk dan klik ikon hati buat nyimpen.
+                {t("emptyWishlist")}
               </p>
             ) : (
               <div className="mt-6 grid grid-cols-2 gap-4 sm:gap-5 md:grid-cols-3">
@@ -411,7 +417,7 @@ export default function AccountPage() {
 
         {tab === "transaksi" && (
           <div className="mt-8">
-            <h2 className="font-display text-xl uppercase tracking-tight">Daftar Transaksi</h2>
+            <h2 className="font-display text-xl uppercase tracking-tight">{t("orderList")}</h2>
 
             <div className="mt-6 flex flex-col gap-3 sm:flex-row sm:flex-wrap sm:items-center">
               <div className="relative flex-1 sm:min-w-[220px]">
@@ -429,7 +435,7 @@ export default function AccountPage() {
                 <input
                   value={search}
                   onChange={(e) => setSearch(e.target.value)}
-                  placeholder="Cari transaksimu di sini"
+                  placeholder={t("searchOrdersPlaceholder")}
                   className="w-full border border-border bg-surface py-2.5 pl-10 pr-4 text-sm text-foreground outline-none focus:border-accent"
                 />
               </div>
@@ -437,7 +443,7 @@ export default function AccountPage() {
                 value={categoryFilter}
                 onChange={setCategoryFilter}
                 options={[
-                  { value: "Semua Produk", label: "Semua Produk" },
+                  { value: "Semua Produk", label: tProductsCatalog("allProducts") },
                   ...categories.map((c) => ({ value: c, label: c })),
                 ]}
               />
@@ -450,17 +456,17 @@ export default function AccountPage() {
             </div>
 
             <div className="mt-4 flex flex-wrap items-center gap-2">
-              {STATUS_TABS.map((t) => (
+              {STATUS_TABS.map((st) => (
                 <button
-                  key={t.key}
-                  onClick={() => setStatusFilter(t.key)}
+                  key={st.key}
+                  onClick={() => setStatusFilter(st.key)}
                   className={`btn-tag border px-4 py-1.5 text-xs font-bold uppercase tracking-wide transition-colors ${
-                    statusFilter === t.key
+                    statusFilter === st.key
                       ? "border-accent bg-accent text-accent-foreground"
                       : "border-border text-muted hover:border-accent hover:text-foreground"
                   }`}
                 >
-                  {t.label}
+                  {st.label}
                 </button>
               ))}
               {hasActiveFilters && (
@@ -468,20 +474,20 @@ export default function AccountPage() {
                   onClick={resetFilters}
                   className="ml-auto text-xs font-bold uppercase tracking-wide text-accent hover:underline"
                 >
-                  Reset Filter
+                  {t("resetFilter")}
                 </button>
               )}
             </div>
 
             {loadingOrders ? (
-              <p className="mt-6 text-sm text-muted">Memuat transaksi...</p>
+              <p className="mt-6 text-sm text-muted">{t("loadingOrders")}</p>
             ) : orders.length === 0 ? (
               <p className="mt-6 border border-border bg-surface px-4 py-8 text-center text-sm text-muted">
-                Belum ada transaksi.
+                {t("noOrders")}
               </p>
             ) : filteredOrders.length === 0 ? (
               <p className="mt-6 border border-border bg-surface px-4 py-8 text-center text-sm text-muted">
-                Tidak ada transaksi yang cocok dengan filter.
+                {t("noOrdersMatchFilter")}
               </p>
             ) : (
               <ul className="mt-6 flex flex-col gap-4">
@@ -502,9 +508,9 @@ export default function AccountPage() {
                           <span aria-hidden className="text-base">
                             🛍️
                           </span>
-                          <span className="text-sm font-bold uppercase tracking-wide text-foreground">Belanja</span>
+                          <span className="text-sm font-bold uppercase tracking-wide text-foreground">{t("shopping")}</span>
                           <span className="text-xs text-muted">
-                            {new Date(o.createdAt).toLocaleDateString("id-ID", { dateStyle: "medium" })}
+                            {new Date(o.createdAt).toLocaleDateString(locale === "en" ? "en-US" : "id-ID", { dateStyle: "medium" })}
                           </span>
                           <span className={`clip-tag-sm px-2.5 py-1 text-[11px] font-bold uppercase tracking-wide ${status.className}`}>
                             {status.label}
@@ -526,14 +532,14 @@ export default function AccountPage() {
                               {firstItem.size ? ` (${firstItem.size})` : ""}
                             </p>
                             <p className="text-xs text-muted">
-                              {firstItem.qty} barang x {formatIDR(firstItem.price)}
+                              {t("itemsTimesPrice", { qty: firstItem.qty, price: formatIDR(firstItem.price) })}
                             </p>
                             {extraCount > 0 && (
-                              <p className="text-xs text-muted">+{extraCount} produk lainnya</p>
+                              <p className="text-xs text-muted">{t("moreProducts", { count: extraCount })}</p>
                             )}
                           </div>
                           <div className="shrink-0 text-right">
-                            <p className="text-xs text-muted">Total Belanja</p>
+                            <p className="text-xs text-muted">{t("totalSpent")}</p>
                             <p className="font-display text-base tracking-tight">{formatIDR(o.total)}</p>
                           </div>
                         </div>
@@ -544,13 +550,13 @@ export default function AccountPage() {
                           href={`/order/${o.id}`}
                           className="btn-tag border border-border px-4 py-2 text-xs font-bold uppercase tracking-wide text-foreground transition-colors hover:border-accent hover:text-accent"
                         >
-                          Lihat Detail Transaksi
+                          {t("viewOrderDetail")}
                         </Link>
                         <button
                           onClick={() => handleBuyAgain(o)}
                           className="btn-tag bg-accent px-4 py-2 text-xs font-bold uppercase tracking-wide text-accent-foreground transition-transform hover:-translate-y-0.5"
                         >
-                          Beli Lagi
+                          {t("buyAgain")}
                         </button>
                       </div>
                     </li>

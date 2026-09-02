@@ -1,17 +1,19 @@
 import Link from "next/link";
+import { getTranslations } from "next-intl/server";
 
-const links = [
-  { label: "Semua Produk", href: "/products" },
-  { label: "Lacak Pesanan", href: "/account" },
-  { label: "Bantuan", href: "#" },
-];
+export default async function Footer() {
+  const t = await getTranslations("footer");
+  const links = [
+    { label: t("allProducts"), href: "/products" },
+    { label: t("trackOrder"), href: "/account" },
+    { label: t("help"), href: "#" },
+  ];
 
-export default function Footer() {
   return (
     <footer className="mt-auto border-t border-border bg-surface">
       <div className="mx-auto flex max-w-7xl flex-col gap-3 px-4 py-4 text-xs text-muted sm:flex-row sm:items-center sm:justify-between sm:px-6 lg:px-8">
         <p className="text-xs tracking-tight text-foreground">
-          © 2026 HEYFREAK<span className="font-normal text-muted">. Semua hak dilindungi.</span>
+          © 2026 HEYFREAK<span className="font-normal text-muted">. {t("rights")}</span>
         </p>
 
         <div className="flex flex-wrap items-center gap-x-5 gap-y-2">

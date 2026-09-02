@@ -5,6 +5,7 @@ import Link from "next/link";
 import QRCode from "react-qr-code";
 import { useRouter } from "next/navigation";
 import { useEffect, useState, type FormEvent } from "react";
+import { useTranslations } from "next-intl";
 import { useCart } from "@/lib/cart-context";
 import Breadcrumb from "@/components/Breadcrumb";
 import LocationPicker, { type ResolvedLocation } from "@/components/LocationPicker";
@@ -70,6 +71,9 @@ const emptyFields = {
 };
 
 export default function CheckoutPage() {
+  const t = useTranslations("checkout");
+  const tCommon = useTranslations("common");
+  const tBreadcrumb = useTranslations("breadcrumb");
   const { items, subtotal, clearCart } = useCart();
   const { user, isLoading: isAuthLoading } = useAuth();
   const router = useRouter();
@@ -108,10 +112,10 @@ export default function CheckoutPage() {
 
   useEffect(() => {
     if (!isAuthLoading && !user) {
-      toast("Login dulu ya buat lanjut checkout", "info");
+      toast(t("redirectingToLogin"), "info");
       router.replace("/login?redirect=/checkout");
     }
-  }, [isAuthLoading, user, router, toast]);
+  }, [isAuthLoading, user, router, toast, t]);
 
   useEffect(() => {
     getConfigStatus()
@@ -142,6 +146,7 @@ export default function CheckoutPage() {
         if (def) applyAddress(def);
       })
       .catch(() => setSavedAddresses([]));
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [user]);
 
   function applyAddress(a: Address) {
@@ -251,7 +256,7 @@ export default function CheckoutPage() {
 
       finishOrder(order.id);
     } catch (err) {
-      const message = err instanceof Error ? err.message : "Gagal membuat pesanan";
+      const message = err instanceof Error ? err.message : t("createOrderFailed");
       setErrorMessage(message);
       toast(message, "error");
     } finally {
@@ -263,8 +268,8 @@ export default function CheckoutPage() {
     if (navigator.clipboard && window.isSecureContext) {
       navigator.clipboard
         .writeText(text)
-        .then(() => toast("Nomor VA disalin", "success"))
-        .catch(() => toast("Gagal menyalin nomor", "error"));
+        .then(() => toast(t("numberCopied"), "success"))
+        .catch(() => toast(t("copyFailed"), "error"));
       return;
     }
 
@@ -279,9 +284,9 @@ export default function CheckoutPage() {
     textarea.select();
     try {
       document.execCommand("copy");
-      toast("Nomor VA disalin", "success");
+      toast(t("numberCopied"), "success");
     } catch {
-      toast("Gagal menyalin nomor", "error");
+      toast(t("copyFailed"), "error");
     } finally {
       document.body.removeChild(textarea);
     }
@@ -293,7 +298,7 @@ export default function CheckoutPage() {
     try {
       await simulateTestPayment(activePayment.orderId);
     } catch (err) {
-      setErrorMessage(err instanceof Error ? err.message : "Gagal simulasi pembayaran");
+      setErrorMessage(err instanceof Error ? err.message : t("createOrderFailed"));
     } finally {
       setIsSimulating(false);
     }
@@ -304,7 +309,7 @@ export default function CheckoutPage() {
       <main className="flex min-h-screen flex-col items-center justify-center gap-3 px-4 text-center">
         <span className="h-8 w-8 animate-spin rounded-full border border-border border-t-foreground" />
         <p className="text-xs font-bold uppercase tracking-widest text-muted">
-          Mengarahkan ke halaman login...
+          {t("redirectingToLogin")}
         </p>
       </main>
     );
@@ -315,9 +320,9 @@ export default function CheckoutPage() {
     return (
       <main className="mx-auto flex min-h-screen max-w-lg flex-col items-center justify-center px-4 py-16 text-center sm:px-6">
         <p className="font-display text-2xl uppercase tracking-tight">
-          {activePayment.type === "qris" ? "Scan QRIS Ini" : "Transfer ke Virtual Account"}
+          {activePayment.type === "qris" ? t("scanQris") : t("transferToVA")}
         </p>
-        <p className="mt-1 text-sm text-muted">Pesanan {activePayment.orderId}</p>
+        <p className="mt-1 text-sm text-muted">{t("orderNumber", { id: activePayment.orderId })}</p>
 
         {activePayment.type === "qris" ? (
           <div className="clip-tag mt-6 border border-border bg-white p-5 shadow-edge-lg">
@@ -331,7 +336,7 @@ export default function CheckoutPage() {
               onClick={() => copyAccountNumber(activePayment.accountNumber)}
               className="btn-tag mt-3 border border-border px-4 py-2 text-xs font-bold uppercase tracking-wide hover:border-accent hover:text-accent"
             >
-              Salin Nomor
+              {t("copyNumber")}
             </button>
           </div>
         )}
@@ -342,18 +347,16 @@ export default function CheckoutPage() {
               secondsLeft === 0 ? "text-red-500" : "text-foreground"
             }`}
           >
-            {secondsLeft === 0 ? "Waktu Habis" : formatCountdown(secondsLeft)}
+            {secondsLeft === 0 ? t("timeUp") : formatCountdown(secondsLeft)}
           </p>
         )}
 
         {secondsLeft === 0 ? (
-          <p className="mt-2 max-w-xs text-sm text-muted">
-            Kode pembayaran ini udah kadaluarsa. Balik ke keranjang dan buat pesanan baru ya.
-          </p>
+          <p className="mt-2 max-w-xs text-sm text-muted">{t("expiredNote")}</p>
         ) : (
           <div className="mt-2 flex items-center gap-2 text-sm text-muted">
             <span className="h-2 w-2 animate-pulse rounded-full bg-accent" />
-            Menunggu pembayaran...
+            {t("waitingPayment")}
           </div>
         )}
 
@@ -363,7 +366,7 @@ export default function CheckoutPage() {
             disabled={isSimulating}
             className="btn-tag mt-6 bg-accent px-6 py-2.5 text-sm font-bold uppercase tracking-wide text-accent-foreground disabled:opacity-60"
           >
-            {isSimulating ? "Memproses..." : "Simulasikan Pembayaran (mode testing)"}
+            {isSimulating ? tCommon("processing") : t("simulatePayment")}
           </button>
         )}
 
@@ -373,7 +376,7 @@ export default function CheckoutPage() {
           onClick={() => finishOrder(activePayment.orderId)}
           className="mt-8 text-sm font-semibold uppercase text-muted hover:text-foreground"
         >
-          Bayar nanti, lihat status pesanan →
+          {t("payLater")}
         </button>
       </main>
     );
@@ -387,18 +390,16 @@ export default function CheckoutPage() {
             <path d="M20 6 9 17l-5-5" />
           </svg>
         </span>
-        <h1 className="mt-6 font-display text-3xl uppercase tracking-tight">Pesanan Diterima</h1>
+        <h1 className="mt-6 font-display text-3xl uppercase tracking-tight">{t("orderReceived")}</h1>
         <p className="mt-3 text-muted">
-          Nomor pesanan lo: <span className="font-semibold text-foreground">{orderId}</span>
+          {t("yourOrderNumber")} <span className="font-semibold text-foreground">{orderId}</span>
         </p>
-        <p className="mt-1 text-sm text-muted">
-          Kami akan konfirmasi via WhatsApp/email begitu pembayaran diverifikasi.
-        </p>
+        <p className="mt-1 text-sm text-muted">{t("confirmationNote")}</p>
         <Link
           href="/"
           className="btn-tag mt-8 bg-accent px-7 py-3.5 text-sm font-bold uppercase tracking-wide text-accent-foreground transition-transform hover:-translate-y-0.5"
         >
-          Balik ke Toko
+          {tCommon("backToShop")}
         </Link>
       </main>
     );
@@ -407,13 +408,13 @@ export default function CheckoutPage() {
   if (items.length === 0) {
     return (
       <main className="mx-auto flex min-h-screen max-w-lg flex-col items-center justify-center px-4 py-16 text-center sm:px-6">
-        <h1 className="font-display text-3xl uppercase tracking-tight">Keranjang Kosong</h1>
-        <p className="mt-3 text-muted">Belum ada barang buat di-checkout.</p>
+        <h1 className="font-display text-3xl uppercase tracking-tight">{t("emptyCartTitle")}</h1>
+        <p className="mt-3 text-muted">{t("emptyCartHint")}</p>
         <Link
           href="/"
           className="btn-tag mt-8 bg-accent px-7 py-3.5 text-sm font-bold uppercase tracking-wide text-accent-foreground transition-transform hover:-translate-y-0.5"
         >
-          Mulai Belanja
+          {t("startShopping")}
         </Link>
       </main>
     );
@@ -427,34 +428,34 @@ export default function CheckoutPage() {
             <Logo className="h-6 w-auto" />
           </Link>
           <Link href="/" className="text-sm font-semibold uppercase tracking-wide text-muted hover:text-foreground">
-            ← Lanjut Belanja
+            {t("continueShopping")}
           </Link>
         </div>
       </div>
 
       <div className="mx-auto max-w-7xl px-4 pt-6 sm:px-6 lg:px-8">
-        <Breadcrumb items={[{ label: "Beranda", href: "/" }, { label: "Checkout" }]} />
+        <Breadcrumb items={[{ label: tBreadcrumb("home"), href: "/" }, { label: "Checkout" }]} />
       </div>
 
       <div className="mx-auto grid max-w-7xl gap-10 px-4 py-10 sm:px-6 lg:grid-cols-12 lg:px-8 lg:py-14">
         <form
           id="checkout-form"
           onSubmit={handleSubmit}
-          onInvalidCapture={() => toast("Lengkapi dulu semua data yang wajib diisi ya", "error")}
+          onInvalidCapture={() => toast(t("requiredFieldsError"), "error")}
           className="flex flex-col gap-8 lg:col-span-7"
         >
           <section>
-            <h2 className="font-display text-xl uppercase tracking-tight">Data Pembeli</h2>
+            <h2 className="font-display text-xl uppercase tracking-tight">{t("buyerData")}</h2>
 
             {savedAddresses.length > 0 && (
               <div className="mt-4 flex flex-col gap-1.5 text-sm">
-                <span className="font-semibold text-foreground">Alamat Tersimpan</span>
+                <span className="font-semibold text-foreground">{t("savedAddress")}</span>
                 <Select
                   value={selectedAddressId}
                   onChange={handleAddressPick}
                   options={[
                     ...savedAddresses.map((a) => ({ value: a.id, label: `${a.label} — ${a.recipientName}` })),
-                    { value: "new", label: "Alamat lain..." },
+                    { value: "new", label: t("otherAddress") },
                   ]}
                 />
               </div>
@@ -462,17 +463,17 @@ export default function CheckoutPage() {
 
             <div className="mt-4 grid gap-4 sm:grid-cols-2">
               <label className="flex flex-col gap-1.5 text-sm sm:col-span-2">
-                <span className="font-semibold text-foreground">Nama Lengkap</span>
+                <span className="font-semibold text-foreground">{t("fullName")}</span>
                 <input
                   required
                   value={fields.name}
                   onChange={(e) => setFields({ ...fields, name: e.target.value })}
                   className="border border-border bg-surface px-3.5 py-2.5 text-foreground outline-none focus:border-accent"
-                  placeholder="Nama kamu"
+                  placeholder={t("fullNamePlaceholder")}
                 />
               </label>
               <label className="flex flex-col gap-1.5 text-sm">
-                <span className="font-semibold text-foreground">No. WhatsApp</span>
+                <span className="font-semibold text-foreground">{t("whatsapp")}</span>
                 <input
                   required
                   type="tel"
@@ -483,25 +484,25 @@ export default function CheckoutPage() {
                 />
               </label>
               <label className="flex flex-col gap-1.5 text-sm">
-                <span className="font-semibold text-foreground">Email</span>
+                <span className="font-semibold text-foreground">{t("email")}</span>
                 <input
                   required
                   type="email"
                   value={fields.email}
                   onChange={(e) => setFields({ ...fields, email: e.target.value })}
                   className="border border-border bg-surface px-3.5 py-2.5 text-foreground outline-none focus:border-accent"
-                  placeholder="kamu@email.com"
+                  placeholder={t("emailPlaceholder")}
                 />
               </label>
               <label className="flex flex-col gap-1.5 text-sm sm:col-span-2">
-                <span className="font-semibold text-foreground">Alamat Pengiriman</span>
+                <span className="font-semibold text-foreground">{t("shippingAddress")}</span>
                 <textarea
                   required
                   rows={3}
                   value={fields.address}
                   onChange={(e) => setFields({ ...fields, address: e.target.value })}
                   className="resize-none border border-border bg-surface px-3.5 py-2.5 text-foreground outline-none focus:border-accent"
-                  placeholder="Jalan, nomor rumah, kelurahan, kecamatan"
+                  placeholder={t("shippingAddressPlaceholder")}
                 />
               </label>
               <LocationPicker
@@ -510,7 +511,7 @@ export default function CheckoutPage() {
                 onChange={handleLocationResolved}
               />
               <label className="flex flex-col gap-1.5 text-sm">
-                <span className="font-semibold text-foreground">Kode Pos</span>
+                <span className="font-semibold text-foreground">{t("postalCode")}</span>
                 <input
                   required
                   value={fields.postalCode}
@@ -522,9 +523,9 @@ export default function CheckoutPage() {
 
               {config?.rajaongkirConfigured && (isLoadingCost || shippingServices.length > 0) && (
                 <div className="flex flex-col gap-2 sm:col-span-2">
-                  <span className="font-semibold text-foreground">Ongkir</span>
+                  <span className="font-semibold text-foreground">{t("shippingCost")}</span>
                   {isLoadingCost ? (
-                    <p className="text-sm text-muted">Menghitung ongkir dari alamat kamu...</p>
+                    <p className="text-sm text-muted">{t("calculatingShipping")}</p>
                   ) : (
                     <div className="flex flex-col gap-2">
                       {shippingServices.map((s) => (
@@ -548,7 +549,9 @@ export default function CheckoutPage() {
                             />
                             <span className="text-sm font-semibold uppercase">
                               {s.courier} {s.service}{" "}
-                              <span className="font-normal normal-case text-muted">— {s.etd} hari</span>
+                              <span className="font-normal normal-case text-muted">
+                                — {s.etd} {t("days")}
+                              </span>
                             </span>
                           </span>
                           <span className="text-sm font-semibold">{formatIDR(s.cost)}</span>
@@ -560,20 +563,20 @@ export default function CheckoutPage() {
               )}
 
               <label className="flex flex-col gap-1.5 text-sm sm:col-span-2">
-                <span className="font-semibold text-foreground">Catatan (opsional)</span>
+                <span className="font-semibold text-foreground">{t("notes")}</span>
                 <textarea
                   rows={2}
                   value={fields.notes}
                   onChange={(e) => setFields({ ...fields, notes: e.target.value })}
                   className="resize-none border border-border bg-surface px-3.5 py-2.5 text-foreground outline-none focus:border-accent"
-                  placeholder="Contoh: titip satpam, dsb."
+                  placeholder={t("notesPlaceholder")}
                 />
               </label>
             </div>
           </section>
 
           <section>
-            <h2 className="font-display text-xl uppercase tracking-tight">Metode Pembayaran</h2>
+            <h2 className="font-display text-xl uppercase tracking-tight">{t("paymentMethod")}</h2>
             <div className="mt-4 flex flex-col gap-2.5">
               {config?.paymentConfigured ? (
                 <>
@@ -590,7 +593,7 @@ export default function CheckoutPage() {
                       className="h-4 w-4 accent-[var(--accent)]"
                     />
                     <span className="text-sm font-semibold">
-                      QRIS <span className="text-muted">(scan di halaman ini)</span>
+                      {t("qris")} <span className="text-muted">{t("qrisHint")}</span>
                     </span>
                   </label>
 
@@ -608,7 +611,7 @@ export default function CheckoutPage() {
                         className="h-4 w-4 accent-[var(--accent)]"
                       />
                       <span className="text-sm font-semibold">
-                        Transfer Bank <span className="text-muted">(Virtual Account)</span>
+                        {t("bankTransfer")} <span className="text-muted">{t("bankTransferHint")}</span>
                       </span>
                     </span>
                     {payment === "va" && (
@@ -633,9 +636,7 @@ export default function CheckoutPage() {
                 </>
               ) : (
                 config && (
-                  <p className="text-xs text-muted">
-                    Pembayaran online belum aktif. Hubungi kami buat lanjut pesanan ya.
-                  </p>
+                  <p className="text-xs text-muted">{t("paymentNotConfigured")}</p>
                 )
               )}
             </div>
@@ -644,7 +645,7 @@ export default function CheckoutPage() {
 
         <aside className="lg:col-span-5">
           <div className="clip-tag border border-border bg-surface p-5">
-            <h2 className="font-display text-xl uppercase tracking-tight">Ringkasan Pesanan</h2>
+            <h2 className="font-display text-xl uppercase tracking-tight">{t("orderSummary")}</h2>
             <ul className="mt-4 flex flex-col gap-4">
               {items.map((line) => (
                 <li key={`${line.productId}-${line.size ?? "x"}`} className="flex gap-3">
@@ -665,15 +666,18 @@ export default function CheckoutPage() {
 
             <div className="mt-5 flex flex-col gap-2 border-t border-border pt-4 text-sm">
               <div className="flex justify-between text-muted">
-                <span>Subtotal</span>
+                <span>{t("subtotal")}</span>
                 <span className="text-foreground">{formatIDR(subtotal)}</span>
               </div>
               <div className="flex justify-between text-muted">
-                <span>Ongkir {selectedService ? `(${selectedService.courier} ${selectedService.service})` : "(estimasi)"}</span>
+                <span>
+                  {t("shipping")}{" "}
+                  {selectedService ? `(${selectedService.courier} ${selectedService.service})` : t("shippingEstimate")}
+                </span>
                 <span className="text-foreground">{formatIDR(shipping)}</span>
               </div>
               <div className="flex justify-between border-t border-border pt-2 text-base font-bold">
-                <span>Total</span>
+                <span>{t("total")}</span>
                 <span className="font-display text-lg">{formatIDR(total)}</span>
               </div>
             </div>
@@ -690,7 +694,7 @@ export default function CheckoutPage() {
               disabled={isSubmitting}
               className="btn-tag mt-5 flex w-full items-center justify-center bg-accent py-3.5 text-sm font-bold uppercase tracking-wide text-accent-foreground transition-transform hover:-translate-y-0.5 disabled:cursor-not-allowed disabled:opacity-60"
             >
-              {isSubmitting ? "Memproses..." : "Buat Pesanan"}
+              {isSubmitting ? tCommon("processing") : t("createOrder")}
             </button>
           </div>
         </aside>

@@ -11,8 +11,8 @@ export default async function Footer() {
 
   return (
     <footer className="mt-auto border-t border-border bg-surface">
-      <div className="mx-auto flex max-w-7xl flex-col gap-3 px-4 py-4 text-xs text-muted sm:flex-row sm:items-center sm:justify-between sm:px-6 lg:px-8">
-        <p className="text-xs tracking-tight text-foreground">
+      <div className="mx-auto flex max-w-7xl flex-col gap-3 px-4 py-4 text-xs uppercase tracking-wide text-muted sm:flex-row sm:items-center sm:justify-between sm:px-6 lg:px-8">
+        <p className="text-xs uppercase tracking-wide text-foreground">
           © 2026 HEYFREAK<span className="font-normal text-muted">. {t("rights")}</span>
         </p>
 

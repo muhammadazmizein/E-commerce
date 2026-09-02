@@ -28,23 +28,23 @@ export default function StoresGrid({ stores }: { stores: Store[] }) {
           Belum ada toko di wilayah ini.
         </p>
       ) : (
-        <div className="mt-10 grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
+        <div className="mt-10 grid grid-cols-2 gap-5 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5">
           {filtered.map((store) => (
             <div key={store.id} className="border border-border bg-surface">
-              <div className="relative aspect-[4/5] overflow-hidden bg-surface-2">
+              <div className="relative aspect-[4/3] overflow-hidden bg-surface-2">
                 <Image
                   src={store.image}
                   alt={store.name}
                   fill
-                  sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
+                  sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 20vw"
                   className="object-cover"
                   priority
                 />
               </div>
-              <div className="flex flex-col gap-1 p-4">
-                <h3 className="text-base font-semibold text-foreground">{store.name}</h3>
-                <p className="text-xs font-medium uppercase tracking-wide text-muted">{store.region}</p>
-                <p className="mt-1 text-sm leading-relaxed text-muted">{store.address}</p>
+              <div className="flex flex-col gap-1 p-3">
+                <h3 className="text-sm font-semibold text-foreground">{store.name}</h3>
+                <p className="text-[11px] font-medium uppercase tracking-wide text-muted">{store.region}</p>
+                <p className="mt-1 text-xs leading-relaxed text-muted">{store.address}</p>
               </div>
             </div>
           ))}

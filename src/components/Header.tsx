@@ -10,6 +10,7 @@ import Logo from "@/components/Logo";
 const navLinks = [
   { label: "New Drop", href: "/#drop" },
   { label: "Our Collections", href: "/products" },
+  { label: "Store", href: "/stores" },
 ];
 
 export default function Header() {

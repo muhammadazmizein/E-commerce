@@ -69,7 +69,7 @@ export default function ProductReviews({ productId }: { productId: string }) {
   }
 
   return (
-    <section className="mt-16 border-t-2 border-border pt-10">
+    <section className="mt-16 border-t border-border pt-10">
       <h2 className="font-display text-2xl uppercase tracking-tight">
         <span className="text-accent">/</span> Ulasan Produk
       </h2>
@@ -78,7 +78,7 @@ export default function ProductReviews({ productId }: { productId: string }) {
         <p className="mt-4 text-sm text-muted">Memuat ulasan...</p>
       ) : (
         <>
-          <div className="mt-4 flex w-fit items-center gap-4 border-2 border-border p-4">
+          <div className="mt-4 flex w-fit items-center gap-4 border border-border p-4">
             <span className="font-display text-4xl tracking-tight text-accent">
               {summary && summary.count > 0 ? summary.average.toFixed(1) : "—"}
             </span>
@@ -88,7 +88,7 @@ export default function ProductReviews({ productId }: { productId: string }) {
             </div>
           </div>
 
-          <div className="clip-tag mt-8 max-w-xl border-2 border-border bg-surface p-5">
+          <div className="clip-tag mt-8 max-w-xl border border-border bg-surface p-5">
             {user ? (
               <form
                 onSubmit={handleSubmit}
@@ -103,7 +103,7 @@ export default function ProductReviews({ productId }: { productId: string }) {
                   value={comment}
                   onChange={(e) => setComment(e.target.value)}
                   placeholder="Ceritakan pengalamanmu pakai produk ini..."
-                  className="resize-none border-2 border-border bg-background px-3.5 py-2.5 text-sm text-foreground outline-none focus:border-accent"
+                  className="resize-none border border-border bg-background px-3.5 py-2.5 text-sm text-foreground outline-none focus:border-accent"
                 />
                 {error && <p className="text-xs text-red-500">{error}</p>}
                 <button
@@ -127,7 +127,7 @@ export default function ProductReviews({ productId }: { productId: string }) {
           {summary && summary.reviews.length > 0 ? (
             <ul className="mt-8 flex flex-col gap-6">
               {summary.reviews.map((rv) => (
-                <li key={rv.id} className="border-b-2 border-border pb-6 last:border-0">
+                <li key={rv.id} className="border-b border-border pb-6 last:border-0">
                   <div className="flex flex-wrap items-center gap-2">
                     <StarRow rating={rv.rating} />
                     <span className="text-sm font-semibold text-foreground">{rv.userName}</span>

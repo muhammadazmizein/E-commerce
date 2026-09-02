@@ -2,15 +2,15 @@
 
 :root {
   --background: #ffffff;
-  --foreground: #111111;
-  --muted: #6e6e6e;
+  --foreground: rgba(0, 0, 0, 0.81);
+  --muted: rgba(0, 0, 0, 0.5);
   --surface: #ffffff;
-  --surface-2: #f4f4f4;
-  --border: #e2e2e2;
+  --surface-2: #f5f5f5;
+  --border: rgba(0, 0, 0, 0.1);
   --accent: #111111;
   --accent-foreground: #ffffff;
-  --pop: #d7ff3d;
-  --pop-foreground: #111111;
+  --pop: #111111;
+  --pop-foreground: #ffffff;
 }
 
 @theme inline {
@@ -24,26 +24,16 @@
   --color-accent-foreground: var(--accent-foreground);
   --color-pop: var(--pop);
   --color-pop-foreground: var(--pop-foreground);
-  --font-display: var(--font-anton);
-  --font-sans: var(--font-jakarta);
+  --font-display: var(--font-inter);
+  --font-sans: var(--font-inter);
+  --font-editorial: var(--font-headline);
 }
 
 body {
   position: relative;
   background: var(--background);
   color: var(--foreground);
-  font-family: var(--font-sans), Arial, Helvetica, sans-serif;
-}
-
-body::before {
-  content: "";
-  position: fixed;
-  inset: 0;
-  z-index: 9999;
-  pointer-events: none;
-  opacity: 0.05;
-  mix-blend-mode: overlay;
-  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='120'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+  font-family: var(--font-sans), Helvetica, Arial, sans-serif;
 }
 
 ::selection {
@@ -52,38 +42,26 @@ body::before {
 }
 
 @utility shadow-edge {
-  box-shadow:
-    0 1px 0 rgba(0, 0, 0, 0.04) inset,
-    0 10px 30px -14px rgba(0, 0, 0, 0.18);
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
 }
 
 @utility shadow-edge-lg {
-  box-shadow:
-    0 1px 0 rgba(0, 0, 0, 0.06) inset,
-    0 25px 60px -20px rgba(0, 0, 0, 0.25),
-    0 0 40px -18px rgba(0, 0, 0, 0.15);
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
 }
 
-/* Cut-corner "tag" shapes — the site's signature motif instead of soft
-   rounded corners. Border strokes only render on the four straight edges;
-   the diagonal cuts are meant to read as a sharp, raw edge. */
+/* Soft, understated corners — swapped in for the site's former cut-corner
+   "tag" motif so every btn-tag/clip-tag usage picks up the rounded look
+   without touching each call site. */
 @utility clip-tag {
-  clip-path: polygon(
-    0 0,
-    calc(100% - 22px) 0,
-    100% 22px,
-    100% 100%,
-    22px 100%,
-    0 calc(100% - 22px)
-  );
+  border-radius: 1rem;
 }
 
 @utility clip-tag-sm {
-  clip-path: polygon(0 0, calc(100% - 10px) 0, 100% 10px, 100% 100%, 10px 100%, 0 calc(100% - 10px));
+  border-radius: 0.6rem;
 }
 
 @utility btn-tag {
-  clip-path: polygon(0 0, calc(100% - 12px) 0, 100% 12px, 100% 100%, 12px 100%, 0 calc(100% - 12px));
+  border-radius: 14px;
 }
 
 .text-stroke {
@@ -239,10 +217,10 @@ body::before {
 @keyframes card-aura-hot {
   0%,
   100% {
-    box-shadow: 0 0 0 0 rgba(249, 115, 22, 0.5), 0 0 16px 2px rgba(239, 68, 68, 0.35);
+    box-shadow: 0 0 0 0 rgba(17, 17, 17, 0.25), 0 0 16px 2px rgba(17, 17, 17, 0.15);
   }
   50% {
-    box-shadow: 0 0 0 4px rgba(249, 115, 22, 0.22), 0 0 30px 7px rgba(239, 68, 68, 0.6);
+    box-shadow: 0 0 0 4px rgba(17, 17, 17, 0.12), 0 0 30px 7px rgba(17, 17, 17, 0.3);
   }
 }
 
@@ -253,10 +231,10 @@ body::before {
 @keyframes card-aura-sale {
   0%,
   100% {
-    box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.45), 0 0 14px 2px rgba(239, 68, 68, 0.3);
+    box-shadow: 0 0 0 0 rgba(17, 17, 17, 0.25), 0 0 14px 2px rgba(17, 17, 17, 0.15);
   }
   50% {
-    box-shadow: 0 0 0 4px rgba(239, 68, 68, 0.2), 0 0 26px 6px rgba(239, 68, 68, 0.55);
+    box-shadow: 0 0 0 4px rgba(17, 17, 17, 0.12), 0 0 26px 6px rgba(17, 17, 17, 0.3);
   }
 }
 
@@ -267,10 +245,10 @@ body::before {
 @keyframes card-aura-limited {
   0%,
   100% {
-    box-shadow: 0 0 0 0 rgba(217, 119, 6, 0.45), 0 0 14px 2px rgba(217, 119, 6, 0.3);
+    box-shadow: 0 0 0 0 rgba(17, 17, 17, 0.25), 0 0 14px 2px rgba(17, 17, 17, 0.15);
   }
   50% {
-    box-shadow: 0 0 0 4px rgba(217, 119, 6, 0.2), 0 0 26px 6px rgba(217, 119, 6, 0.55);
+    box-shadow: 0 0 0 4px rgba(17, 17, 17, 0.12), 0 0 26px 6px rgba(17, 17, 17, 0.3);
   }
 }
 

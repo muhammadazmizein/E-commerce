@@ -38,16 +38,16 @@ export default function CartDrawer() {
         role="dialog"
         aria-modal="true"
         aria-label="Keranjang belanja"
-        className={`absolute right-0 top-0 flex h-full w-full max-w-md flex-col border-l-2 border-border bg-surface transition-transform duration-300 ${
+        className={`absolute right-0 top-0 flex h-full w-full max-w-md flex-col border-l border-border bg-surface transition-transform duration-300 ${
           isOpen ? "translate-x-0" : "translate-x-full"
         }`}
       >
-        <div className="flex items-center justify-between border-b-2 border-border px-5 py-4">
+        <div className="flex items-center justify-between border-b border-border px-5 py-4">
           <h2 className="font-display text-xl uppercase tracking-tight">Keranjang</h2>
           <button
             aria-label="Tutup keranjang"
             onClick={closeCart}
-            className="btn-tag flex h-9 w-9 items-center justify-center border-2 border-border text-foreground transition-colors hover:border-accent hover:text-accent"
+            className="btn-tag flex h-9 w-9 items-center justify-center border border-border text-foreground transition-colors hover:border-accent hover:text-accent"
           >
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
               <path d="M18 6 6 18M6 6l12 12" />
@@ -63,7 +63,7 @@ export default function CartDrawer() {
             <p className="text-sm text-muted">Yuk pilih kaos atau aksesoris favorit lo.</p>
             <button
               onClick={closeCart}
-              className="btn-tag mt-4 border-2 border-border px-5 py-2.5 text-sm font-bold uppercase tracking-wide transition-colors hover:border-accent hover:text-accent"
+              className="btn-tag mt-4 border border-border px-5 py-2.5 text-sm font-bold uppercase tracking-wide transition-colors hover:border-accent hover:text-accent"
             >
               Lanjut Belanja
             </button>
@@ -73,7 +73,7 @@ export default function CartDrawer() {
             <ul className="flex-1 divide-y-2 divide-border overflow-y-auto px-5">
               {items.map((line) => (
                 <li key={`${line.productId}-${line.size ?? "x"}`} className="flex gap-3 py-4">
-                  <div className="relative h-20 w-16 shrink-0 overflow-hidden border-2 border-border">
+                  <div className="relative h-20 w-16 shrink-0 overflow-hidden border border-border">
                     <Image
                       src={line.image}
                       alt={line.name}
@@ -103,7 +103,7 @@ export default function CartDrawer() {
                       </p>
                     )}
                     <div className="mt-auto flex items-center justify-between pt-1">
-                      <div className="flex items-center border-2 border-border">
+                      <div className="flex items-center border border-border">
                         <button
                           aria-label="Kurangi jumlah"
                           onClick={() => updateQty(line.productId, line.size, line.qty - 1)}
@@ -129,7 +129,7 @@ export default function CartDrawer() {
               ))}
             </ul>
 
-            <div className="border-t-2 border-border px-5 py-5">
+            <div className="border-t border-border px-5 py-5">
               <div className="flex items-center justify-between text-sm text-muted">
                 <span>Subtotal</span>
                 <span className="font-display text-lg text-accent">{formatIDR(subtotal)}</span>

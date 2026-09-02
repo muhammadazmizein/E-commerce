@@ -116,7 +116,7 @@ export default function Select({
         aria-expanded={open}
         onClick={() => setOpen((o) => !o)}
         onKeyDown={handleTriggerKeyDown}
-        className={`btn-tag flex w-full items-center justify-between gap-2 border-2 bg-surface px-3.5 py-2.5 text-left text-sm font-semibold transition-colors ${
+        className={`btn-tag flex w-full items-center justify-between gap-2 border bg-surface px-3.5 py-2.5 text-left text-sm font-semibold transition-colors ${
           disabled
             ? "cursor-not-allowed border-border text-muted opacity-50"
             : open
@@ -142,9 +142,9 @@ export default function Select({
       </button>
 
       {open && (
-        <div className="absolute left-0 right-0 top-full z-20 mt-1.5 border-2 border-border bg-surface shadow-edge-lg">
+        <div className="absolute left-0 right-0 top-full z-20 mt-1.5 border border-border bg-surface shadow-edge-lg">
           {showSearch && (
-            <div className="flex items-center gap-2 border-b-2 border-border px-2.5 py-2">
+            <div className="flex items-center gap-2 border-b border-border px-2.5 py-2">
               <svg aria-hidden width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="shrink-0 text-muted">
                 <circle cx="11" cy="11" r="7" />
                 <path d="m21 21-4.3-4.3" />

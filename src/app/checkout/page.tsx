@@ -8,6 +8,7 @@ import { useEffect, useState, type FormEvent } from "react";
 import { useCart } from "@/lib/cart-context";
 import Breadcrumb from "@/components/Breadcrumb";
 import LocationPicker, { type ResolvedLocation } from "@/components/LocationPicker";
+import Logo from "@/components/Logo";
 import Select from "@/components/Select";
 import { formatIDR } from "@/lib/products";
 import {
@@ -299,7 +300,7 @@ export default function CheckoutPage() {
   if (isAuthLoading || !user) {
     return (
       <main className="flex min-h-screen flex-col items-center justify-center gap-3 px-4 text-center">
-        <span className="h-8 w-8 animate-spin rounded-full border-2 border-border border-t-foreground" />
+        <span className="h-8 w-8 animate-spin rounded-full border border-border border-t-foreground" />
         <p className="text-xs font-bold uppercase tracking-widest text-muted">
           Mengarahkan ke halaman login...
         </p>
@@ -317,16 +318,16 @@ export default function CheckoutPage() {
         <p className="mt-1 text-sm text-muted">Pesanan {activePayment.orderId}</p>
 
         {activePayment.type === "qris" ? (
-          <div className="clip-tag mt-6 border-2 border-border bg-white p-5 shadow-edge-lg">
+          <div className="clip-tag mt-6 border border-border bg-white p-5 shadow-edge-lg">
             <QRCode value={activePayment.qrString} size={220} />
           </div>
         ) : (
-          <div className="clip-tag mt-6 w-full border-2 border-border bg-surface p-6">
+          <div className="clip-tag mt-6 w-full border border-border bg-surface p-6">
             <p className="text-xs uppercase tracking-wide text-muted">{bank?.name ?? activePayment.bankCode}</p>
             <p className="mt-2 font-display text-3xl tracking-tight">{activePayment.accountNumber}</p>
             <button
               onClick={() => copyAccountNumber(activePayment.accountNumber)}
-              className="btn-tag mt-3 border-2 border-border px-4 py-2 text-xs font-bold uppercase tracking-wide hover:border-accent hover:text-accent"
+              className="btn-tag mt-3 border border-border px-4 py-2 text-xs font-bold uppercase tracking-wide hover:border-accent hover:text-accent"
             >
               Salin Nomor
             </button>
@@ -418,10 +419,10 @@ export default function CheckoutPage() {
 
   return (
     <main className="min-h-screen">
-      <div className="border-b-2 border-border">
+      <div className="border-b border-border">
         <div className="mx-auto flex max-w-7xl items-center justify-between px-4 py-4 sm:px-6 lg:px-8">
-          <Link href="/" className="font-display text-2xl tracking-wide">
-            HEY<span className="text-accent">FREAK</span>
+          <Link href="/">
+            <Logo className="h-6 w-auto" />
           </Link>
           <Link href="/" className="text-sm font-semibold uppercase tracking-wide text-muted hover:text-foreground">
             ← Lanjut Belanja
@@ -464,7 +465,7 @@ export default function CheckoutPage() {
                   required
                   value={fields.name}
                   onChange={(e) => setFields({ ...fields, name: e.target.value })}
-                  className="border-2 border-border bg-surface px-3.5 py-2.5 text-foreground outline-none focus:border-accent"
+                  className="border border-border bg-surface px-3.5 py-2.5 text-foreground outline-none focus:border-accent"
                   placeholder="Nama kamu"
                 />
               </label>
@@ -475,7 +476,7 @@ export default function CheckoutPage() {
                   type="tel"
                   value={fields.phone}
                   onChange={(e) => setFields({ ...fields, phone: e.target.value })}
-                  className="border-2 border-border bg-surface px-3.5 py-2.5 text-foreground outline-none focus:border-accent"
+                  className="border border-border bg-surface px-3.5 py-2.5 text-foreground outline-none focus:border-accent"
                   placeholder="08xxxxxxxxxx"
                 />
               </label>
@@ -486,7 +487,7 @@ export default function CheckoutPage() {
                   type="email"
                   value={fields.email}
                   onChange={(e) => setFields({ ...fields, email: e.target.value })}
-                  className="border-2 border-border bg-surface px-3.5 py-2.5 text-foreground outline-none focus:border-accent"
+                  className="border border-border bg-surface px-3.5 py-2.5 text-foreground outline-none focus:border-accent"
                   placeholder="kamu@email.com"
                 />
               </label>
@@ -497,7 +498,7 @@ export default function CheckoutPage() {
                   rows={3}
                   value={fields.address}
                   onChange={(e) => setFields({ ...fields, address: e.target.value })}
-                  className="resize-none border-2 border-border bg-surface px-3.5 py-2.5 text-foreground outline-none focus:border-accent"
+                  className="resize-none border border-border bg-surface px-3.5 py-2.5 text-foreground outline-none focus:border-accent"
                   placeholder="Jalan, nomor rumah, kelurahan, kecamatan"
                 />
               </label>
@@ -512,7 +513,7 @@ export default function CheckoutPage() {
                   required
                   value={fields.postalCode}
                   onChange={(e) => setFields({ ...fields, postalCode: e.target.value })}
-                  className="border-2 border-border bg-surface px-3.5 py-2.5 text-foreground outline-none focus:border-accent"
+                  className="border border-border bg-surface px-3.5 py-2.5 text-foreground outline-none focus:border-accent"
                   placeholder="12345"
                 />
               </label>
@@ -527,7 +528,7 @@ export default function CheckoutPage() {
                       {shippingServices.map((s) => (
                         <label
                           key={`${s.courier}-${s.service}`}
-                          className={`flex cursor-pointer items-center justify-between border-2 px-4 py-3 transition-colors ${
+                          className={`flex cursor-pointer items-center justify-between border px-4 py-3 transition-colors ${
                             selectedService?.courier === s.courier && selectedService?.service === s.service
                               ? "border-accent bg-accent/10"
                               : "border-border hover:border-accent/50"
@@ -562,7 +563,7 @@ export default function CheckoutPage() {
                   rows={2}
                   value={fields.notes}
                   onChange={(e) => setFields({ ...fields, notes: e.target.value })}
-                  className="resize-none border-2 border-border bg-surface px-3.5 py-2.5 text-foreground outline-none focus:border-accent"
+                  className="resize-none border border-border bg-surface px-3.5 py-2.5 text-foreground outline-none focus:border-accent"
                   placeholder="Contoh: titip satpam, dsb."
                 />
               </label>
@@ -575,7 +576,7 @@ export default function CheckoutPage() {
               {config?.paymentConfigured ? (
                 <>
                   <label
-                    className={`flex cursor-pointer items-center gap-3 border-2 px-4 py-3 transition-colors ${
+                    className={`flex cursor-pointer items-center gap-3 border px-4 py-3 transition-colors ${
                       payment === "qris" ? "border-accent bg-accent/10" : "border-border hover:border-accent/50"
                     }`}
                   >
@@ -592,7 +593,7 @@ export default function CheckoutPage() {
                   </label>
 
                   <label
-                    className={`flex cursor-pointer flex-col gap-3 border-2 px-4 py-3 transition-colors ${
+                    className={`flex cursor-pointer flex-col gap-3 border px-4 py-3 transition-colors ${
                       payment === "va" ? "border-accent bg-accent/10" : "border-border hover:border-accent/50"
                     }`}
                   >
@@ -615,7 +616,7 @@ export default function CheckoutPage() {
                             key={b.code}
                             type="button"
                             onClick={() => setVaBank(b.code)}
-                            className={`border-2 px-3 py-1.5 text-xs font-bold uppercase transition-colors ${
+                            className={`border px-3 py-1.5 text-xs font-bold uppercase transition-colors ${
                               vaBank === b.code
                                 ? "border-accent bg-accent text-accent-foreground"
                                 : "border-border text-foreground hover:border-accent"
@@ -640,12 +641,12 @@ export default function CheckoutPage() {
         </form>
 
         <aside className="lg:col-span-5">
-          <div className="clip-tag border-2 border-border bg-surface p-5">
+          <div className="clip-tag border border-border bg-surface p-5">
             <h2 className="font-display text-xl uppercase tracking-tight">Ringkasan Pesanan</h2>
             <ul className="mt-4 flex flex-col gap-4">
               {items.map((line) => (
                 <li key={`${line.productId}-${line.size ?? "x"}`} className="flex gap-3">
-                  <div className="relative h-16 w-14 shrink-0 overflow-hidden border-2 border-border">
+                  <div className="relative h-16 w-14 shrink-0 overflow-hidden border border-border">
                     <Image src={line.image} alt={line.name} fill sizes="56px" className="object-cover" />
                     <span className="absolute -right-1.5 -top-1.5 flex h-5 min-w-5 items-center justify-center rounded-full bg-accent px-1 text-[11px] font-bold text-accent-foreground">
                       {line.qty}
@@ -660,7 +661,7 @@ export default function CheckoutPage() {
               ))}
             </ul>
 
-            <div className="mt-5 flex flex-col gap-2 border-t-2 border-border pt-4 text-sm">
+            <div className="mt-5 flex flex-col gap-2 border-t border-border pt-4 text-sm">
               <div className="flex justify-between text-muted">
                 <span>Subtotal</span>
                 <span className="text-foreground">{formatIDR(subtotal)}</span>
@@ -669,14 +670,14 @@ export default function CheckoutPage() {
                 <span>Ongkir {selectedService ? `(${selectedService.courier} ${selectedService.service})` : "(estimasi)"}</span>
                 <span className="text-foreground">{formatIDR(shipping)}</span>
               </div>
-              <div className="flex justify-between border-t-2 border-border pt-2 text-base font-bold">
+              <div className="flex justify-between border-t border-border pt-2 text-base font-bold">
                 <span>Total</span>
                 <span className="font-display text-lg">{formatIDR(total)}</span>
               </div>
             </div>
 
             {errorMessage && (
-              <p className="mt-4 border-2 border-red-500/40 bg-red-500/10 px-3 py-2 text-sm text-red-400">
+              <p className="mt-4 border border-red-500/40 bg-red-500/10 px-3 py-2 text-sm text-red-400">
                 {errorMessage}
               </p>
             )}

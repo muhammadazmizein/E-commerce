@@ -130,7 +130,7 @@ export default function ProductsCatalog({
 
   const filterFields = (
     <>
-      <label className="flex items-center gap-2 border-2 border-border bg-surface px-4 py-2.5">
+      <label className="flex items-center gap-2 border border-border bg-surface px-4 py-2.5">
         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="text-muted">
           <circle cx="11" cy="11" r="7" />
           <path d="m21 21-4.3-4.3" />
@@ -143,7 +143,7 @@ export default function ProductsCatalog({
         />
       </label>
 
-      <div className="mt-6 border-t-2 border-border pt-5">
+      <div className="mt-6 border-t border-border pt-5">
         <h3 className="text-xs font-bold uppercase tracking-widest text-accent">Kategori</h3>
         <div className="mt-3 flex flex-col gap-2.5">
           {allCategories.map((cat) => (
@@ -160,7 +160,7 @@ export default function ProductsCatalog({
         </div>
       </div>
 
-      <div className="mt-6 border-t-2 border-border pt-5">
+      <div className="mt-6 border-t border-border pt-5">
         <h3 className="text-xs font-bold uppercase tracking-widest text-accent">Tipe Produk</h3>
         <div className="mt-3 flex flex-col gap-2.5">
           {(
@@ -184,7 +184,7 @@ export default function ProductsCatalog({
         </div>
       </div>
 
-      <div className="mt-6 border-t-2 border-border pt-5">
+      <div className="mt-6 border-t border-border pt-5">
         <h3 className="text-xs font-bold uppercase tracking-widest text-accent">Ketersediaan</h3>
         <div className="mt-3 flex flex-col gap-2.5">
           {(
@@ -207,7 +207,7 @@ export default function ProductsCatalog({
         </div>
       </div>
 
-      <div className="mt-6 border-t-2 border-border pt-5">
+      <div className="mt-6 border-t border-border pt-5">
         <h3 className="text-xs font-bold uppercase tracking-widest text-accent">Harga</h3>
         <div className="mt-3 flex flex-col gap-2.5">
           <label className="flex cursor-pointer items-center gap-2.5 text-sm">
@@ -254,16 +254,16 @@ export default function ProductsCatalog({
           role="dialog"
           aria-modal="true"
           aria-label="Filter produk"
-          className={`absolute left-0 top-0 flex h-full w-full max-w-xs flex-col border-r-2 border-border bg-surface transition-transform duration-300 ${
+          className={`absolute left-0 top-0 flex h-full w-full max-w-xs flex-col border-r border-border bg-surface transition-transform duration-300 ${
             mobileFiltersOpen ? "translate-x-0" : "-translate-x-full"
           }`}
         >
-          <div className="flex items-center justify-between border-b-2 border-border px-5 py-4">
+          <div className="flex items-center justify-between border-b border-border px-5 py-4">
             <h2 className="font-display text-xl uppercase tracking-tight">Filter</h2>
             <button
               aria-label="Tutup filter"
               onClick={() => setMobileFiltersOpen(false)}
-              className="btn-tag flex h-9 w-9 items-center justify-center border-2 border-border text-foreground transition-colors hover:border-accent hover:text-accent"
+              className="btn-tag flex h-9 w-9 items-center justify-center border border-border text-foreground transition-colors hover:border-accent hover:text-accent"
             >
               <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
                 <path d="M18 6 6 18M6 6l12 12" />
@@ -271,7 +271,7 @@ export default function ProductsCatalog({
             </button>
           </div>
           <div className="flex-1 overflow-y-auto px-5 py-5">{filterFields}</div>
-          <div className="border-t-2 border-border px-5 py-4">
+          <div className="border-t border-border px-5 py-4">
             <button
               onClick={() => setMobileFiltersOpen(false)}
               className="btn-tag flex w-full items-center justify-center bg-accent py-3 text-sm font-bold uppercase tracking-wide text-accent-foreground"
@@ -283,7 +283,7 @@ export default function ProductsCatalog({
       </div>
 
       <div ref={listRef} className="lg:col-span-9">
-        <div className="flex flex-wrap items-center justify-between gap-3 border-b-2 border-border pb-5">
+        <div className="flex flex-wrap items-center justify-between gap-3 border-b border-border pb-5">
           <h1 className="font-display text-2xl uppercase tracking-tight">
             Semua Produk <span className="text-base font-sans font-normal normal-case text-accent">({filtered.length})</span>
           </h1>
@@ -291,7 +291,7 @@ export default function ProductsCatalog({
             <button
               type="button"
               onClick={() => setMobileFiltersOpen(true)}
-              className="btn-tag relative flex items-center gap-2 border-2 border-border px-3.5 py-2.5 text-xs font-bold uppercase tracking-wide text-foreground transition-colors hover:border-accent hover:text-accent lg:hidden"
+              className="btn-tag relative flex items-center gap-2 border border-border px-3.5 py-2.5 text-xs font-bold uppercase tracking-wide text-foreground transition-colors hover:border-accent hover:text-accent lg:hidden"
             >
               <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
                 <path d="M4 6h16M7 12h10M10 18h4" strokeLinecap="round" />
@@ -320,12 +320,12 @@ export default function ProductsCatalog({
         </div>
 
         {filtered.length === 0 ? (
-          <p className="mt-8 border-2 border-border bg-surface px-4 py-16 text-center text-sm text-muted">
+          <p className="mt-8 border border-border bg-surface px-4 py-16 text-center text-sm text-muted">
             Nggak ada produk yang cocok sama filter ini.
           </p>
         ) : (
           <>
-            <div className="mt-6 grid grid-cols-2 gap-4 sm:gap-5 md:grid-cols-3">
+            <div className="mt-6 grid grid-cols-2 gap-x-4 gap-y-8 sm:grid-cols-3 sm:gap-x-5 lg:grid-cols-4 xl:grid-cols-5">
               {paged.map((product) => (
                 <ProductCard key={product.id} product={product} />
               ))}

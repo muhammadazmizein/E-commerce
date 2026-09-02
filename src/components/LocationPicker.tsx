@@ -180,13 +180,13 @@ export default function LocationPicker({
             }}
             onFocus={() => setKabKotaDropdownOpen(true)}
             onBlur={() => setTimeout(() => setKabKotaDropdownOpen(false), 150)}
-            className="border-2 border-border bg-surface px-3.5 py-2.5 text-foreground outline-none focus:border-accent"
+            className="border border-border bg-surface px-3.5 py-2.5 text-foreground outline-none focus:border-accent"
             placeholder="Ketik nama kabupaten/kota..."
             autoComplete="off"
           />
         </label>
         {kabKotaDropdownOpen && (isSearchingKabKota || kabKotaOptions.length > 0) && (
-          <ul className="absolute top-full z-10 mt-1 flex max-h-56 w-full flex-col gap-1 overflow-y-auto border-2 border-border bg-surface p-2 shadow-edge-lg">
+          <ul className="absolute top-full z-10 mt-1 flex max-h-56 w-full flex-col gap-1 overflow-y-auto border border-border bg-surface p-2 shadow-edge-lg">
             {isSearchingKabKota ? (
               <li className="px-2 py-1.5 text-sm text-muted">Mencari...</li>
             ) : (

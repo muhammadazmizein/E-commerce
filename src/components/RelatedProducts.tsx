@@ -26,7 +26,7 @@ export default function RelatedProducts({ products }: { products: Product[] }) {
   }
 
   return (
-    <section className="mt-16 border-t-2 border-border pt-10">
+    <section className="mt-16 border-t border-border pt-10">
       <div className="mb-6 flex items-center justify-between">
         <h2 className="font-display text-xl uppercase tracking-tight sm:text-2xl">
           <span className="text-accent">/</span> Rekomendasi Produk Lainnya
@@ -35,14 +35,14 @@ export default function RelatedProducts({ products }: { products: Product[] }) {
           <button
             aria-label="Geser ke kiri"
             onClick={() => scrollByAmount(-480)}
-            className="btn-tag flex h-10 w-10 items-center justify-center border-2 border-border bg-surface text-foreground transition-colors hover:border-accent hover:text-accent"
+            className="btn-tag flex h-10 w-10 items-center justify-center border border-border bg-surface text-foreground transition-colors hover:border-accent hover:text-accent"
           >
             <ArrowIcon direction="left" />
           </button>
           <button
             aria-label="Geser ke kanan"
             onClick={() => scrollByAmount(480)}
-            className="btn-tag flex h-10 w-10 items-center justify-center border-2 border-border bg-surface text-foreground transition-colors hover:border-accent hover:text-accent"
+            className="btn-tag flex h-10 w-10 items-center justify-center border border-border bg-surface text-foreground transition-colors hover:border-accent hover:text-accent"
           >
             <ArrowIcon direction="right" />
           </button>

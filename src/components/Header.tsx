@@ -5,11 +5,11 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useCart } from "@/lib/cart-context";
 import { useAuth } from "@/lib/auth-context";
+import Logo from "@/components/Logo";
 
 const navLinks = [
   { label: "New Drop", href: "/#drop" },
   { label: "Our Collections", href: "/products" },
-  { label: "Cerita Kami", href: "/#story" },
 ];
 
 export default function Header() {
@@ -52,7 +52,7 @@ export default function Header() {
 
   return (
     <>
-    <header className="sticky top-0 z-50 border-b-2 border-border bg-background/90 backdrop-blur">
+    <header className="sticky top-0 z-50 border-b border-border bg-background/90 backdrop-blur">
       <div className="relative mx-auto flex max-w-7xl items-center justify-between gap-4 px-4 sm:px-6 lg:px-8">
         <div className="flex items-center">
           <button
@@ -67,9 +67,9 @@ export default function Header() {
           </button>
           <Link
             href="/"
-            className="hidden font-display text-3xl uppercase tracking-tight sm:block sm:border-r-2 sm:border-border sm:py-4 sm:pr-6 sm:text-4xl"
+            className="hidden items-center sm:flex sm:border-r sm:border-border sm:py-4 sm:pr-6"
           >
-            HEY<span className="text-pop-foreground bg-pop px-0.5">FREAK</span>
+            <Logo className="h-7 w-auto" />
           </Link>
         </div>
 
@@ -77,9 +77,9 @@ export default function Header() {
             hamburger/cart clusters on either side end up being. */}
         <Link
           href="/"
-          className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 font-display text-2xl uppercase tracking-tight sm:hidden"
+          className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 sm:hidden"
         >
-          HEY<span className="text-pop-foreground bg-pop px-0.5">FREAK</span>
+          <Logo className="h-6 w-auto" />
         </Link>
 
         <nav className="hidden items-center gap-1 md:flex">
@@ -99,7 +99,7 @@ export default function Header() {
           {searchOpen ? (
             <form
               onSubmit={submitSearch}
-              className="hidden items-center border-l-2 border-border sm:flex"
+              className="hidden items-center border-l border-border sm:flex"
             >
               <input
                 autoFocus
@@ -125,7 +125,7 @@ export default function Header() {
               type="button"
               aria-label="Cari"
               onClick={() => setSearchOpen(true)}
-              className="hidden h-11 w-11 items-center justify-center border-l-2 border-border text-foreground transition-colors hover:bg-surface-2 sm:flex"
+              className="hidden h-11 w-11 items-center justify-center border-l border-border text-foreground transition-colors hover:bg-surface-2 sm:flex"
             >
               <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
                 <circle cx="11" cy="11" r="7" />
@@ -136,7 +136,7 @@ export default function Header() {
           {!isLoading && (
             <Link
               href={user ? "/account" : "/login"}
-              className="hidden h-11 items-center gap-2 border-l-2 border-border px-4 text-xs font-bold uppercase tracking-widest text-muted transition-colors hover:bg-surface-2 hover:text-foreground sm:flex"
+              className="hidden h-11 items-center gap-2 border-l border-border px-4 text-xs font-bold uppercase tracking-widest text-muted transition-colors hover:bg-surface-2 hover:text-foreground sm:flex"
             >
               <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
                 <circle cx="12" cy="8" r="4" />
@@ -147,7 +147,7 @@ export default function Header() {
           )}
           <button
             onClick={openCart}
-            className="flex h-11 items-center gap-2 border-l-2 border-border pl-4 pr-3 text-xs font-bold uppercase tracking-widest text-foreground transition-colors hover:bg-surface-2"
+            className="flex h-11 items-center gap-2 border-l border-border pl-4 pr-3 text-xs font-bold uppercase tracking-widest text-foreground transition-colors hover:bg-surface-2"
           >
             <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
               <path d="M6 6h15l-1.5 9h-12z" />
@@ -185,18 +185,16 @@ export default function Header() {
           role="dialog"
           aria-modal="true"
           aria-label="Menu"
-          className={`absolute left-0 top-0 flex h-full w-full max-w-xs flex-col border-r-2 border-border bg-surface transition-transform duration-300 ${
+          className={`absolute left-0 top-0 flex h-full w-full max-w-xs flex-col border-r border-border bg-surface transition-transform duration-300 ${
             mobileMenuOpen ? "translate-x-0" : "-translate-x-full"
           }`}
         >
-          <div className="flex items-center justify-between border-b-2 border-border px-5 py-4">
-            <span className="font-display text-2xl uppercase tracking-tight">
-              HEY<span className="text-pop-foreground bg-pop px-0.5">FREAK</span>
-            </span>
+          <div className="flex items-center justify-between border-b border-border px-5 py-4">
+            <Logo className="h-6 w-auto" />
             <button
               aria-label="Tutup menu"
               onClick={() => setMobileMenuOpen(false)}
-              className="btn-tag flex h-9 w-9 items-center justify-center border-2 border-border text-foreground transition-colors hover:border-accent hover:text-accent"
+              className="btn-tag flex h-9 w-9 items-center justify-center border border-border text-foreground transition-colors hover:border-accent hover:text-accent"
             >
               <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
                 <path d="M18 6 6 18M6 6l12 12" />
@@ -204,7 +202,7 @@ export default function Header() {
             </button>
           </div>
 
-          <form onSubmit={submitMobileSearch} className="flex items-center gap-2 border-b-2 border-border px-5 py-4">
+          <form onSubmit={submitMobileSearch} className="flex items-center gap-2 border-b border-border px-5 py-4">
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="shrink-0 text-muted">
               <circle cx="11" cy="11" r="7" />
               <path d="m21 21-4.3-4.3" />
@@ -234,7 +232,7 @@ export default function Header() {
             <Link
               href={user ? "/account" : "/login"}
               onClick={() => setMobileMenuOpen(false)}
-              className="flex items-center gap-2.5 border-t-2 border-border px-5 py-4 text-sm font-bold uppercase tracking-widest text-foreground transition-colors hover:bg-surface-2"
+              className="flex items-center gap-2.5 border-t border-border px-5 py-4 text-sm font-bold uppercase tracking-widest text-foreground transition-colors hover:bg-surface-2"
             >
               <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
                 <circle cx="12" cy="8" r="4" />

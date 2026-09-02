@@ -10,6 +10,7 @@ import { useToast } from "@/lib/toast-context";
 import { useWishlist } from "@/lib/wishlist-context";
 import Breadcrumb from "@/components/Breadcrumb";
 import LocationPicker from "@/components/LocationPicker";
+import Logo from "@/components/Logo";
 import ProductCard from "@/components/ProductCard";
 import Select from "@/components/Select";
 import {
@@ -186,10 +187,10 @@ export default function AccountPage() {
 
   return (
     <main className="min-h-screen">
-      <div className="border-b-2 border-border">
+      <div className="border-b border-border">
         <div className="mx-auto flex max-w-4xl items-center justify-between px-4 py-4 sm:px-6">
-          <Link href="/" className="font-display text-2xl tracking-wide">
-            HEY<span className="text-accent">FREAK</span>
+          <Link href="/">
+            <Logo className="h-6 w-auto" />
           </Link>
           <button
             onClick={() => logout().then(() => router.push("/"))}
@@ -207,7 +208,7 @@ export default function AccountPage() {
           {user.name} — {user.email}
         </p>
 
-        <div className="mt-8 flex gap-2 border-b-2 border-border">
+        <div className="mt-8 flex gap-2 border-b border-border">
           {(
             [
               ["alamat", "Alamat"],
@@ -218,7 +219,7 @@ export default function AccountPage() {
             <button
               key={key}
               onClick={() => setTab(key)}
-              className={`border-b-2 px-4 py-3 text-sm font-bold uppercase tracking-wide transition-colors ${
+              className={`border-b px-4 py-3 text-sm font-bold uppercase tracking-wide transition-colors ${
                 tab === key
                   ? "border-accent text-foreground"
                   : "border-transparent text-muted hover:text-foreground"
@@ -235,7 +236,7 @@ export default function AccountPage() {
               <h2 className="font-display text-xl uppercase tracking-tight">Alamat Tersimpan</h2>
               <button
                 onClick={openNewForm}
-                className="btn-tag border-2 border-border px-4 py-2 text-xs font-bold uppercase tracking-wide transition-colors hover:border-accent hover:text-accent"
+                className="btn-tag border border-border px-4 py-2 text-xs font-bold uppercase tracking-wide transition-colors hover:border-accent hover:text-accent"
               >
                 + Tambah Alamat
               </button>
@@ -244,7 +245,7 @@ export default function AccountPage() {
             {loadingAddresses ? (
               <p className="mt-6 text-sm text-muted">Memuat alamat...</p>
             ) : addresses.length === 0 ? (
-              <p className="mt-6 border-2 border-border bg-surface px-4 py-8 text-center text-sm text-muted">
+              <p className="mt-6 border border-border bg-surface px-4 py-8 text-center text-sm text-muted">
                 Belum ada alamat tersimpan.
               </p>
             ) : (
@@ -252,7 +253,7 @@ export default function AccountPage() {
                 {addresses.map((a) => (
                   <li
                     key={a.id}
-                    className="clip-tag border-2 border-border bg-surface p-4 shadow-edge"
+                    className="clip-tag border border-border bg-surface p-4 shadow-edge"
                   >
                     <div className="flex items-start justify-between gap-2">
                       <div className="flex items-center gap-2">
@@ -286,7 +287,7 @@ export default function AccountPage() {
               <form
                 onSubmit={handleSubmit}
                 onInvalidCapture={() => toast("Lengkapi dulu semua data yang wajib diisi ya", "error")}
-                className="clip-tag mt-8 flex flex-col gap-4 border-2 border-border bg-surface p-5"
+                className="clip-tag mt-8 flex flex-col gap-4 border border-border bg-surface p-5"
               >
                 <h3 className="font-display text-lg uppercase tracking-tight">
                   {editingId ? "Ubah Alamat" : "Alamat Baru"}
@@ -299,7 +300,7 @@ export default function AccountPage() {
                       value={form.label}
                       onChange={(e) => setForm({ ...form, label: e.target.value })}
                       placeholder="Rumah / Kantor"
-                      className="border-2 border-border bg-background px-3.5 py-2.5 text-foreground outline-none focus:border-accent"
+                      className="border border-border bg-background px-3.5 py-2.5 text-foreground outline-none focus:border-accent"
                     />
                   </label>
                   <label className="flex flex-col gap-1.5 text-sm">
@@ -308,7 +309,7 @@ export default function AccountPage() {
                       required
                       value={form.recipientName}
                       onChange={(e) => setForm({ ...form, recipientName: e.target.value })}
-                      className="border-2 border-border bg-background px-3.5 py-2.5 text-foreground outline-none focus:border-accent"
+                      className="border border-border bg-background px-3.5 py-2.5 text-foreground outline-none focus:border-accent"
                     />
                   </label>
                   <label className="flex flex-col gap-1.5 text-sm">
@@ -317,7 +318,7 @@ export default function AccountPage() {
                       required
                       value={form.phone}
                       onChange={(e) => setForm({ ...form, phone: e.target.value })}
-                      className="border-2 border-border bg-background px-3.5 py-2.5 text-foreground outline-none focus:border-accent"
+                      className="border border-border bg-background px-3.5 py-2.5 text-foreground outline-none focus:border-accent"
                     />
                   </label>
                   <label className="flex flex-col gap-1.5 text-sm sm:col-span-2">
@@ -327,7 +328,7 @@ export default function AccountPage() {
                       rows={2}
                       value={form.address}
                       onChange={(e) => setForm({ ...form, address: e.target.value })}
-                      className="resize-none border-2 border-border bg-background px-3.5 py-2.5 text-foreground outline-none focus:border-accent"
+                      className="resize-none border border-border bg-background px-3.5 py-2.5 text-foreground outline-none focus:border-accent"
                     />
                   </label>
                   <LocationPicker
@@ -344,7 +345,7 @@ export default function AccountPage() {
                       required
                       value={form.postalCode}
                       onChange={(e) => setForm({ ...form, postalCode: e.target.value })}
-                      className="border-2 border-border bg-background px-3.5 py-2.5 text-foreground outline-none focus:border-accent"
+                      className="border border-border bg-background px-3.5 py-2.5 text-foreground outline-none focus:border-accent"
                     />
                   </label>
                   <label className="flex items-center gap-2 pt-6 text-sm">
@@ -359,7 +360,7 @@ export default function AccountPage() {
                 </div>
 
                 {error && (
-                  <p className="border-2 border-red-500/40 bg-red-500/10 px-3 py-2 text-sm text-red-500">
+                  <p className="border border-red-500/40 bg-red-500/10 px-3 py-2 text-sm text-red-500">
                     {error}
                   </p>
                 )}
@@ -375,7 +376,7 @@ export default function AccountPage() {
                   <button
                     type="button"
                     onClick={() => setShowForm(false)}
-                    className="btn-tag border-2 border-border px-6 py-2.5 text-sm font-bold uppercase tracking-wide hover:border-accent hover:text-accent"
+                    className="btn-tag border border-border px-6 py-2.5 text-sm font-bold uppercase tracking-wide hover:border-accent hover:text-accent"
                   >
                     Batal
                   </button>
@@ -391,8 +392,8 @@ export default function AccountPage() {
             {loadingWishlist ? (
               <p className="mt-6 text-sm text-muted">Memuat wishlist...</p>
             ) : wishlistItems.length === 0 ? (
-              <p className="mt-6 border-2 border-border bg-surface px-4 py-8 text-center text-sm text-muted">
-                Belum ada produk di wishlist. Klik ikon hati di produk buat nyimpen.
+              <p className="mt-6 border border-border bg-surface px-4 py-8 text-center text-sm text-muted">
+                Belum ada produk di wishlist. Buka halaman produk dan klik ikon hati buat nyimpen.
               </p>
             ) : (
               <div className="mt-6 grid grid-cols-2 gap-4 sm:gap-5 md:grid-cols-3">
@@ -425,7 +426,7 @@ export default function AccountPage() {
                   value={search}
                   onChange={(e) => setSearch(e.target.value)}
                   placeholder="Cari transaksimu di sini"
-                  className="w-full border-2 border-border bg-surface py-2.5 pl-10 pr-4 text-sm text-foreground outline-none focus:border-accent"
+                  className="w-full border border-border bg-surface py-2.5 pl-10 pr-4 text-sm text-foreground outline-none focus:border-accent"
                 />
               </div>
               <Select
@@ -440,7 +441,7 @@ export default function AccountPage() {
                 type="date"
                 value={dateFilter}
                 onChange={(e) => setDateFilter(e.target.value)}
-                className="border-2 border-border bg-surface px-4 py-2.5 text-sm text-foreground outline-none focus:border-accent"
+                className="border border-border bg-surface px-4 py-2.5 text-sm text-foreground outline-none focus:border-accent"
               />
             </div>
 
@@ -449,7 +450,7 @@ export default function AccountPage() {
                 <button
                   key={t.key}
                   onClick={() => setStatusFilter(t.key)}
-                  className={`btn-tag border-2 px-4 py-1.5 text-xs font-bold uppercase tracking-wide transition-colors ${
+                  className={`btn-tag border px-4 py-1.5 text-xs font-bold uppercase tracking-wide transition-colors ${
                     statusFilter === t.key
                       ? "border-accent bg-accent text-accent-foreground"
                       : "border-border text-muted hover:border-accent hover:text-foreground"
@@ -471,11 +472,11 @@ export default function AccountPage() {
             {loadingOrders ? (
               <p className="mt-6 text-sm text-muted">Memuat transaksi...</p>
             ) : orders.length === 0 ? (
-              <p className="mt-6 border-2 border-border bg-surface px-4 py-8 text-center text-sm text-muted">
+              <p className="mt-6 border border-border bg-surface px-4 py-8 text-center text-sm text-muted">
                 Belum ada transaksi.
               </p>
             ) : filteredOrders.length === 0 ? (
-              <p className="mt-6 border-2 border-border bg-surface px-4 py-8 text-center text-sm text-muted">
+              <p className="mt-6 border border-border bg-surface px-4 py-8 text-center text-sm text-muted">
                 Tidak ada transaksi yang cocok dengan filter.
               </p>
             ) : (
@@ -491,8 +492,8 @@ export default function AccountPage() {
                   const extraCount = items.length - 1;
 
                   return (
-                    <li key={o.id} className="clip-tag border-2 border-border bg-surface p-4 shadow-edge sm:p-5">
-                      <div className="flex flex-wrap items-center justify-between gap-2 border-b-2 border-border pb-3">
+                    <li key={o.id} className="clip-tag border border-border bg-surface p-4 shadow-edge sm:p-5">
+                      <div className="flex flex-wrap items-center justify-between gap-2 border-b border-border pb-3">
                         <div className="flex items-center gap-2">
                           <span aria-hidden className="text-base">
                             🛍️
@@ -510,7 +511,7 @@ export default function AccountPage() {
 
                       {firstItem && (
                         <div className="mt-3 flex items-center gap-3">
-                          <div className="relative h-14 w-14 shrink-0 overflow-hidden border-2 border-border bg-surface-2">
+                          <div className="relative h-14 w-14 shrink-0 overflow-hidden border border-border bg-surface-2">
                             {product && (
                               <Image src={product.image} alt={firstItem.productName} fill sizes="56px" className="object-cover" />
                             )}
@@ -537,7 +538,7 @@ export default function AccountPage() {
                       <div className="mt-4 flex flex-wrap items-center justify-end gap-2">
                         <Link
                           href={`/order/${o.id}`}
-                          className="btn-tag border-2 border-border px-4 py-2 text-xs font-bold uppercase tracking-wide text-foreground transition-colors hover:border-accent hover:text-accent"
+                          className="btn-tag border border-border px-4 py-2 text-xs font-bold uppercase tracking-wide text-foreground transition-colors hover:border-accent hover:text-accent"
                         >
                           Lihat Detail Transaksi
                         </Link>

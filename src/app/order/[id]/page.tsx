@@ -4,6 +4,7 @@ import { getOrder, type Order } from "@/lib/api";
 import { formatIDR } from "@/lib/products";
 import PrintInvoiceButton from "@/components/PrintInvoiceButton";
 import Breadcrumb from "@/components/Breadcrumb";
+import Logo from "@/components/Logo";
 
 const STATUS_COPY: Record<string, { label: string; desc: string; tone: "ok" | "warn" | "bad" }> = {
   paid: {
@@ -70,8 +71,8 @@ export default async function OrderStatusPage({
     <main className="min-h-screen bg-background py-10 print:py-0">
       <div className="mx-auto max-w-3xl px-4 sm:px-6">
         <div className="flex items-center justify-between print:hidden">
-          <Link href="/" className="font-display text-2xl tracking-wide">
-            HEY<span className="text-accent">FREAK</span>
+          <Link href="/">
+            <Logo className="h-6 w-auto" />
           </Link>
           <Link href="/" className="text-sm font-semibold uppercase tracking-wide text-muted hover:text-foreground">
             ← Balik ke Toko
@@ -88,12 +89,10 @@ export default async function OrderStatusPage({
           />
         </div>
 
-        <div className="mt-6 border-2 border-border bg-surface p-6 shadow-edge print:mt-0 print:border-0 print:p-0 print:shadow-none sm:p-8">
-          <div className="flex flex-wrap items-start justify-between gap-4 border-b-2 border-border pb-6">
+        <div className="mt-6 border border-border bg-surface p-6 shadow-edge print:mt-0 print:border-0 print:p-0 print:shadow-none sm:p-8">
+          <div className="flex flex-wrap items-start justify-between gap-4 border-b border-border pb-6">
             <div>
-              <p className="font-display text-3xl tracking-wide">
-                HEY<span className="text-accent">FREAK</span>
-              </p>
+              <Logo className="h-8 w-auto" />
               <p className="mt-1 text-sm text-muted">Original Streetwear</p>
             </div>
             <div className="text-right">
@@ -176,7 +175,7 @@ export default async function OrderStatusPage({
                 <span>Ongkir</span>
                 <span className="text-foreground">{formatIDR(order.shipping)}</span>
               </div>
-              <div className="flex justify-between border-t-2 border-border pt-2 text-base font-bold">
+              <div className="flex justify-between border-t border-border pt-2 text-base font-bold">
                 <span>Total</span>
                 <span className="font-display text-lg">{formatIDR(order.total)}</span>
               </div>
@@ -184,13 +183,13 @@ export default async function OrderStatusPage({
           </div>
 
           {order.notes && (
-            <div className="mt-6 border-t-2 border-border pt-4">
+            <div className="mt-6 border-t border-border pt-4">
               <h2 className="text-xs font-bold uppercase tracking-widest text-muted">Catatan</h2>
               <p className="mt-1 text-sm text-muted">{order.notes}</p>
             </div>
           )}
 
-          <div className="mt-8 flex justify-center gap-3 border-t-2 border-border pt-6 print:hidden">
+          <div className="mt-8 flex justify-center gap-3 border-t border-border pt-6 print:hidden">
             <PrintInvoiceButton />
             <Link
               href="/"

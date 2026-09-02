@@ -26,7 +26,7 @@ export default function Pagination({
   if (totalPages <= 1) return null;
 
   return (
-    <nav aria-label="Navigasi halaman" className="mt-10 flex items-center justify-center gap-1 border-2 border-border p-1 w-fit mx-auto">
+    <nav aria-label="Navigasi halaman" className="mt-10 flex items-center justify-center gap-1 border border-border p-1 w-fit mx-auto">
       <button
         onClick={() => onPageChange(page - 1)}
         disabled={page === 1}

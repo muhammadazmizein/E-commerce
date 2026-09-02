@@ -6,6 +6,7 @@ import { useRouter, useSearchParams } from "next/navigation";
 import { Suspense, useState, type FormEvent } from "react";
 import { useAuth } from "@/lib/auth-context";
 import { useToast } from "@/lib/toast-context";
+import Logo from "@/components/Logo";
 
 function RegisterForm() {
   const { register } = useAuth();
@@ -51,12 +52,12 @@ function RegisterForm() {
         <div className="absolute inset-0 bg-gradient-to-t from-black/85 via-black/40 to-black/70" />
 
         <div className="relative z-10 flex h-full flex-col justify-between p-10 text-background xl:p-14">
-          <Link href="/" className="font-display text-3xl tracking-tight">
-            HEYFREAK
+          <Link href="/">
+            <Logo className="h-7 w-auto" invert />
           </Link>
 
           <div>
-            <span className="btn-tag inline-block border-2 border-background px-3 py-1 text-xs font-bold uppercase tracking-widest">
+            <span className="btn-tag inline-block border border-background px-3 py-1 text-xs font-bold uppercase tracking-widest">
               Gabung Freak
             </span>
             <h1 className="mt-5 font-display text-6xl uppercase leading-[0.88] xl:text-7xl">
@@ -78,11 +79,11 @@ function RegisterForm() {
 
       <div className="flex flex-col justify-center px-4 py-16 sm:px-6 lg:px-12 xl:px-20">
         <div className="mx-auto w-full max-w-md">
-          <Link href="/" className="block font-display text-2xl tracking-tight lg:hidden">
-            HEY<span className="text-accent">FREAK</span>
+          <Link href="/" className="block lg:hidden">
+            <Logo className="h-6 w-auto" />
           </Link>
 
-          <span className="btn-tag mt-8 inline-block border-2 border-accent px-3 py-1 text-xs font-bold uppercase tracking-widest text-accent lg:mt-0">
+          <span className="btn-tag mt-8 inline-block border border-accent px-3 py-1 text-xs font-bold uppercase tracking-widest text-accent lg:mt-0">
             Gabung Freak
           </span>
           <h1 className="mt-4 font-display text-4xl uppercase tracking-tight sm:text-5xl">
@@ -107,7 +108,7 @@ function RegisterForm() {
               <input
                 required
                 name="name"
-                className="border-2 border-border bg-surface px-4 py-3 text-base text-foreground outline-none focus:border-accent"
+                className="border border-border bg-surface px-4 py-3 text-base text-foreground outline-none focus:border-accent"
                 placeholder="Nama kamu"
               />
             </label>
@@ -117,7 +118,7 @@ function RegisterForm() {
                 required
                 type="email"
                 name="email"
-                className="border-2 border-border bg-surface px-4 py-3 text-base text-foreground outline-none focus:border-accent"
+                className="border border-border bg-surface px-4 py-3 text-base text-foreground outline-none focus:border-accent"
                 placeholder="kamu@email.com"
               />
             </label>
@@ -130,13 +131,13 @@ function RegisterForm() {
                 type="password"
                 name="password"
                 minLength={8}
-                className="border-2 border-border bg-surface px-4 py-3 text-base text-foreground outline-none focus:border-accent"
+                className="border border-border bg-surface px-4 py-3 text-base text-foreground outline-none focus:border-accent"
                 placeholder="Minimal 8 karakter"
               />
             </label>
 
             {error && (
-              <p className="border-2 border-red-500/40 bg-red-500/10 px-3 py-2 text-sm text-red-500">
+              <p className="border border-red-500/40 bg-red-500/10 px-3 py-2 text-sm text-red-500">
                 {error}
               </p>
             )}

@@ -3,12 +3,14 @@
 import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
-import { badgeLabel, formatIDR, type Product } from "@/lib/products";
+import { formatIDR, type Product } from "@/lib/products";
 import { useCart } from "@/lib/cart-context";
 import { useWishlist } from "@/lib/wishlist-context";
 import Breadcrumb from "@/components/Breadcrumb";
+import ProductBadge from "@/components/ProductBadge";
 import ProductReviews from "@/components/ProductReviews";
 import RelatedProducts from "@/components/RelatedProducts";
+import { getSizeChart } from "@/lib/size-chart";
 
 function AccordionSection({
   title,
@@ -55,6 +57,7 @@ export default function ProductDetail({
   const wishlisted = isWishlisted(product.id);
 
   const needsSize = hasSizes && !size;
+  const sizeChart = hasSizes ? getSizeChart(product.category, product.sizes!) : null;
 
   function handleAddToCart() {
     if (soldOut || needsSize) return;
@@ -95,7 +98,7 @@ export default function ProductDetail({
             />
             {product.badge && (
               <span className="absolute left-4 top-4 text-xs font-medium text-foreground">
-                {badgeLabel(product.badge)}
+                <ProductBadge badge={product.badge} />
               </span>
             )}
           </div>
@@ -213,6 +216,47 @@ export default function ProductDetail({
                 </ul>
               )}
             </AccordionSection>
+            {hasSizes && (
+              <AccordionSection title="Panduan Ukuran">
+                {sizeChart ? (
+                  <>
+                    <div className="overflow-x-auto">
+                      <table className="w-full min-w-[380px] border-collapse text-left">
+                        <thead>
+                          <tr className="border-b border-border">
+                            {sizeChart.columns.map((col) => (
+                              <th key={col} className="whitespace-nowrap py-2 pr-4 text-xs font-semibold text-foreground">
+                                {col}
+                              </th>
+                            ))}
+                          </tr>
+                        </thead>
+                        <tbody>
+                          {sizeChart.rows.map((row) => (
+                            <tr key={row.size} className="border-b border-border last:border-0">
+                              <td className="whitespace-nowrap py-2 pr-4 font-medium text-foreground">{row.size}</td>
+                              {row.values.map((v, i) => (
+                                <td key={i} className="whitespace-nowrap py-2 pr-4">
+                                  {v}
+                                </td>
+                              ))}
+                            </tr>
+                          ))}
+                        </tbody>
+                      </table>
+                    </div>
+                    <p className="mt-3 text-xs text-muted">
+                      Ukuran dalam cm, diukur secara manual — toleransi ±2 cm.
+                    </p>
+                  </>
+                ) : (
+                  <p>
+                    Ukuran tersedia: {product.sizes!.join(", ")} — satu ukuran yang fit untuk
+                    kebanyakan orang, bisa disesuaikan sesuai kebutuhan.
+                  </p>
+                )}
+              </AccordionSection>
+            )}
             <AccordionSection title="Shipping & Returns">
               <p>
                 Ongkos kirim dihitung otomatis saat checkout sesuai kota tujuan. Ada masalah

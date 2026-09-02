@@ -1,6 +1,7 @@
 import Image from "next/image";
 import Link from "next/link";
-import { badgeLabel, formatIDR, type Product } from "@/lib/products";
+import { formatIDR, type Product } from "@/lib/products";
+import ProductBadge from "@/components/ProductBadge";
 
 export default function ProductCard({
   product,
@@ -25,7 +26,7 @@ export default function ProductCard({
         />
         {product.badge && (
           <span className="absolute left-2 top-2 text-xs font-medium text-foreground">
-            {badgeLabel(product.badge)}
+            <ProductBadge badge={product.badge} />
           </span>
         )}
       </div>

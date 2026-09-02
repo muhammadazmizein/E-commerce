@@ -201,7 +201,7 @@ export default function ProductDetail({
           )}
 
           <div className="mt-8">
-            <AccordionSection title="Detail" defaultOpen>
+            <AccordionSection title="Detail">
               {product.description && <p>{product.description}</p>}
               {product.highlights && product.highlights.length > 0 && (
                 <ul className="mt-3 list-disc space-y-1.5 pl-4">

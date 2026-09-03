@@ -27,7 +27,7 @@ export default function LanguageSwitcher({ className = "" }: { className?: strin
     <div
       role="group"
       aria-label={t("language")}
-      className={`flex items-center border border-border text-xs font-bold uppercase tracking-widest ${className}`}
+      className={`flex items-center overflow-hidden rounded-full border border-border bg-surface-2 text-xs font-bold uppercase tracking-widest ${className}`}
     >
       {locales.map((l) => (
         <button
@@ -36,7 +36,7 @@ export default function LanguageSwitcher({ className = "" }: { className?: strin
           disabled={isPending}
           onClick={() => switchTo(l)}
           aria-pressed={l === locale}
-          className={`px-2.5 py-1.5 transition-colors disabled:cursor-wait ${
+          className={`px-3 py-1.5 transition-colors disabled:cursor-wait ${
             l === locale ? "bg-foreground text-background" : "text-muted hover:text-foreground"
           }`}
         >

@@ -148,7 +148,7 @@ export default function Header() {
               {user ? user.name.split(" ")[0] : t("login")}
             </Link>
           )}
-          <LanguageSwitcher className="my-auto hidden sm:flex" />
+          <LanguageSwitcher className="mx-3 hidden sm:flex" />
           <button
             onClick={openCart}
             className="flex h-11 items-center gap-2 border-l border-border pl-4 pr-3 text-xs font-bold uppercase tracking-widest text-foreground transition-colors hover:bg-surface-2"

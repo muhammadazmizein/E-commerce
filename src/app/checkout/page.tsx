@@ -8,6 +8,7 @@ import { useEffect, useState, type FormEvent } from "react";
 import { useTranslations } from "next-intl";
 import { useCart } from "@/lib/cart-context";
 import Breadcrumb from "@/components/Breadcrumb";
+import Footer from "@/components/Footer";
 import LocationPicker, { type ResolvedLocation } from "@/components/LocationPicker";
 import Logo from "@/components/Logo";
 import Select from "@/components/Select";
@@ -421,7 +422,7 @@ export default function CheckoutPage() {
   }
 
   return (
-    <main className="min-h-screen">
+    <div className="flex min-h-screen flex-col">
       <div className="border-b border-border">
         <div className="mx-auto flex max-w-7xl items-center justify-between px-4 py-4 sm:px-6 lg:px-8">
           <Link href="/">
@@ -433,6 +434,7 @@ export default function CheckoutPage() {
         </div>
       </div>
 
+      <main className="flex-1">
       <div className="mx-auto max-w-7xl px-4 pt-6 sm:px-6 lg:px-8">
         <Breadcrumb items={[{ label: tBreadcrumb("home"), href: "/" }, { label: "Checkout" }]} />
       </div>
@@ -699,6 +701,9 @@ export default function CheckoutPage() {
           </div>
         </aside>
       </div>
-    </main>
+      </main>
+
+      <Footer />
+    </div>
   );
 }

@@ -521,7 +521,7 @@ export default function AccountPage() {
 
                       {firstItem && (
                         <div className="mt-3 flex items-center gap-3">
-                          <div className="relative h-14 w-14 shrink-0 overflow-hidden border border-border bg-surface-2">
+                          <div className="relative h-14 w-14 shrink-0 overflow-hidden bg-surface-2">
                             {product && (
                               <Image src={product.image} alt={firstItem.productName} fill sizes="56px" className="object-cover" />
                             )}

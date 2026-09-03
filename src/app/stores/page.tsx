@@ -19,9 +19,9 @@ export default async function StoresPage() {
   const tBreadcrumb = await getTranslations("breadcrumb");
 
   return (
-    <div>
+    <div className="flex min-h-screen flex-col">
       <Header />
-      <main className="mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8">
+      <main className="mx-auto w-full max-w-7xl flex-1 px-4 py-8 sm:px-6 lg:px-8">
         <Breadcrumb items={[{ label: tBreadcrumb("home"), href: "/" }, { label: t("breadcrumb") }]} />
         <div className="mt-6 text-center">
           <h1 className="font-display text-3xl uppercase tracking-wide">{t("title")}</h1>

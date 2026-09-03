@@ -75,7 +75,7 @@ export default function CartDrawer() {
             <ul className="flex-1 divide-y-2 divide-border overflow-y-auto px-5">
               {items.map((line) => (
                 <li key={`${line.productId}-${line.size ?? "x"}`} className="flex gap-3 py-4">
-                  <div className="relative h-20 w-16 shrink-0 overflow-hidden border border-border">
+                  <div className="relative h-20 w-16 shrink-0 overflow-hidden">
                     <Image
                       src={line.image}
                       alt={line.name}

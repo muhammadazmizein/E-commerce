@@ -101,7 +101,7 @@ export default function ProductDetail({
 
       <div className="grid gap-10 lg:grid-cols-12">
         <div className="lg:col-span-6">
-          <div className="clip-tag relative aspect-[4/5] overflow-hidden border border-border bg-surface-2">
+          <div className="clip-tag relative aspect-[4/5] overflow-hidden bg-surface-2">
             <Image
               src={product.image}
               alt={product.name}

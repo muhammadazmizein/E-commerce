@@ -160,7 +160,7 @@ export default function ProductsCatalog({
             </svg>
           </button>
           {sortOpen && (
-            <div className="absolute right-0 top-full z-20 mt-2 w-64 rounded-lg border border-border bg-surface p-2 shadow-edge-lg">
+            <div className="absolute left-0 top-full z-20 mt-2 w-64 max-w-[calc(100vw-2rem)] rounded-lg border border-border bg-surface p-2 shadow-edge-lg">
               {SORT_OPTIONS.map((opt) => (
                 <button
                   key={opt.value}

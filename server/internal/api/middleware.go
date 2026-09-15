@@ -9,14 +9,29 @@ import (
 )
 
 const sessionCookieName = "heyfreak_session"
+const staffSessionCookieName = "heyfreak_staff_session"
 
 type contextKey string
 
 const userContextKey contextKey = "user"
+const staffContextKey contextKey = "staff"
 
-func withCORS(allowedOrigin string, next http.Handler) http.Handler {
+// withCORS allows a small set of known origins — the customer storefront
+// and (a different origin) heyfreak-admin — rather than a single one.
+// Credentialed requests (cookies) can't use a "*" wildcard origin, so the
+// matching origin is echoed back instead.
+func withCORS(allowedOrigins []string, next http.Handler) http.Handler {
+	allowed := make(map[string]bool, len(allowedOrigins))
+	for _, o := range allowedOrigins {
+		allowed[o] = true
+	}
+
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		w.Header().Set("Access-Control-Allow-Origin", allowedOrigin)
+		origin := r.Header.Get("Origin")
+		if allowed[origin] {
+			w.Header().Set("Access-Control-Allow-Origin", origin)
+			w.Header().Set("Vary", "Origin")
+		}
 		w.Header().Set("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS")
 		w.Header().Set("Access-Control-Allow-Headers", "Content-Type")
 		w.Header().Set("Access-Control-Allow-Credentials", "true")
@@ -72,4 +87,63 @@ func requireAuth(next http.HandlerFunc) http.HandlerFunc {
 		}
 		next(w, r)
 	}
+}
+
+// withStaff mirrors withUser but for the separate heyfreak-admin staff
+// session cookie — a request can carry both a customer session and a staff
+// session at once (different cookies), though in practice only one client
+// origin will ever send either.
+func (a *API) withStaff(next http.Handler) http.Handler {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		cookie, err := r.Cookie(staffSessionCookieName)
+		if err != nil || cookie.Value == "" {
+			next.ServeHTTP(w, r)
+			return
+		}
+
+		staff, err := a.store.StaffFromSession(cookie.Value)
+		if err != nil {
+			next.ServeHTTP(w, r)
+			return
+		}
+
+		ctx := context.WithValue(r.Context(), staffContextKey, staff)
+		next.ServeHTTP(w, r.WithContext(ctx))
+	})
+}
+
+func staffFromContext(r *http.Request) (store.Staff, bool) {
+	staff, ok := r.Context().Value(staffContextKey).(store.Staff)
+	return staff, ok
+}
+
+// requireStaffRole wraps a handler that must only run for a logged-in
+// staff member, optionally restricted to a set of roles (no roles means
+// "any authenticated staff").
+func requireStaffRole(roles ...string) func(http.HandlerFunc) http.HandlerFunc {
+	allowed := make(map[string]bool, len(roles))
+	for _, r := range roles {
+		allowed[r] = true
+	}
+
+	return func(next http.HandlerFunc) http.HandlerFunc {
+		return func(w http.ResponseWriter, r *http.Request) {
+			staff, ok := staffFromContext(r)
+			if !ok {
+				writeError(w, http.StatusUnauthorized, "login staff diperlukan")
+				return
+			}
+			if len(allowed) > 0 && !allowed[staff.Role] {
+				writeError(w, http.StatusForbidden, "role kamu tidak punya akses ini")
+				return
+			}
+			next(w, r)
+		}
+	}
+}
+
+// requireStaffAuth wraps a handler that must only run for any logged-in
+// staff member, regardless of role.
+func requireStaffAuth(next http.HandlerFunc) http.HandlerFunc {
+	return requireStaffRole()(next)
 }

@@ -37,14 +37,14 @@ export default function RelatedProducts({ products }: { products: Product[] }) {
           <button
             aria-label={t("scrollLeft")}
             onClick={() => scrollByAmount(-480)}
-            className="btn-tag flex h-10 w-10 items-center justify-center border border-border bg-surface text-foreground transition-colors hover:border-accent hover:text-accent"
+            className="btn-tag flex h-9 w-9 shrink-0 items-center justify-center border border-border bg-surface text-foreground transition-colors hover:border-accent hover:text-accent sm:h-10 sm:w-10"
           >
             <ArrowIcon direction="left" />
           </button>
           <button
             aria-label={t("scrollRight")}
             onClick={() => scrollByAmount(480)}
-            className="btn-tag flex h-10 w-10 items-center justify-center border border-border bg-surface text-foreground transition-colors hover:border-accent hover:text-accent"
+            className="btn-tag flex h-9 w-9 shrink-0 items-center justify-center border border-border bg-surface text-foreground transition-colors hover:border-accent hover:text-accent sm:h-10 sm:w-10"
           >
             <ArrowIcon direction="right" />
           </button>
@@ -53,10 +53,10 @@ export default function RelatedProducts({ products }: { products: Product[] }) {
 
       <div
         ref={scrollerRef}
-        className="-mx-4 flex snap-x snap-mandatory gap-4 overflow-x-auto scroll-smooth px-4 pb-2 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
+        className="grid grid-cols-2 gap-4 sm:-mx-4 sm:flex sm:snap-x sm:snap-mandatory sm:gap-4 sm:overflow-x-auto sm:scroll-smooth sm:px-4 sm:pb-2 sm:scroll-pl-4 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
       >
         {products.map((p) => (
-          <div key={p.id} className="w-[min(58vw,220px)] flex-none snap-start sm:w-[240px]">
+          <div key={p.id} className="sm:w-[240px] sm:flex-none sm:snap-start">
             <ProductCard product={p} variant="compact" />
           </div>
         ))}

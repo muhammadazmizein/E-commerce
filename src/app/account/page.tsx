@@ -4,7 +4,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useEffect, useMemo, useState, type FormEvent } from "react";
-import { useLocale, useTranslations } from "next-intl";
+import { useTranslations } from "next-intl";
 import { useAuth } from "@/lib/auth-context";
 import { useCart } from "@/lib/cart-context";
 import { useToast } from "@/lib/toast-context";
@@ -42,7 +42,6 @@ export default function AccountPage() {
   const tBreadcrumb = useTranslations("breadcrumb");
   const tAuth = useTranslations("auth");
   const tProductsCatalog = useTranslations("productsCatalog");
-  const locale = useLocale();
   const { user, isLoading, logout } = useAuth();
   const { addItem } = useCart();
   const { toast } = useToast();
@@ -510,7 +509,7 @@ export default function AccountPage() {
                           </span>
                           <span className="text-sm font-bold uppercase tracking-wide text-foreground">{t("shopping")}</span>
                           <span className="text-xs text-muted">
-                            {new Date(o.createdAt).toLocaleDateString(locale === "en" ? "en-US" : "id-ID", { dateStyle: "medium" })}
+                            {new Date(o.createdAt).toLocaleDateString("en-US", { dateStyle: "medium" })}
                           </span>
                           <span className={`clip-tag-sm px-2.5 py-1 text-[11px] font-bold uppercase tracking-wide ${status.className}`}>
                             {status.label}

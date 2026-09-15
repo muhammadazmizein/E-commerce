@@ -1,6 +1,7 @@
 "use client";
 
 import Image from "next/image";
+import Link from "next/link";
 import { useMemo, useState } from "react";
 import { useTranslations } from "next-intl";
 import Select from "@/components/Select";
@@ -30,25 +31,29 @@ export default function StoresGrid({ stores }: { stores: Store[] }) {
           {t("empty")}
         </p>
       ) : (
-        <div className="mt-10 grid grid-cols-2 gap-5 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5">
+        <div className="mt-10 grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
           {filtered.map((store) => (
-            <div key={store.id} className="border border-border bg-surface">
+            <Link
+              key={store.id}
+              href={`/stores/${store.id}`}
+              className="clip-tag group block overflow-hidden border border-border bg-surface transition-colors hover:border-foreground"
+            >
               <div className="relative aspect-[4/3] overflow-hidden bg-surface-2">
                 <Image
                   src={store.image}
                   alt={store.name}
                   fill
-                  sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 20vw"
-                  className="object-cover"
+                  sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
+                  className="object-cover transition-transform duration-300 group-hover:scale-105"
                   priority
                 />
               </div>
-              <div className="flex flex-col gap-1 p-3">
-                <h3 className="text-sm font-semibold text-foreground">{store.name}</h3>
-                <p className="text-[11px] font-medium uppercase tracking-wide text-muted">{store.region}</p>
-                <p className="mt-1 text-xs leading-relaxed text-muted">{store.address}</p>
+              <div className="flex flex-col gap-1.5 p-5">
+                <h3 className="text-lg font-semibold text-foreground">{store.name}</h3>
+                <p className="text-xs font-medium uppercase tracking-wide text-muted">{store.region}</p>
+                <p className="mt-1 text-sm leading-relaxed text-muted">{store.address}</p>
               </div>
-            </div>
+            </Link>
           ))}
         </div>
       )}

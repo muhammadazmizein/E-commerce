@@ -40,7 +40,10 @@ func main() {
 		log.Println("warning: RajaOngkir is not configured (RAJAONGKIR_API_KEY/RAJAONGKIR_ORIGIN_CITY_ID missing) — falling back to flat-rate shipping")
 	}
 
-	router := api.New(db, mt, ro, cfg.AllowedOrigin).Router(cfg.AllowedOrigin)
+	// siteURL (used to build Midtrans's post-payment redirect) is the
+	// customer storefront specifically — the first configured origin,
+	// which by convention is the storefront and not heyfreak-admin.
+	router := api.New(db, mt, ro, cfg.AllowedOrigins[0]).Router(cfg.AllowedOrigins)
 
 	log.Printf("heyfreak-server listening on :%s", cfg.Port)
 	if err := http.ListenAndServe(":"+cfg.Port, router); err != nil {

@@ -1,48 +1,16 @@
 "use client";
 
 import Link from "next/link";
-import { useEffect, useState, type FormEvent } from "react";
-import { useLocale, useTranslations } from "next-intl";
-import { useAuth } from "@/lib/auth-context";
-import { useToast } from "@/lib/toast-context";
-import { getReviews, createReview, type ReviewSummary } from "@/lib/api";
+import { useEffect, useMemo, useState } from "react";
+import { useTranslations } from "next-intl";
+import { getReviews, type ReviewSummary } from "@/lib/api";
 import { Star, StarRow } from "@/components/StarRating";
-
-function StarPicker({ value, onChange, rateAria }: { value: number; onChange: (n: number) => void; rateAria: (n: number) => string }) {
-  const [hover, setHover] = useState(0);
-  return (
-    <div className="flex items-center gap-1">
-      {[1, 2, 3, 4, 5].map((n) => (
-        <button
-          key={n}
-          type="button"
-          onClick={() => onChange(n)}
-          onMouseEnter={() => setHover(n)}
-          onMouseLeave={() => setHover(0)}
-          className="p-0.5"
-          aria-label={rateAria(n)}
-        >
-          <span className="block h-6 w-6">
-            <Star filled={n <= (hover || value)} />
-          </span>
-        </button>
-      ))}
-    </div>
-  );
-}
 
 export default function ProductReviews({ productId }: { productId: string }) {
   const t = useTranslations("reviews");
-  const tAuth = useTranslations("auth");
-  const locale = useLocale();
-  const { user } = useAuth();
-  const { toast } = useToast();
   const [summary, setSummary] = useState<ReviewSummary | null>(null);
   const [loading, setLoading] = useState(true);
-  const [rating, setRating] = useState(0);
-  const [comment, setComment] = useState("");
-  const [submitting, setSubmitting] = useState(false);
-  const [error, setError] = useState<string | null>(null);
+  const [filterStar, setFilterStar] = useState<number | null>(null);
 
   useEffect(() => {
     getReviews(productId)
@@ -51,26 +19,48 @@ export default function ProductReviews({ productId }: { productId: string }) {
       .finally(() => setLoading(false));
   }, [productId]);
 
-  async function handleSubmit(e: FormEvent<HTMLFormElement>) {
-    e.preventDefault();
-    setError(null);
-    if (rating === 0) {
-      setError(t("rateFirst"));
-      toast(t("rateFirst"), "error");
-      return;
+  const counts = useMemo(() => {
+    const byStar: Record<number, number> = { 1: 0, 2: 0, 3: 0, 4: 0, 5: 0 };
+    for (const rv of summary?.reviews ?? []) {
+      byStar[rv.rating] = (byStar[rv.rating] ?? 0) + 1;
     }
-    setSubmitting(true);
-    try {
-      await createReview(productId, { rating, comment });
-      const fresh = await getReviews(productId);
-      setSummary(fresh);
-      setRating(0);
-      setComment("");
-    } catch (err) {
-      setError(err instanceof Error ? err.message : t("sendFailed"));
-    } finally {
-      setSubmitting(false);
-    }
+    return byStar;
+  }, [summary]);
+
+  const count = summary?.count ?? 0;
+  const satisfiedPercent =
+    count > 0 ? Math.round(((counts[5] + counts[4]) / count) * 100) : 0;
+
+  const visibleReviews = useMemo(() => {
+    const all = summary?.reviews ?? [];
+    return filterStar ? all.filter((rv) => rv.rating === filterStar) : all;
+  }, [summary, filterStar]);
+
+  function StarBreakdownRow({ star }: { star: number }) {
+    const barPercent = count > 0 ? (counts[star] / count) * 100 : 0;
+    const active = filterStar === star;
+    return (
+      <button
+        type="button"
+        onClick={() => setFilterStar((prev) => (prev === star ? null : star))}
+        disabled={counts[star] === 0}
+        className={`flex items-center gap-2 text-xs disabled:cursor-not-allowed ${
+          active ? "font-bold text-foreground" : "text-muted"
+        }`}
+      >
+        <span className="flex w-3 shrink-0 items-center gap-1">
+          <Star filled className="h-3.5 w-3.5" />
+          {star}
+        </span>
+        <span className="h-1.5 w-28 shrink-0 overflow-hidden rounded-full bg-surface-2 sm:w-36">
+          <span
+            className={`block h-full rounded-full ${counts[star] > 0 ? "bg-green-600" : ""}`}
+            style={{ width: `${barPercent}%` }}
+          />
+        </span>
+        <span className="w-8 shrink-0 text-left">({counts[star]})</span>
+      </button>
+    );
   }
 
   return (
@@ -83,55 +73,47 @@ export default function ProductReviews({ productId }: { productId: string }) {
         <p className="mt-4 text-sm text-muted">{t("loading")}</p>
       ) : (
         <>
-          <div className="mt-4 flex w-fit items-center gap-4 border border-border p-4">
-            <span className="font-mono text-4xl font-bold text-accent">
-              {summary && summary.count > 0 ? summary.average.toFixed(1) : "—"}
-            </span>
-            <div>
-              <StarRow rating={summary?.average ?? 0} size="h-5 w-5" />
-              <p className="mt-1 text-xs text-muted">{t("reviewCount", { count: summary?.count ?? 0 })}</p>
+          <div className="mt-4 flex flex-col gap-6 rounded-lg border border-border p-5 sm:flex-row sm:items-start">
+            <div className="shrink-0 sm:w-48">
+              <div className="flex items-center gap-2">
+                <Star filled={count > 0} className="h-7 w-7" />
+                <span className="font-mono text-3xl font-bold text-foreground">
+                  {count > 0 ? summary!.average.toFixed(1) : "—"}
+                </span>
+                <span className="text-sm text-muted">/ 5.0</span>
+              </div>
+              {count > 0 && (
+                <p className="mt-2 text-sm text-foreground">
+                  {t("satisfiedPercent", { percent: satisfiedPercent })}
+                </p>
+              )}
+              <p className="mt-1 text-xs text-muted">{t("ratingsAndReviews", { count })}</p>
+            </div>
+
+            <div className="flex flex-1 flex-wrap gap-x-10 gap-y-1.5">
+              <div className="flex flex-col gap-1.5">
+                {[5, 4, 3].map((star) => (
+                  <StarBreakdownRow key={star} star={star} />
+                ))}
+              </div>
+              <div className="flex flex-col gap-1.5">
+                {[2, 1].map((star) => (
+                  <StarBreakdownRow key={star} star={star} />
+                ))}
+              </div>
             </div>
           </div>
 
-          <div className="clip-tag mt-8 max-w-xl border border-border bg-surface p-5">
-            {user ? (
-              <form
-                onSubmit={handleSubmit}
-                onInvalidCapture={() => toast(tAuth("requiredFieldsError"), "error")}
-                className="flex flex-col gap-3"
-              >
-                <h3 className="font-display text-sm uppercase tracking-wide">{t("writeReview")}</h3>
-                <StarPicker value={rating} onChange={setRating} rateAria={(n) => t("rateAria", { n })} />
-                <textarea
-                  required
-                  rows={3}
-                  value={comment}
-                  onChange={(e) => setComment(e.target.value)}
-                  placeholder={t("commentPlaceholder")}
-                  className="resize-none border border-border bg-background px-3.5 py-2.5 text-sm text-foreground outline-none focus:border-accent"
-                />
-                {error && <p className="text-xs text-red-500">{error}</p>}
-                <button
-                  type="submit"
-                  disabled={submitting}
-                  className="btn-tag w-fit bg-accent px-6 py-2.5 text-xs font-bold uppercase tracking-wide text-accent-foreground transition-transform hover:-translate-y-0.5 disabled:cursor-not-allowed disabled:opacity-60"
-                >
-                  {submitting ? t("sending") : t("send")}
-                </button>
-              </form>
-            ) : (
-              <p className="text-sm text-muted">
-                <Link href="/login" className="font-semibold text-accent hover:underline">
-                  {t("login")}
-                </Link>{" "}
-                {t("loginToReview")}
-              </p>
-            )}
-          </div>
+          <p className="mt-4 text-xs text-muted">
+            {t("writeFromOrderNote")}{" "}
+            <Link href="/account" className="font-semibold text-accent hover:underline">
+              {t("writeFromOrderLink")}
+            </Link>
+          </p>
 
-          {summary && summary.reviews.length > 0 ? (
+          {visibleReviews.length > 0 ? (
             <ul className="mt-8 flex flex-col gap-6">
-              {summary.reviews.map((rv) => (
+              {visibleReviews.map((rv) => (
                 <li key={rv.id} className="border-b border-border pb-6 last:border-0">
                   <div className="flex flex-wrap items-center gap-2">
                     <StarRow rating={rv.rating} />
@@ -142,7 +124,7 @@ export default function ProductReviews({ productId }: { productId: string }) {
                       </span>
                     )}
                     <span className="text-xs text-muted">
-                      {new Date(rv.createdAt).toLocaleDateString(locale === "en" ? "en-US" : "id-ID", { dateStyle: "medium" })}
+                      {new Date(rv.createdAt).toLocaleDateString("en-US", { dateStyle: "medium" })}
                     </span>
                   </div>
                   <p className="mt-2 text-sm leading-relaxed text-foreground">{rv.comment}</p>
@@ -150,7 +132,9 @@ export default function ProductReviews({ productId }: { productId: string }) {
               ))}
             </ul>
           ) : (
-            <p className="mt-8 text-sm text-muted">{t("empty")}</p>
+            <p className="mt-8 text-sm text-muted">
+              {count > 0 ? t("noneForFilter") : t("empty")}
+            </p>
           )}
         </>
       )}

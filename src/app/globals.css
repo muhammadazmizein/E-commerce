@@ -24,10 +24,10 @@
   --color-accent-foreground: var(--accent-foreground);
   --color-pop: var(--pop);
   --color-pop-foreground: var(--pop-foreground);
-  --font-display: var(--font-headline);
+  --font-display: Helvetica, Arial, sans-serif;
   --font-sans: Helvetica, Arial, sans-serif;
-  --font-editorial: var(--font-headline);
-  --font-mono: var(--font-space-mono);
+  --font-editorial: Helvetica, Arial, sans-serif;
+  --font-mono: Helvetica, Arial, sans-serif;
 }
 
 body {

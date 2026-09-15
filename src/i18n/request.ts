@@ -1,14 +1,10 @@
 import { getRequestConfig } from "next-intl/server";
-import { cookies } from "next/headers";
-import { defaultLocale, locales, localeCookieName, type Locale } from "./config";
 
+// English-only — there is no locale switcher, so this always resolves to
+// the same messages file.
 export default getRequestConfig(async () => {
-  const cookieStore = await cookies();
-  const cookieValue = cookieStore.get(localeCookieName)?.value;
-  const locale: Locale = locales.includes(cookieValue as Locale) ? (cookieValue as Locale) : defaultLocale;
-
   return {
-    locale,
-    messages: (await import(`../messages/${locale}.json`)).default,
+    locale: "en",
+    messages: (await import("../messages/en.json")).default,
   };
 });

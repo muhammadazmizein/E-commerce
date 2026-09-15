@@ -1,18 +1,23 @@
 import Header from "@/components/Header";
-import Marquee from "@/components/Marquee";
 import Hero from "@/components/Hero";
+import CategoriesShowcase from "@/components/CategoriesShowcase";
 import FeaturedDrops from "@/components/FeaturedDrops";
 import Footer from "@/components/Footer";
-import { getProducts, getSiteImages } from "@/lib/api";
+import { getCategories, getProducts, getSiteImages } from "@/lib/api";
 import type { Product } from "@/lib/products";
-import type { SiteImage } from "@/lib/api";
+import type { Category, SiteImage } from "@/lib/api";
 
 export default async function Home() {
   let products: Product[] = [];
   let siteImages: Record<string, SiteImage> = {};
+  let categories: Category[] = [];
 
   try {
-    [products, siteImages] = await Promise.all([getProducts(), getSiteImages()]);
+    [products, siteImages, categories] = await Promise.all([
+      getProducts(),
+      getSiteImages(),
+      getCategories(),
+    ]);
   } catch (err) {
     console.error("Failed to load data from API:", err);
   }
@@ -20,10 +25,10 @@ export default async function Home() {
   return (
     <div id="top">
       <Header />
-      <Marquee />
       <main>
         <Hero siteImages={siteImages} />
         <FeaturedDrops products={products} />
+        <CategoriesShowcase categories={categories} />
       </main>
       <Footer />
     </div>

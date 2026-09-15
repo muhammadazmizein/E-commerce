@@ -6,14 +6,20 @@ import { useRouter } from "next/navigation";
 import { useTranslations } from "next-intl";
 import { useCart } from "@/lib/cart-context";
 import { useAuth } from "@/lib/auth-context";
+import { getCategories, type Category } from "@/lib/api";
 import Logo from "@/components/Logo";
-import LanguageSwitcher from "@/components/LanguageSwitcher";
 
 export default function Header() {
   const t = useTranslations("nav");
   const navLinks = [
-    { label: t("newDrop"), href: "/#drop" },
-    { label: t("ourCollections"), href: "/products" },
+    { label: t("shop"), href: "/products" },
+    { label: t("news"), href: "/news" },
+    { label: t("gallery"), href: "/gallery" },
+    { label: t("store"), href: "/stores" },
+  ];
+  const moreLinks = [
+    { label: t("news"), href: "/news" },
+    { label: t("gallery"), href: "/gallery" },
     { label: t("store"), href: "/stores" },
   ];
   const { count, openCart } = useCart();
@@ -23,6 +29,13 @@ export default function Header() {
   const [query, setQuery] = useState("");
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [mobileQuery, setMobileQuery] = useState("");
+  const [categories, setCategories] = useState<Category[]>([]);
+
+  useEffect(() => {
+    getCategories()
+      .then(setCategories)
+      .catch(() => setCategories([]));
+  }, []);
 
   useEffect(() => {
     if (!mobileMenuOpen) return;
@@ -55,67 +68,59 @@ export default function Header() {
 
   return (
     <>
-    <header className="sticky top-0 z-50 border-b border-border bg-background/90 backdrop-blur">
-      <div className="relative mx-auto flex max-w-7xl items-center justify-between gap-4 px-4 sm:px-6 lg:px-8">
-        <div className="flex items-center">
+    <header className="sticky top-0 z-50 border-b border-border bg-background">
+      <div className="relative flex h-16 items-center justify-between gap-4 px-4 sm:px-6 lg:px-8">
+        {/* Left: hamburger (always visible) + desktop nav links */}
+        <div className="flex items-center gap-1">
           <button
             type="button"
             aria-label={t("openMenu")}
             onClick={() => setMobileMenuOpen(true)}
-            className="mr-1 flex h-11 w-11 items-center justify-center text-foreground md:hidden"
+            className="flex h-9 w-9 items-center justify-center text-foreground transition-colors hover:bg-surface-2"
           >
-            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
               <path d="M4 7h16M4 12h16M4 17h16" strokeLinecap="round" />
             </svg>
           </button>
-          <Link
-            href="/"
-            className="hidden items-center sm:flex sm:border-r sm:border-border sm:py-4 sm:pr-6"
-          >
-            <Logo className="h-7 w-auto" />
-          </Link>
+          <nav className="hidden items-center gap-1 md:flex">
+            {navLinks.map((link) => (
+              <Link
+                key={link.label}
+                href={link.href}
+                className="group relative overflow-hidden px-3 py-2 text-xs font-bold uppercase tracking-widest text-foreground transition-colors hover:text-muted"
+              >
+                {link.label}
+                <span className="absolute inset-x-3 bottom-1 h-0.5 origin-left scale-x-0 bg-pop transition-transform duration-300 group-hover:scale-x-100" />
+              </Link>
+            ))}
+          </nav>
         </div>
 
-        {/* Mobile-only logo, centered in the bar regardless of how wide the
-            hamburger/cart clusters on either side end up being. */}
+        {/* Logo, centered in the bar regardless of how wide the left/right
+            clusters end up being. */}
         <Link
           href="/"
-          className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 sm:hidden"
+          className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2"
         >
-          <Logo className="h-6 w-auto" />
+          <Logo className="h-6 w-auto sm:h-7" />
         </Link>
 
-        <nav className="hidden items-center gap-1 md:flex">
-          {navLinks.map((link) => (
-            <Link
-              key={link.label}
-              href={link.href}
-              className="group relative overflow-hidden px-3 py-2 text-xs font-bold uppercase tracking-widest text-muted transition-colors hover:text-foreground"
-            >
-              {link.label}
-              <span className="absolute inset-x-3 bottom-1 h-0.5 origin-left scale-x-0 bg-pop transition-transform duration-300 group-hover:scale-x-100" />
-            </Link>
-          ))}
-        </nav>
-
-        <div className="flex items-center">
+        {/* Right: icon-only search / account / cart */}
+        <div className="flex items-center gap-1">
           {searchOpen ? (
-            <form
-              onSubmit={submitSearch}
-              className="hidden items-center border-l border-border sm:flex"
-            >
+            <form onSubmit={submitSearch} className="hidden items-center sm:flex">
               <input
                 autoFocus
                 value={query}
                 onChange={(e) => setQuery(e.target.value)}
                 onBlur={() => !query && setSearchOpen(false)}
                 placeholder={t("searchPlaceholder")}
-                className="h-11 w-40 bg-transparent px-3 text-sm text-foreground outline-none placeholder:text-muted"
+                className="h-9 w-40 bg-transparent px-2 text-sm text-foreground outline-none placeholder:text-muted"
               />
               <button
                 type="submit"
                 aria-label={t("search")}
-                className="flex h-11 w-11 items-center justify-center text-foreground transition-colors hover:bg-surface-2"
+                className="flex h-9 w-9 items-center justify-center text-foreground transition-colors hover:bg-surface-2"
               >
                 <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
                   <circle cx="11" cy="11" r="7" />
@@ -128,7 +133,7 @@ export default function Header() {
               type="button"
               aria-label={t("search")}
               onClick={() => setSearchOpen(true)}
-              className="hidden h-11 w-11 items-center justify-center border-l border-border text-foreground transition-colors hover:bg-surface-2 sm:flex"
+              className="hidden h-9 w-9 items-center justify-center text-foreground transition-colors hover:bg-surface-2 sm:flex"
             >
               <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
                 <circle cx="11" cy="11" r="7" />
@@ -139,19 +144,19 @@ export default function Header() {
           {!isLoading && (
             <Link
               href={user ? "/account" : "/login"}
-              className="hidden h-11 items-center gap-2 border-l border-border px-4 text-xs font-bold uppercase tracking-widest text-muted transition-colors hover:bg-surface-2 hover:text-foreground sm:flex"
+              aria-label={user ? user.name : t("login")}
+              className="hidden h-9 w-9 items-center justify-center text-foreground transition-colors hover:bg-surface-2 sm:flex"
             >
               <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
                 <circle cx="12" cy="8" r="4" />
                 <path d="M4 20c0-4.4 3.6-8 8-8s8 3.6 8 8" />
               </svg>
-              {user ? user.name.split(" ")[0] : t("login")}
             </Link>
           )}
-          <LanguageSwitcher className="mx-3 hidden sm:flex" />
           <button
             onClick={openCart}
-            className="flex h-11 items-center gap-2 border-l border-border pl-4 pr-3 text-xs font-bold uppercase tracking-widest text-foreground transition-colors hover:bg-surface-2"
+            aria-label={t("cart")}
+            className="relative flex h-9 w-9 items-center justify-center text-foreground transition-colors hover:bg-surface-2"
           >
             <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
               <path d="M6 6h15l-1.5 9h-12z" />
@@ -159,24 +164,21 @@ export default function Header() {
               <circle cx="9" cy="20" r="1" />
               <circle cx="18" cy="20" r="1" />
             </svg>
-            <span className="hidden sm:inline">{t("cart")}</span>
-            {count > 0 && (
-              <span className="btn-tag flex h-5 min-w-5 items-center justify-center bg-pop px-1 text-xs font-bold text-pop-foreground">
-                {count}
-              </span>
-            )}
+            <span className="btn-tag absolute -right-1 -top-1 flex h-4 min-w-4 items-center justify-center bg-pop px-1 text-[10px] font-bold text-pop-foreground">
+              {count}
+            </span>
           </button>
         </div>
       </div>
     </header>
 
-      {/* Mobile nav drawer — the top bar only ever shows the logo + cart
-          below md; everything else (links, search, account) lives here.
-          Rendered outside <header> because its backdrop-blur creates a
-          containing block that would otherwise trap this fixed overlay
-          inside the header's own (short) box instead of the viewport. */}
+      {/* Hamburger drawer — opened from the always-visible hamburger button,
+          at any viewport width. Rendered outside <header> because its
+          backdrop-blur creates a containing block that would otherwise trap
+          this fixed overlay inside the header's own (short) box instead of
+          the viewport. */}
       <div
-        className={`fixed inset-0 z-[70] md:hidden ${mobileMenuOpen ? "" : "pointer-events-none"}`}
+        className={`fixed inset-0 z-[70] ${mobileMenuOpen ? "" : "pointer-events-none"}`}
         aria-hidden={!mobileMenuOpen}
       >
         <div
@@ -193,16 +195,13 @@ export default function Header() {
             mobileMenuOpen ? "translate-x-0" : "-translate-x-full"
           }`}
         >
-          <div className="flex items-center justify-between border-b border-border px-5 py-4">
-            <Logo className="h-6 w-auto" />
+          <div className="flex items-center justify-end px-5 py-4">
             <button
               aria-label={t("closeMenu")}
               onClick={() => setMobileMenuOpen(false)}
-              className="btn-tag flex h-9 w-9 items-center justify-center border border-border text-foreground transition-colors hover:border-accent hover:text-accent"
+              className="text-xs font-bold uppercase tracking-widest text-foreground transition-colors hover:text-muted"
             >
-              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                <path d="M18 6 6 18M6 6l12 12" />
-              </svg>
+              {t("close")}
             </button>
           </div>
 
@@ -219,22 +218,52 @@ export default function Header() {
             />
           </form>
 
-          <nav className="flex flex-1 flex-col overflow-y-auto px-2 py-3">
-            {navLinks.map((link) => (
+          <nav className="flex flex-1 flex-col overflow-y-auto px-5 py-3">
+            {categories.length > 0 && (
+              <Link
+                href="/products?sale=1"
+                onClick={() => setMobileMenuOpen(false)}
+                className="py-3 text-sm font-bold uppercase tracking-widest text-foreground transition-colors hover:text-muted"
+              >
+                {t("sale")}
+              </Link>
+            )}
+            {(categories.length > 0
+              ? categories.map((cat) => ({
+                  label: cat.name,
+                  href: `/products?category=${encodeURIComponent(cat.name)}`,
+                }))
+              : navLinks
+            ).map((link) => (
               <Link
                 key={link.label}
                 href={link.href}
                 onClick={() => setMobileMenuOpen(false)}
-                className="px-3.5 py-3 text-sm font-bold uppercase tracking-widest text-foreground transition-colors hover:text-pop-foreground hover:bg-pop"
+                className="py-3 text-sm font-bold uppercase tracking-widest text-foreground transition-colors hover:text-muted"
               >
                 {link.label}
               </Link>
             ))}
-          </nav>
 
-          <div className="border-t border-border px-5 py-4">
-            <LanguageSwitcher />
-          </div>
+            {categories.length > 0 && (
+              <>
+                <div className="my-3 border-t border-border" />
+                <span className="pb-2 text-xs font-bold uppercase tracking-widest text-muted">
+                  {t("more")}
+                </span>
+                {moreLinks.map((link) => (
+                  <Link
+                    key={link.label}
+                    href={link.href}
+                    onClick={() => setMobileMenuOpen(false)}
+                    className="py-3 text-sm font-bold uppercase tracking-widest text-foreground transition-colors hover:text-muted"
+                  >
+                    {link.label}
+                  </Link>
+                ))}
+              </>
+            )}
+          </nav>
 
           {!isLoading && (
             <Link

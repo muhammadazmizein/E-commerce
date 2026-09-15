@@ -138,3 +138,39 @@ INSERT INTO site_images (slot, image, alt) VALUES
 ON DUPLICATE KEY UPDATE
   image = VALUES(image),
   alt = VALUES(alt);
+
+-- ERP / POS seed --------------------------------------------------------
+-- Matches the one physical store currently hardcoded in
+-- heyfreak-store/src/lib/stores.ts. This is also the location online
+-- orders reserve stock from (is_online_default) — with one store, the
+-- online and offline channel are literally the same shelf.
+INSERT INTO locations (id, name, type, address, is_pos_enabled, is_online_default) VALUES
+('banten', 'HEYFREAK Store', 'store', 'Ruko Alegro Blok A18 Citraland, Serang, Kec. Serang, Kota Serang, Banten 42116', 1, 1)
+ON DUPLICATE KEY UPDATE
+  name = VALUES(name),
+  address = VALUES(address);
+
+INSERT INTO pos_registers (id, location_id, name) VALUES
+('reg-banten-1', 'banten', 'Kasir Utama')
+ON DUPLICATE KEY UPDATE name = VALUES(name);
+
+-- NOTE: the one-time backfill that used to live here (seeding every
+-- pre-existing product an unsized inventory_levels row from its
+-- products.stock value) has been removed on purpose. It ran on every
+-- startup via INSERT IGNORE, "safe" only as long as that row was never
+-- deleted — once real per-size stock replaced the pooled bucket (see the
+-- inventory adjustment that split totals across sizes) and the now-empty
+-- pooled rows were cleaned up, the very next restart re-inserted them
+-- from the then-current (already-split) products.stock, silently
+-- double-counting stock in the ledger. New products are seeded correctly
+-- through CreateProduct in store/product.go, which is size-aware — this
+-- SQL backfill has no reason to exist anymore.
+
+-- Minimal chart of accounts for the basic auto-posted journal entries in
+-- store/accounting.go (cash sales, purchase receipts).
+INSERT INTO accounts (code, name, type) VALUES
+('1000', 'Kas', 'asset'),
+('1200', 'Persediaan Barang', 'asset'),
+('2000', 'Utang Usaha', 'liability'),
+('4000', 'Pendapatan Penjualan', 'revenue')
+ON DUPLICATE KEY UPDATE name = VALUES(name);

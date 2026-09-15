@@ -3,7 +3,6 @@
 import Image from "next/image";
 import Link from "next/link";
 import QRCode from "react-qr-code";
-import { useRouter } from "next/navigation";
 import { useEffect, useState, type FormEvent } from "react";
 import { useTranslations } from "next-intl";
 import { useCart } from "@/lib/cart-context";
@@ -77,8 +76,8 @@ export default function CheckoutPage() {
   const tBreadcrumb = useTranslations("breadcrumb");
   const { items, subtotal, clearCart } = useCart();
   const { user, isLoading: isAuthLoading } = useAuth();
-  const router = useRouter();
   const { toast } = useToast();
+  const [delivery, setDelivery] = useState<"ship" | "pickup">("ship");
   const [payment, setPayment] = useState<"qris" | "va">("qris");
   const [vaBank, setVaBank] = useState(BANKS[0].code);
   const [orderId, setOrderId] = useState<string | null>(null);
@@ -110,13 +109,6 @@ export default function CheckoutPage() {
     const interval = setInterval(tick, 1000);
     return () => clearInterval(interval);
   }, [activePayment]);
-
-  useEffect(() => {
-    if (!isAuthLoading && !user) {
-      toast(t("redirectingToLogin"), "info");
-      router.replace("/login?redirect=/checkout");
-    }
-  }, [isAuthLoading, user, router, toast, t]);
 
   useEffect(() => {
     getConfigStatus()
@@ -204,7 +196,11 @@ export default function CheckoutPage() {
   }
 
   const shipping =
-    items.length === 0 ? 0 : selectedService ? selectedService.cost : SHIPPING_FLAT_RATE;
+    items.length === 0 || delivery === "pickup"
+      ? 0
+      : selectedService
+        ? selectedService.cost
+        : SHIPPING_FLAT_RATE;
   const total = subtotal + shipping;
 
   function finishOrder(id: string) {
@@ -221,8 +217,9 @@ export default function CheckoutPage() {
     try {
       const order = await createOrder({
         ...fields,
+        notes: delivery === "pickup" ? `[${t("pickup")}] ${fields.notes}`.trim() : fields.notes,
         paymentMethod: payment,
-        shipping: selectedService?.cost,
+        shipping: delivery === "pickup" ? 0 : selectedService?.cost,
         items: items.map((line) => ({
           productId: line.productId,
           size: line.size,
@@ -305,12 +302,12 @@ export default function CheckoutPage() {
     }
   }
 
-  if (isAuthLoading || !user) {
+  if (isAuthLoading) {
     return (
       <main className="flex min-h-screen flex-col items-center justify-center gap-3 px-4 text-center">
         <span className="h-8 w-8 animate-spin rounded-full border border-border border-t-foreground" />
         <p className="text-xs font-bold uppercase tracking-widest text-muted">
-          {t("redirectingToLogin")}
+          {tCommon("loading")}
         </p>
       </main>
     );
@@ -447,6 +444,42 @@ export default function CheckoutPage() {
           className="flex flex-col gap-8 lg:col-span-7"
         >
           <section>
+            <h2 className="font-display text-xl uppercase tracking-wide">{t("deliveryMethod")}</h2>
+            <div className="mt-4 flex flex-col gap-2.5">
+              <label
+                className={`flex cursor-pointer items-center gap-3 border px-4 py-3 transition-colors ${
+                  delivery === "ship" ? "border-accent bg-accent/10" : "border-border hover:border-accent/50"
+                }`}
+              >
+                <input
+                  type="radio"
+                  name="delivery"
+                  checked={delivery === "ship"}
+                  onChange={() => setDelivery("ship")}
+                  className="h-4 w-4 accent-[var(--accent)]"
+                />
+                <span className="text-sm font-semibold">{t("ship")}</span>
+              </label>
+              <label
+                className={`flex cursor-pointer items-center gap-3 border px-4 py-3 transition-colors ${
+                  delivery === "pickup" ? "border-accent bg-accent/10" : "border-border hover:border-accent/50"
+                }`}
+              >
+                <input
+                  type="radio"
+                  name="delivery"
+                  checked={delivery === "pickup"}
+                  onChange={() => setDelivery("pickup")}
+                  className="h-4 w-4 accent-[var(--accent)]"
+                />
+                <span className="text-sm font-semibold">
+                  {t("pickup")} <span className="text-muted">{t("pickupHint")}</span>
+                </span>
+              </label>
+            </div>
+          </section>
+
+          <section>
             <h2 className="font-display text-xl uppercase tracking-wide">{t("buyerData")}</h2>
 
             {savedAddresses.length > 0 && (
@@ -523,7 +556,7 @@ export default function CheckoutPage() {
                 />
               </label>
 
-              {config?.rajaongkirConfigured && (isLoadingCost || shippingServices.length > 0) && (
+              {delivery !== "pickup" && config?.rajaongkirConfigured && (isLoadingCost || shippingServices.length > 0) && (
                 <div className="flex flex-col gap-2 sm:col-span-2">
                   <span className="font-semibold text-foreground">{t("shippingCost")}</span>
                   {isLoadingCost ? (
@@ -674,7 +707,11 @@ export default function CheckoutPage() {
               <div className="flex justify-between text-muted">
                 <span>
                   {t("shipping")}{" "}
-                  {selectedService ? `(${selectedService.courier} ${selectedService.service})` : t("shippingEstimate")}
+                  {delivery === "pickup"
+                    ? `(${t("pickup")})`
+                    : selectedService
+                      ? `(${selectedService.courier} ${selectedService.service})`
+                      : t("shippingEstimate")}
                 </span>
                 <span className="font-mono text-foreground">{formatIDR(shipping)}</span>
               </div>

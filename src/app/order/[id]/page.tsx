@@ -1,11 +1,12 @@
 import { notFound } from "next/navigation";
 import Link from "next/link";
-import { getTranslations, getLocale } from "next-intl/server";
+import { getTranslations } from "next-intl/server";
 import { getOrder, type Order } from "@/lib/api";
 import { formatIDR } from "@/lib/products";
 import PrintInvoiceButton from "@/components/PrintInvoiceButton";
 import Breadcrumb from "@/components/Breadcrumb";
 import Logo from "@/components/Logo";
+import OrderItemReview from "@/components/OrderItemReview";
 
 const toneStyles = {
   ok: "bg-accent text-accent-foreground",
@@ -46,7 +47,6 @@ export default async function OrderStatusPage({
 
   const t = await getTranslations("order");
   const tCommon = await getTranslations("common");
-  const locale = await getLocale();
 
   const STATUS_COPY: Record<string, { label: string; desc: string; tone: "ok" | "warn" | "bad" }> = {
     paid: { label: t("statusPaidLabel"), desc: t("statusPaidDesc"), tone: "ok" },
@@ -58,7 +58,7 @@ export default async function OrderStatusPage({
     STATUS_COPY[order.status] ??
     ({ label: order.status, desc: "", tone: "warn" } as const);
 
-  const orderDate = new Date(order.createdAt).toLocaleString(locale === "en" ? "en-US" : "id-ID", {
+  const orderDate = new Date(order.createdAt).toLocaleString("en-US", {
     dateStyle: "long",
     timeStyle: "short",
   });
@@ -148,7 +148,14 @@ export default async function OrderStatusPage({
               <tbody>
                 {order.items.map((item) => (
                   <tr key={`${item.productId}-${item.size ?? "x"}`} className="border-b border-border">
-                    <td className="py-3 font-semibold text-foreground">{item.productName}</td>
+                    <td className="py-3 font-semibold text-foreground">
+                      {item.productName}
+                      {order.status === "paid" && (
+                        <div className="print:hidden">
+                          <OrderItemReview productId={item.productId} productName={item.productName} />
+                        </div>
+                      )}
+                    </td>
                     <td className="py-3 text-center text-muted">{item.size ?? "—"}</td>
                     <td className="py-3 text-center text-muted">{item.qty}</td>
                     <td className="py-3 text-right font-mono text-muted">{formatIDR(item.price)}</td>

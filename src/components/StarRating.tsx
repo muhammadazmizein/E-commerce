@@ -1,9 +1,9 @@
-export function Star({ filled }: { filled: boolean }) {
+export function Star({ filled, className = "h-4 w-4" }: { filled: boolean; className?: string }) {
   return (
     <svg
       aria-hidden
       viewBox="0 0 20 20"
-      className={`h-4 w-4 ${filled ? "fill-foreground text-foreground" : "fill-none text-border"}`}
+      className={`${className} ${filled ? "fill-foreground text-foreground" : "fill-none text-border"}`}
       stroke="currentColor"
       strokeWidth="1.2"
     >
@@ -16,9 +16,7 @@ export function StarRow({ rating, size = "h-4 w-4" }: { rating: number; size?: s
   return (
     <div className="flex items-center gap-0.5">
       {[1, 2, 3, 4, 5].map((n) => (
-        <span key={n} className={size}>
-          <Star filled={n <= Math.round(rating)} />
-        </span>
+        <Star key={n} filled={n <= Math.round(rating)} className={size} />
       ))}
     </div>
   );

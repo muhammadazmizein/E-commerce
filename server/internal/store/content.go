@@ -3,6 +3,7 @@ package store
 import (
 	"database/sql"
 	"fmt"
+	"strings"
 )
 
 type Category struct {
@@ -42,6 +43,41 @@ func (s *Store) ListCategories() ([]Category, error) {
 		categories = append(categories, c)
 	}
 	return categories, rows.Err()
+}
+
+var ErrCategoryTaken = fmt.Errorf("category already exists")
+
+// CreateCategory adds a new product category from heyfreak-admin's product
+// form. blurb/image stay empty — those are only used by the storefront's
+// browse-by-category cards, which admin doesn't manage yet — the name is
+// all a product's `category` field actually needs.
+func (s *Store) CreateCategory(name string) (Category, error) {
+	name = strings.TrimSpace(name)
+	if name == "" {
+		return Category{}, validationError("nama kategori wajib diisi")
+	}
+
+	var exists int
+	if err := s.db.QueryRow(`SELECT COUNT(*) FROM categories WHERE name = ?`, name).Scan(&exists); err != nil {
+		return Category{}, fmt.Errorf("check existing category: %w", err)
+	}
+	if exists > 0 {
+		return Category{}, ErrCategoryTaken
+	}
+
+	var nextSort sql.NullInt64
+	if err := s.db.QueryRow(`SELECT MAX(sort_order) FROM categories`).Scan(&nextSort); err != nil {
+		return Category{}, fmt.Errorf("get next sort order: %w", err)
+	}
+
+	if _, err := s.db.Exec(
+		`INSERT INTO categories (name, blurb, image, sort_order) VALUES (?, '', '', ?)`,
+		name, int(nextSort.Int64)+1,
+	); err != nil {
+		return Category{}, fmt.Errorf("insert category: %w", err)
+	}
+
+	return Category{Name: name}, nil
 }
 
 func (s *Store) ListBanners() ([]Banner, error) {

@@ -12,36 +12,53 @@
     "backToShop": "Back to Shop"
   },
   "nav": {
-    "newDrop": "New Drop",
-    "ourCollections": "Our Collections",
+    "shop": "Shop",
+    "sale": "Sale",
+    "news": "News",
+    "gallery": "Gallery",
     "store": "Store",
     "search": "Search",
     "login": "Sign In",
     "cart": "Cart",
     "openMenu": "Open menu",
     "closeMenu": "Close menu",
-    "searchPlaceholder": "Search products...",
-    "language": "Language"
+    "close": "Close",
+    "more": "More",
+    "searchPlaceholder": "Search products..."
   },
   "footer": {
     "rights": "All rights reserved.",
-    "allProducts": "All Products",
-    "trackOrder": "Track Order",
-    "help": "Help"
+    "termsAndPolicies": "Terms and Policies"
   },
   "breadcrumb": {
     "home": "Home",
     "allProducts": "All Products"
   },
+  "news": {
+    "title": "News",
+    "breadcrumb": "News"
+  },
+  "gallery": {
+    "title": "Gallery",
+    "breadcrumb": "Gallery",
+    "empty": "No products to show yet."
+  },
   "hero": {
-    "tag": "New Drop — S-Shirt Boxy Series",
-    "subtext": "Limited release — no restock.",
-    "cta": "Our Collections"
+    "cta": "Enter the shop"
+  },
+  "categoriesShowcase": {
+    "title": "Categories",
+    "showAll": "Show All",
+    "showLess": "Show Less",
+    "scrollLeft": "Scroll left",
+    "scrollRight": "Scroll right"
   },
   "featuredDrops": {
     "kicker": "HEYFREAK — New Drop",
     "title": "Featured Drops",
-    "release": "Release"
+    "release": "Release",
+    "scrollLeft": "Scroll left",
+    "scrollRight": "Scroll right"
   },
   "productBadge": {
     "new": "New",
@@ -55,7 +72,9 @@
     "outOfStock": "Out of stock",
     "lowStock": "Only {stock} left — hurry!",
     "inStock": "In stock: {stock}",
+    "color": "Color",
     "size": "Size",
+    "viewFitGuide": "View Fit Guide",
     "quantity": "Quantity",
     "decreaseQty": "Decrease quantity",
     "increaseQty": "Increase quantity",
@@ -91,6 +110,11 @@
     "title": "Product Reviews",
     "loading": "Loading reviews...",
     "reviewCount": "{count} reviews",
+    "satisfiedPercent": "{percent}% of buyers are satisfied",
+    "ratingsAndReviews": "{count} ratings • {count} reviews",
+    "writeFromOrderNote": "Already bought this? You can leave a review from your order page once it's paid.",
+    "writeFromOrderLink": "Check your orders",
+    "noneForFilter": "No reviews with this rating yet.",
     "writeReview": "Write a Review",
     "commentPlaceholder": "Tell us about your experience with this product...",
     "rateFirst": "Pick a rating first.",
@@ -101,49 +125,39 @@
     "verifiedPurchase": "Verified Buyer",
     "empty": "No reviews yet. Be the first!",
     "rateAria": "Rate {n}",
-    "sendFailed": "Failed to submit review"
+    "sendFailed": "Failed to submit review",
+    "writeReviewForProduct": "Review {product}",
+    "reviewSubmitted": "Thanks for your review!"
   },
   "relatedProducts": {
     "title": "You Might Also Like",
     "scrollLeft": "Scroll left",
     "scrollRight": "Scroll right"
   },
-  "pagination": {
-    "nav": "Page navigation",
-    "prev": "Previous page",
-    "next": "Next page"
-  },
   "productsCatalog": {
-    "searchPlaceholder": "Search products...",
-    "category": "Category",
-    "productType": "Product Type",
+    "itemsCount": "{count} items",
     "allProducts": "All Products",
-    "featuredProducts": "Featured Products",
-    "discount": "On Sale",
-    "availability": "Availability",
-    "all": "All",
-    "inStock": "In Stock",
-    "price": "Price",
-    "allPrices": "All Prices",
-    "priceUnder": "Under Rp150,000",
-    "priceMid1": "Rp150,000 – Rp180,000",
-    "priceMid2": "Rp180,000 – Rp210,000",
-    "priceOver": "Over Rp210,000",
-    "filter": "Filter",
-    "closeFilter": "Close filter",
-    "showResults": "Show {count} Products",
-    "allProductsTitle": "All Products",
-    "sortBy": "Sort:",
+    "viewComfortable": "Grid view",
+    "viewCompact": "Compact view",
+    "sortBy": "Sort",
     "sortFeatured": "Featured",
-    "sortPriceLow": "Lowest Price",
-    "sortPriceHigh": "Highest Price",
+    "sortRelevant": "Most relevant",
+    "sortBestSelling": "Best selling",
+    "sortAzAsc": "Alphabetically, A-Z",
+    "sortAzDesc": "Alphabetically, Z-A",
+    "sortPriceAsc": "Price, low to high",
+    "sortPriceDesc": "Price, high to low",
+    "sortDateAsc": "Date, old to new",
+    "sortDateDesc": "Date, new to old",
+    "loadingMore": "Loading more products...",
     "noResults": "No products match this filter."
   },
   "stores": {
     "title": "Our Stores",
     "breadcrumb": "Our Stores",
     "allRegions": "All Regions",
-    "empty": "No stores in this region yet."
+    "empty": "No stores in this region yet.",
+    "openInMaps": "Open in Maps"
   },
   "cart": {
     "title": "Cart",
@@ -234,6 +248,8 @@
   "checkout": {
     "continueShopping": "← Continue Shopping",
     "requiredFieldsError": "Please fill in all required fields",
+    "deliveryMethod": "Delivery Method",
+    "ship": "Ship to Address",
     "buyerData": "Buyer Details",
     "savedAddress": "Saved Address",
     "otherAddress": "Other address...",
@@ -255,6 +271,8 @@
     "qrisHint": "(scan on this page)",
     "bankTransfer": "Bank Transfer",
     "bankTransferHint": "(Virtual Account)",
+    "pickup": "Pickup In Store",
+    "pickupHint": "(no shipping cost — pay online now, collect in person)",
     "paymentNotConfigured": "Online payment isn't active yet. Contact us to continue your order.",
     "orderSummary": "Order Summary",
     "subtotal": "Subtotal",
@@ -280,8 +298,7 @@
     "confirmationNote": "We'll confirm via WhatsApp/email once your payment is verified.",
     "emptyCartTitle": "Your Cart is Empty",
     "emptyCartHint": "Nothing to check out yet.",
-    "startShopping": "Start Shopping",
-    "redirectingToLogin": "Redirecting to sign in..."
+    "startShopping": "Start Shopping"
   },
   "order": {
     "backToShop": "← Back to Shop",

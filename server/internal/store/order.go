@@ -6,6 +6,7 @@ import (
 	"errors"
 	"fmt"
 	"strings"
+	"time"
 )
 
 const shippingFlatRate = 15000
@@ -47,6 +48,16 @@ func (s *Store) CreateOrder(input CreateOrderInput, userID string) (Order, error
 		return Order{}, validationError("order must contain at least one item")
 	}
 
+	locationID, err := s.DefaultOnlineLocationID()
+	if err != nil {
+		return Order{}, fmt.Errorf("resolve online fulfillment location: %w", err)
+	}
+
+	orderID, err := generateOrderID()
+	if err != nil {
+		return Order{}, fmt.Errorf("generate order id: %w", err)
+	}
+
 	tx, err := s.db.Begin()
 	if err != nil {
 		return Order{}, fmt.Errorf("begin tx: %w", err)
@@ -70,29 +81,32 @@ func (s *Store) CreateOrder(input CreateOrderInput, userID string) (Order, error
 			return Order{}, fmt.Errorf("lookup product %s: %w", in.ProductID, err)
 		}
 
+		if !product.IsActive {
+			return Order{}, validationError("product %s is no longer available", in.ProductID)
+		}
+		size := in.Size
 		if len(product.Sizes) > 0 {
-			if in.Size == "" || !contains(product.Sizes, in.Size) {
+			if size == "" || !contains(product.Sizes, size) {
 				return Order{}, validationError("invalid size for product %s", in.ProductID)
 			}
+		} else {
+			size = ""
 		}
 
-		// Atomic within this transaction: the WHERE guard means a second
-		// line item for the same product (e.g. two sizes) — or a
-		// concurrent order racing this one — can't both succeed past
-		// what's actually left in stock.
-		result, err := tx.Exec(
-			`UPDATE products SET stock = stock - ? WHERE id = ? AND stock >= ?`,
-			in.Qty, in.ProductID, in.Qty,
-		)
+		// Reserves against inventory_levels for locationID+size (not
+		// products.stock directly) — the same shelf a POS sale at that
+		// location would deduct from, guarded so a second line item for
+		// the same product (e.g. two sizes) or a concurrent order/POS
+		// sale racing this one can't both succeed past what's left.
+		ok, available, err := reserveStockTx(tx, locationID, in.ProductID, size, in.Qty, "sale_online", "order", orderID, nil)
 		if err != nil {
 			return Order{}, fmt.Errorf("reserve stock for %s: %w", in.ProductID, err)
 		}
-		affected, err := result.RowsAffected()
-		if err != nil {
-			return Order{}, fmt.Errorf("reserve stock for %s: %w", in.ProductID, err)
-		}
-		if affected == 0 {
-			return Order{}, validationError("stok %s tinggal %d, kurangi jumlahnya ya", product.Name, product.Stock)
+		if !ok {
+			if size != "" {
+				return Order{}, validationError("stok %s ukuran %s tinggal %d, kurangi jumlahnya ya", product.Name, size, available)
+			}
+			return Order{}, validationError("stok %s tinggal %d, kurangi jumlahnya ya", product.Name, available)
 		}
 
 		items = append(items, OrderItem{
@@ -111,21 +125,16 @@ func (s *Store) CreateOrder(input CreateOrderInput, userID string) (Order, error
 	}
 	total := subtotal + shipping
 
-	orderID, err := generateOrderID()
-	if err != nil {
-		return Order{}, fmt.Errorf("generate order id: %w", err)
-	}
-
 	var userIDArg any
 	if userID != "" {
 		userIDArg = userID
 	}
 
 	_, err = tx.Exec(
-		`INSERT INTO orders (id, user_id, name, phone, email, address, city, postal_code, notes, payment_method, subtotal, shipping, total, status)
-		 VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 'pending')`,
+		`INSERT INTO orders (id, user_id, name, phone, email, address, city, postal_code, notes, payment_method, subtotal, shipping, total, status, channel, location_id)
+		 VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 'pending', 'online', ?)`,
 		orderID, userIDArg, input.Name, input.Phone, input.Email, input.Address, input.City,
-		input.PostalCode, input.Notes, input.PaymentMethod, subtotal, shipping, total,
+		input.PostalCode, input.Notes, input.PaymentMethod, subtotal, shipping, total, locationID,
 	)
 	if err != nil {
 		return Order{}, fmt.Errorf("insert order: %w", err)
@@ -164,13 +173,40 @@ func (s *Store) CreateOrder(input CreateOrderInput, userID string) (Order, error
 		Shipping:      shipping,
 		Total:         total,
 		Status:        "pending",
+		Channel:       "online",
+		LocationID:    locationID,
+		CreatedAt:     time.Now(),
 		Items:         items,
 	}, nil
 }
 
+// UpdateOrderStatus also posts the sale-revenue journal entry the moment an
+// order transitions to "paid" — covers both the Midtrans webhook and the
+// test-mode simulate-payment shortcut, for either channel. postJournalEntryTx's
+// (reference_type, reference_id) uniqueness means a webhook firing twice for
+// the same order can't double-book it.
 func (s *Store) UpdateOrderStatus(orderID, status string) error {
-	_, err := s.db.Exec(`UPDATE orders SET status = ? WHERE id = ?`, status, orderID)
-	return err
+	tx, err := s.db.Begin()
+	if err != nil {
+		return fmt.Errorf("begin tx: %w", err)
+	}
+	defer tx.Rollback()
+
+	if _, err := tx.Exec(`UPDATE orders SET status = ? WHERE id = ?`, status, orderID); err != nil {
+		return fmt.Errorf("update order status: %w", err)
+	}
+
+	if status == "paid" {
+		var total int
+		if err := tx.QueryRow(`SELECT total FROM orders WHERE id = ?`, orderID).Scan(&total); err != nil {
+			return fmt.Errorf("lookup order total: %w", err)
+		}
+		if err := postSaleRevenueJournal(tx, orderID, total); err != nil {
+			return err
+		}
+	}
+
+	return tx.Commit()
 }
 
 // SetOrderPayment records which payment channel (e.g. "qris", "va_BCA",
@@ -196,19 +232,31 @@ func (s *Store) GetOrderPayment(orderID string) (channel string, reference strin
 func (s *Store) GetOrder(id string) (Order, error) {
 	row := s.db.QueryRow(
 		`SELECT id, name, phone, email, address, city, postal_code, notes, payment_method,
-		        subtotal, shipping, total, status, payment_channel, created_at
+		        subtotal, shipping, total, status, payment_channel, channel,
+		        COALESCE(location_id, ''), cash_received, change_due, created_at
 		 FROM orders WHERE id = ?`, id,
 	)
 
 	var o Order
 	var notes, paymentChannel sql.NullString
+	var cashReceived, changeDue sql.NullInt64
 	err := row.Scan(&o.ID, &o.Name, &o.Phone, &o.Email, &o.Address, &o.City, &o.PostalCode,
-		&notes, &o.PaymentMethod, &o.Subtotal, &o.Shipping, &o.Total, &o.Status, &paymentChannel, &o.CreatedAt)
+		&notes, &o.PaymentMethod, &o.Subtotal, &o.Shipping, &o.Total, &o.Status, &paymentChannel,
+		&o.Channel, &o.LocationID, &cashReceived, &changeDue, &o.CreatedAt)
 	if err != nil {
 		return Order{}, err
 	}
 	o.Notes = notes.String
 	o.PaymentChannel = paymentChannel.String
+	if cashReceived.Valid {
+		v := int(cashReceived.Int64)
+		o.CashReceived = &v
+	}
+	if changeDue.Valid {
+		v := int(changeDue.Int64)
+		o.ChangeDue = &v
+	}
+	o.Items = []OrderItem{}
 
 	rows, err := s.db.Query(
 		`SELECT product_id, product_name, size, price, qty FROM order_items WHERE order_id = ?`, id,
@@ -236,7 +284,7 @@ func (s *Store) GetOrder(id string) (Order, error) {
 func (s *Store) ListOrdersByUser(userID string) ([]Order, error) {
 	rows, err := s.db.Query(
 		`SELECT id, name, phone, email, address, city, postal_code, notes, payment_method,
-		        subtotal, shipping, total, status, payment_channel, created_at
+		        subtotal, shipping, total, status, payment_channel, channel, created_at
 		 FROM orders WHERE user_id = ? ORDER BY created_at DESC`,
 		userID,
 	)
@@ -251,7 +299,7 @@ func (s *Store) ListOrdersByUser(userID string) ([]Order, error) {
 		var o Order
 		var notes, paymentChannel sql.NullString
 		if err := rows.Scan(&o.ID, &o.Name, &o.Phone, &o.Email, &o.Address, &o.City, &o.PostalCode,
-			&notes, &o.PaymentMethod, &o.Subtotal, &o.Shipping, &o.Total, &o.Status, &paymentChannel, &o.CreatedAt); err != nil {
+			&notes, &o.PaymentMethod, &o.Subtotal, &o.Shipping, &o.Total, &o.Status, &paymentChannel, &o.Channel, &o.CreatedAt); err != nil {
 			return nil, fmt.Errorf("scan order: %w", err)
 		}
 		o.Notes = notes.String

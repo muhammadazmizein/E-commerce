@@ -71,13 +71,44 @@ func (s *Store) execScript(script string) error {
 	return nil
 }
 
+// splitStatements is comment- and string-literal-aware specifically so a
+// semicolon inside a `-- ...` comment or a quoted value (e.g. an address)
+// can't be mistaken for a statement terminator — that exact mistake has
+// broken a migration here more than once.
 func splitStatements(script string) []string {
 	var stmts []string
 	var current []byte
+	inLineComment := false
+	var inQuote byte // 0, '\'', '"', or '`'
+
 	for i := 0; i < len(script); i++ {
 		c := script[i]
 		current = append(current, c)
-		if c == ';' {
+
+		if inLineComment {
+			if c == '\n' {
+				inLineComment = false
+			}
+			continue
+		}
+		if inQuote != 0 {
+			if c == '\\' && i+1 < len(script) {
+				i++
+				current = append(current, script[i])
+				continue
+			}
+			if c == inQuote {
+				inQuote = 0
+			}
+			continue
+		}
+
+		switch {
+		case c == '-' && i+1 < len(script) && script[i+1] == '-':
+			inLineComment = true
+		case c == '\'' || c == '"' || c == '`':
+			inQuote = c
+		case c == ';':
 			stmts = append(stmts, string(current))
 			current = nil
 		}

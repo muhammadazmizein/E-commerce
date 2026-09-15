@@ -9,9 +9,9 @@ import type { Product } from "@/lib/products";
 export default async function ProductsPage({
   searchParams,
 }: {
-  searchParams: Promise<{ category?: string; tipe?: string; search?: string }>;
+  searchParams: Promise<{ category?: string; search?: string; sale?: string }>;
 }) {
-  const { category, tipe, search } = await searchParams;
+  const { category, search, sale } = await searchParams;
 
   let products: Product[] = [];
   try {
@@ -23,17 +23,12 @@ export default async function ProductsPage({
   const tBreadcrumb = await getTranslations("breadcrumb");
 
   return (
-    <div>
+    <div className="flex min-h-screen flex-col">
       <Header />
-      <main className="mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8">
+      <main className="mx-auto w-full max-w-7xl flex-1 px-4 py-8 sm:px-6 lg:px-8">
         <Breadcrumb items={[{ label: tBreadcrumb("home"), href: "/" }, { label: tBreadcrumb("allProducts") }]} />
         <div className="mt-4">
-          <ProductsCatalog
-            products={products}
-            initialCategory={category}
-            initialTipe={tipe === "diskon" || tipe === "unggulan" ? tipe : undefined}
-            initialSearch={search}
-          />
+          <ProductsCatalog products={products} initialCategory={category} initialSearch={search} initialSale={sale === "1"} />
         </div>
       </main>
       <Footer />

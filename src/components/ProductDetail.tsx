@@ -2,9 +2,9 @@
 
 import Image from "next/image";
 import { useRouter } from "next/navigation";
-import { useState } from "react";
+import { useRef, useState } from "react";
 import { useTranslations } from "next-intl";
-import { formatIDR, type Product } from "@/lib/products";
+import { formatIDR, nameFromHex, type Product } from "@/lib/products";
 import { useCart } from "@/lib/cart-context";
 import { useWishlist } from "@/lib/wishlist-context";
 import Breadcrumb from "@/components/Breadcrumb";
@@ -16,19 +16,26 @@ import { getSizeChart } from "@/lib/size-chart";
 function AccordionSection({
   title,
   defaultOpen = false,
+  open: openProp,
+  onToggle,
+  sectionRef,
   children,
 }: {
   title: string;
   defaultOpen?: boolean;
+  open?: boolean;
+  onToggle?: (open: boolean) => void;
+  sectionRef?: React.Ref<HTMLDivElement>;
   children: React.ReactNode;
 }) {
-  const [open, setOpen] = useState(defaultOpen);
+  const [internalOpen, setInternalOpen] = useState(defaultOpen);
+  const open = openProp ?? internalOpen;
 
   return (
-    <div className="border-b border-border">
+    <div ref={sectionRef} className="border-b border-border">
       <button
         type="button"
-        onClick={() => setOpen((o) => !o)}
+        onClick={() => (onToggle ? onToggle(!open) : setInternalOpen((o) => !o))}
         className="flex w-full items-center justify-between py-4 text-left text-sm font-semibold text-foreground"
       >
         {title}
@@ -54,11 +61,23 @@ export default function ProductDetail({
   const lowStock = !soldOut && product.stock <= 5;
   const hasSizes = !!product.sizes && product.sizes.length > 0;
   const [size, setSize] = useState<string | undefined>(product.sizes?.[0]);
+  const [colorIndex, setColorIndex] = useState(0);
   const [qty, setQty] = useState(1);
   const [added, setAdded] = useState(false);
   const { addItem } = useCart();
   const { isWishlisted, toggle } = useWishlist();
   const wishlisted = isWishlisted(product.id);
+
+  const images = product.images && product.images.length > 0 ? product.images : [product.image];
+  const [activeImage, setActiveImage] = useState(0);
+
+  const [sizeGuideOpen, setSizeGuideOpen] = useState(false);
+  const sizeGuideRef = useRef<HTMLDivElement>(null);
+
+  function handleViewFitGuide() {
+    setSizeGuideOpen(true);
+    sizeGuideRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
+  }
 
   const needsSize = hasSizes && !size;
   const sizeChart = hasSizes
@@ -99,11 +118,27 @@ export default function ProductDetail({
         />
       </div>
 
-      <div className="grid gap-10 lg:grid-cols-12">
-        <div className="lg:col-span-6">
-          <div className="clip-tag relative aspect-[4/5] overflow-hidden bg-surface-2 lg:border lg:border-border">
+      <div className="flex flex-col gap-8 lg:flex-row lg:items-start">
+        <div className="flex gap-3 lg:w-[36rem] lg:shrink-0">
+          {images.length > 1 && (
+            <div className="flex flex-col gap-2.5 overflow-y-auto">
+              {images.map((img, i) => (
+                <button
+                  key={img + i}
+                  type="button"
+                  onClick={() => setActiveImage(i)}
+                  className={`relative aspect-square w-[72px] shrink-0 overflow-hidden border bg-surface-2 transition-colors ${
+                    activeImage === i ? "border-foreground" : "border-border hover:border-muted"
+                  }`}
+                >
+                  <Image src={img} alt="" fill sizes="72px" className="object-cover" />
+                </button>
+              ))}
+            </div>
+          )}
+          <div className="clip-tag relative aspect-square flex-1 overflow-hidden bg-surface-2 lg:border lg:border-border">
             <Image
-              src={product.image}
+              src={images[activeImage]}
               alt={product.name}
               fill
               sizes="(max-width: 1024px) 100vw, 50vw"
@@ -118,11 +153,8 @@ export default function ProductDetail({
           </div>
         </div>
 
-        <div className="lg:col-span-6 lg:max-w-md">
-          <p className="text-xs font-medium uppercase tracking-widest text-muted">
-            {product.category}
-          </p>
-          <h1 className="mt-1.5 text-xl font-semibold leading-snug text-foreground sm:text-2xl">
+        <div className="lg:flex-1">
+          <h1 className="text-xl font-semibold leading-snug text-foreground sm:text-2xl">
             {product.name}
           </h1>
 
@@ -144,9 +176,42 @@ export default function ProductDetail({
                 : t("inStock", { stock: product.stock })}
           </p>
 
+          {product.colors && product.colors.length > 0 && (
+            <div className="mt-5">
+              <p className="text-xs font-semibold text-foreground">{t("color")}</p>
+              <div className="mt-2 flex flex-wrap gap-2">
+                {product.colors.map((c, i) => (
+                  <button
+                    key={c + i}
+                    type="button"
+                    onClick={() => setColorIndex(i)}
+                    className={`h-9 border px-4 text-xs font-semibold transition-colors ${
+                      colorIndex === i
+                        ? "border-foreground bg-foreground text-background"
+                        : "border-border text-foreground hover:border-foreground"
+                    }`}
+                  >
+                    {nameFromHex(c)}
+                  </button>
+                ))}
+              </div>
+            </div>
+          )}
+
           {hasSizes && (
             <div className="mt-5">
-              <p className="text-xs font-semibold text-foreground">{t("size")}</p>
+              <div className="flex items-center justify-between">
+                <p className="text-xs font-semibold text-foreground">{t("size")}</p>
+                {sizeChart && (
+                  <button
+                    type="button"
+                    onClick={handleViewFitGuide}
+                    className="text-xs font-medium text-muted underline underline-offset-2 hover:text-foreground"
+                  >
+                    {t("viewFitGuide")}
+                  </button>
+                )}
+              </div>
               <div className="mt-2 flex flex-wrap gap-2">
                 {product.sizes!.map((s) => (
                   <button
@@ -187,28 +252,29 @@ export default function ProductDetail({
             </div>
           </div>
 
-          <div className="mt-6 flex flex-col gap-2.5">
-            <div className="flex items-center gap-2.5">
-              <button
-                onClick={handleAddToCart}
-                disabled={soldOut || needsSize}
-                className="flex h-11 flex-1 items-center justify-center border border-foreground text-xs font-semibold uppercase tracking-wide text-foreground transition-colors hover:bg-surface-2 disabled:cursor-not-allowed disabled:border-border disabled:text-muted"
-              >
-                {soldOut ? t("outOfStockButton") : added ? t("added") : t("addToCart")}
-              </button>
-              <button
-                type="button"
-                aria-label={wishlisted ? t("removeFromWishlist") : t("saveToWishlist")}
-                onClick={() => toggle(product)}
-                className={`flex h-11 w-11 shrink-0 items-center justify-center border transition-colors ${
-                  wishlisted ? "border-red-400 text-red-500" : "border-border text-foreground hover:border-red-400 hover:text-red-500"
-                }`}
-              >
-                <svg width="17" height="17" viewBox="0 0 24 24" fill={wishlisted ? "currentColor" : "none"} stroke="currentColor" strokeWidth="2">
-                  <path d="M12 21s-6.7-4.35-9.3-8.1C1 10.4 1.5 6.9 4.4 5.3c2.3-1.3 5-0.6 6.6 1.4l1 1.2 1-1.2c1.6-2 4.3-2.7 6.6-1.4 2.9 1.6 3.4 5.1 1.7 7.6C18.7 16.65 12 21 12 21z" />
-                </svg>
-              </button>
-            </div>
+          <div className="mt-6 flex justify-end">
+            <button
+              type="button"
+              aria-label={wishlisted ? t("removeFromWishlist") : t("saveToWishlist")}
+              onClick={() => toggle(product)}
+              className={`flex h-9 w-9 items-center justify-center border transition-colors ${
+                wishlisted ? "border-red-400 text-red-500" : "border-border text-foreground hover:border-red-400 hover:text-red-500"
+              }`}
+            >
+              <svg width="16" height="16" viewBox="0 0 24 24" fill={wishlisted ? "currentColor" : "none"} stroke="currentColor" strokeWidth="2">
+                <path d="M12 21s-6.7-4.35-9.3-8.1C1 10.4 1.5 6.9 4.4 5.3c2.3-1.3 5-0.6 6.6 1.4l1 1.2 1-1.2c1.6-2 4.3-2.7 6.6-1.4 2.9 1.6 3.4 5.1 1.7 7.6C18.7 16.65 12 21 12 21z" />
+              </svg>
+            </button>
+          </div>
+
+          <div className="mt-2.5 flex flex-col gap-2.5">
+            <button
+              onClick={handleAddToCart}
+              disabled={soldOut || needsSize}
+              className="flex h-11 items-center justify-center border border-foreground text-xs font-semibold uppercase tracking-wide text-foreground transition-colors hover:bg-surface-2 disabled:cursor-not-allowed disabled:border-border disabled:text-muted"
+            >
+              {soldOut ? t("outOfStockButton") : added ? t("added") : t("addToCart")}
+            </button>
             <button
               onClick={handleBuyNow}
               disabled={soldOut || needsSize}
@@ -221,7 +287,7 @@ export default function ProductDetail({
             <p className="mt-2 text-xs text-red-500">{t("pickSizeFirst")}</p>
           )}
 
-          <div className="mt-8">
+          <div className="mt-8 border-t border-border">
             <AccordionSection title={t("detail")}>
               {product.description && <p>{product.description}</p>}
               {product.highlights && product.highlights.length > 0 && (
@@ -235,7 +301,12 @@ export default function ProductDetail({
               )}
             </AccordionSection>
             {hasSizes && (
-              <AccordionSection title={t("sizeGuide")}>
+              <AccordionSection
+                title={t("sizeGuide")}
+                open={sizeGuideOpen}
+                onToggle={setSizeGuideOpen}
+                sectionRef={sizeGuideRef}
+              >
                 {sizeChart ? (
                   <>
                     <div className="overflow-x-auto">

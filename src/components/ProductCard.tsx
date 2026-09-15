@@ -5,9 +5,10 @@ import ProductBadge from "@/components/ProductBadge";
 
 export default function ProductCard({
   product,
+  variant = "grid",
 }: {
   product: Product;
-  variant?: "grid" | "compact";
+  variant?: "grid" | "compact" | "thumbnail";
 }) {
   const soldOut = product.badge === "SOLD OUT" || product.stock <= 0;
   const href = `/product/${product.id}`;
@@ -25,14 +26,20 @@ export default function ProductCard({
           }`}
         />
         {product.badge && (
-          <span className="absolute left-2 top-2 text-xs font-medium text-foreground">
+          <span
+            className={`absolute left-2 top-2 text-xs font-medium text-foreground ${
+              variant === "thumbnail" ? "sm:hidden" : ""
+            }`}
+          >
             <ProductBadge badge={product.badge} />
           </span>
         )}
       </div>
       <div className="mt-3 flex flex-col gap-1">
         <h3 className="line-clamp-2 text-sm text-foreground">{product.name}</h3>
-        <div className="flex flex-wrap items-center gap-x-2 gap-y-0.5">
+        <div
+          className={`flex flex-wrap items-center gap-x-2 gap-y-0.5 ${variant === "thumbnail" ? "sm:hidden" : ""}`}
+        >
           <span className="font-mono text-xs text-foreground">{formatIDR(product.price)}</span>
           {product.compareAt && (
             <span className="font-mono text-xs text-muted line-through">{formatIDR(product.compareAt)}</span>

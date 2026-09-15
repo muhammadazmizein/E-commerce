@@ -15,7 +15,7 @@ export default async function ProductPage({
   if (!product) notFound();
 
   const sameCategory = await getProducts(product.category);
-  const related = sameCategory.filter((p) => p.id !== product.id).slice(0, 12);
+  const related = sameCategory.filter((p) => p.id !== product.id).slice(0, 6);
 
   return (
     <div>

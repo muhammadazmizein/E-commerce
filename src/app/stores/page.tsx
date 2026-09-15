@@ -10,7 +10,7 @@ export async function generateMetadata(): Promise<Metadata> {
   const t = await getTranslations("stores");
   return {
     title: `${t("title")} — HEYFREAK`,
-    description: "Kunjungi toko fisik HEYFREAK terdekat.",
+    description: "Find the nearest HEYFREAK physical store.",
   };
 }
 

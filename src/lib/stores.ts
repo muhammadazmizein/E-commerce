@@ -4,6 +4,7 @@ export type Store = {
   region: string;
   address: string;
   image: string;
+  images?: string[];
 };
 
 export const STORES: Store[] = [
@@ -19,4 +20,8 @@ export const STORES: Store[] = [
 
 export function getRegions(stores: Store[]) {
   return Array.from(new Set(stores.map((s) => s.region))).sort();
+}
+
+export function getStore(id: string): Store | undefined {
+  return STORES.find((s) => s.id === id);
 }

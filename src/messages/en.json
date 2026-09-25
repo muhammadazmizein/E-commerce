@@ -44,14 +44,13 @@
     "empty": "No products to show yet."
   },
   "hero": {
-    "cta": "Enter the shop"
+    "cta": "Enter the drop"
   },
   "categoriesShowcase": {
     "title": "Categories",
-    "showAll": "Show All",
-    "showLess": "Show Less",
     "scrollLeft": "Scroll left",
-    "scrollRight": "Scroll right"
+    "scrollRight": "Scroll right",
+    "swipeHint": "Swipe to explore"
   },
   "featuredDrops": {
     "kicker": "HEYFREAK — New Drop",
@@ -71,7 +70,6 @@
   "productDetail": {
     "outOfStock": "Out of stock",
     "lowStock": "Only {stock} left — hurry!",
-    "inStock": "In stock: {stock}",
     "color": "Color",
     "size": "Size",
     "viewFitGuide": "View Fit Guide",

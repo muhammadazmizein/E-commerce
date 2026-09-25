@@ -2,13 +2,13 @@
 
 import Image from "next/image";
 import Link from "next/link";
-import { useRef, useState } from "react";
+import { useEffect, useRef } from "react";
 import { useTranslations } from "next-intl";
 import type { Category } from "@/lib/api";
 
 function ArrowIcon({ direction }: { direction: "left" | "right" }) {
   return (
-    <svg viewBox="0 0 20 20" className="h-4 w-4" fill="none" stroke="currentColor" strokeWidth="2">
+    <svg viewBox="0 0 20 20" className="h-3.5 w-3.5" fill="none" stroke="currentColor" strokeWidth="2">
       <path
         d={direction === "left" ? "M12 4l-6 6 6 6" : "M8 4l6 6-6 6"}
         strokeLinecap="round"
@@ -20,17 +20,24 @@ function ArrowIcon({ direction }: { direction: "left" | "right" }) {
 
 function CategoryCard({ cat }: { cat: Category }) {
   return (
-    <Link href={`/products?category=${encodeURIComponent(cat.name)}`} className="group block">
-      <div className="relative aspect-square w-full overflow-hidden bg-surface-2">
-        <Image
-          src={cat.image}
-          alt={cat.name}
-          fill
-          sizes="(max-width: 640px) 33vw, 20vw"
-          className="object-cover transition-transform duration-300 group-hover:scale-105"
-        />
+    <Link
+      href={`/products?category=${encodeURIComponent(cat.name)}`}
+      className="group flex aspect-[3/4] w-full flex-col overflow-hidden bg-white"
+    >
+      <div className="relative flex-1">
+        <div className="absolute inset-1.5 sm:inset-4">
+          <Image
+            src={cat.image}
+            alt={cat.name}
+            fill
+            sizes="(max-width: 640px) 30vw, (max-width: 1024px) 340px, 420px"
+            className="object-contain transition-transform duration-300 group-hover:scale-105"
+          />
+        </div>
       </div>
-      <p className="mt-3 text-center text-base font-bold text-foreground">{cat.name}</p>
+      <p className="pb-3 text-center text-[11px] font-bold uppercase tracking-wide text-black sm:pb-10 sm:text-lg">
+        {cat.name}
+      </p>
     </Link>
   );
 }
@@ -38,65 +45,77 @@ function CategoryCard({ cat }: { cat: Category }) {
 export default function CategoriesShowcase({ categories }: { categories: Category[] }) {
   const t = useTranslations("categoriesShowcase");
   const scrollerRef = useRef<HTMLDivElement>(null);
-  const [expanded, setExpanded] = useState(false);
-
-  if (categories.length === 0) return null;
+  const thumbRef = useRef<HTMLDivElement>(null);
 
   function scrollByAmount(amount: number) {
     scrollerRef.current?.scrollBy({ left: amount, behavior: "smooth" });
   }
 
+  useEffect(() => {
+    const el = scrollerRef.current;
+    const thumb = thumbRef.current;
+    if (!el || !thumb) return;
+
+    function update() {
+      if (!el || !thumb) return;
+      const { scrollLeft, scrollWidth, clientWidth } = el;
+      const widthPercent = Math.min(100, (clientWidth / scrollWidth) * 100);
+      const maxScroll = scrollWidth - clientWidth;
+      const progress = maxScroll > 0 ? scrollLeft / maxScroll : 0;
+      thumb.style.width = `${widthPercent}%`;
+      thumb.style.left = `${progress * (100 - widthPercent)}%`;
+    }
+
+    update();
+    el.addEventListener("scroll", update, { passive: true });
+    window.addEventListener("resize", update);
+    return () => {
+      el.removeEventListener("scroll", update);
+      window.removeEventListener("resize", update);
+    };
+  }, [categories]);
+
+  if (categories.length === 0) return null;
+
   return (
     <section className="pt-8 pb-16 sm:pt-10 sm:pb-20">
       <div className="flex items-center justify-between px-4 sm:px-6 lg:px-8">
-        <h2 className="text-sm font-bold uppercase tracking-widest text-foreground">{t("title")}</h2>
-        <div className="flex items-center gap-3">
-          <button
-            type="button"
-            onClick={() => setExpanded((e) => !e)}
-            className="btn-tag border border-border px-4 py-2 text-xs font-bold uppercase tracking-wide text-foreground transition-colors hover:border-foreground"
-          >
-            {expanded ? t("showLess") : t("showAll")}
-          </button>
-          {!expanded && (
-            <div className="flex gap-2">
-              <button
-                aria-label={t("scrollLeft")}
-                onClick={() => scrollByAmount(-480)}
-                className="btn-tag flex h-9 w-9 items-center justify-center border border-border bg-surface text-foreground transition-colors hover:border-foreground"
-              >
-                <ArrowIcon direction="left" />
-              </button>
-              <button
-                aria-label={t("scrollRight")}
-                onClick={() => scrollByAmount(480)}
-                className="btn-tag flex h-9 w-9 items-center justify-center border border-border bg-surface text-foreground transition-colors hover:border-foreground"
-              >
-                <ArrowIcon direction="right" />
-              </button>
-            </div>
-          )}
-        </div>
+        <h2 className="text-lg font-bold uppercase tracking-wide text-foreground">{t("title")}</h2>
       </div>
 
-      {expanded ? (
-        <div className="mt-6 grid grid-cols-2 gap-4 px-4 sm:grid-cols-3 sm:px-6 lg:grid-cols-5 lg:px-8">
-          {categories.map((cat) => (
-            <CategoryCard key={cat.name} cat={cat} />
-          ))}
-        </div>
-      ) : (
-        <div
-          ref={scrollerRef}
-          className="mt-6 flex snap-x snap-mandatory gap-4 overflow-x-auto scroll-smooth px-4 pb-2 scroll-pl-4 sm:px-6 sm:scroll-pl-6 lg:px-8 lg:scroll-pl-8 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
+      <div
+        ref={scrollerRef}
+        className="mt-6 flex snap-x snap-mandatory gap-2 overflow-x-auto pb-2 scrollbar-hide sm:gap-4"
+      >
+        {categories.map((cat) => (
+          <div key={cat.name} className="w-[32%] flex-none snap-start sm:w-[340px] lg:w-[420px]">
+            <CategoryCard cat={cat} />
+          </div>
+        ))}
+      </div>
+
+      <div className="mt-4 flex items-center gap-3 px-4 sm:px-6 lg:px-8">
+        <button
+          type="button"
+          aria-label={t("scrollLeft")}
+          onClick={() => scrollByAmount(-480)}
+          className="shrink-0 text-foreground/40 transition-colors hover:text-foreground"
         >
-          {categories.map((cat) => (
-            <div key={cat.name} className="w-full flex-none snap-start sm:w-auto sm:min-w-[300px] sm:flex-1">
-              <CategoryCard cat={cat} />
-            </div>
-          ))}
+          <ArrowIcon direction="left" />
+        </button>
+        <div className="relative h-1 flex-1 overflow-hidden rounded-full bg-foreground/15">
+          <div ref={thumbRef} className="absolute inset-y-0 rounded-full bg-foreground/60" />
         </div>
-      )}
+        <button
+          type="button"
+          aria-label={t("scrollRight")}
+          onClick={() => scrollByAmount(480)}
+          className="shrink-0 text-foreground/40 transition-colors hover:text-foreground"
+        >
+          <ArrowIcon direction="right" />
+        </button>
+      </div>
+      <p className="mt-2 text-center text-[9px] uppercase tracking-wide text-[#AAAAAA]">{t("swipeHint")}</p>
     </section>
   );
 }

@@ -6,25 +6,29 @@ import ProductBadge from "@/components/ProductBadge";
 export default function ProductCard({
   product,
   variant = "grid",
+  centered = false,
 }: {
   product: Product;
   variant?: "grid" | "compact" | "thumbnail";
+  centered?: boolean;
 }) {
   const soldOut = product.badge === "SOLD OUT" || product.stock <= 0;
   const href = `/product/${product.id}`;
 
   return (
     <Link href={href} className="group flex h-full min-w-0 flex-col">
-      <div className="relative aspect-[4/5] overflow-hidden bg-surface-2">
-        <Image
-          src={product.image}
-          alt={product.name}
-          fill
-          sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 20vw"
-          className={`object-cover transition-transform duration-300 group-hover:scale-[1.02] ${
-            soldOut ? "grayscale opacity-60" : ""
-          }`}
-        />
+      <div className="relative aspect-[4/5] overflow-hidden bg-white">
+        <div className="absolute inset-4">
+          <Image
+            src={product.image}
+            alt={product.name}
+            fill
+            sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 20vw"
+            className={`object-contain transition-transform duration-300 group-hover:scale-[1.02] ${
+              soldOut ? "grayscale opacity-60" : ""
+            }`}
+          />
+        </div>
         {product.badge && (
           <span
             className={`absolute left-2 top-2 text-xs font-medium text-foreground ${
@@ -35,10 +39,10 @@ export default function ProductCard({
           </span>
         )}
       </div>
-      <div className="mt-3 flex flex-col gap-1">
+      <div className={`mt-3 flex flex-col gap-1 ${centered ? "items-center text-center" : ""}`}>
         <h3 className="line-clamp-2 text-sm text-foreground">{product.name}</h3>
         <div
-          className={`flex flex-wrap items-center gap-x-2 gap-y-0.5 ${variant === "thumbnail" ? "sm:hidden" : ""}`}
+          className={`flex flex-wrap items-center gap-x-2 gap-y-0.5 ${centered ? "justify-center" : ""} ${variant === "thumbnail" ? "sm:hidden" : ""}`}
         >
           <span className="font-mono text-xs text-foreground">{formatIDR(product.price)}</span>
           {product.compareAt && (

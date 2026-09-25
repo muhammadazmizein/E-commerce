@@ -69,16 +69,16 @@ export default function Header() {
   return (
     <>
     <header className="sticky top-0 z-50 border-b border-border bg-background">
-      <div className="relative flex h-16 items-center justify-between gap-4 px-4 sm:px-6 lg:px-8">
+      <div className="relative flex items-center justify-between gap-2 px-4 py-3 sm:gap-4 sm:px-10 sm:py-[15px]">
         {/* Left: hamburger (always visible) + desktop nav links */}
         <div className="flex items-center gap-1">
           <button
             type="button"
             aria-label={t("openMenu")}
             onClick={() => setMobileMenuOpen(true)}
-            className="flex h-9 w-9 items-center justify-center text-foreground transition-colors hover:bg-surface-2"
+            className="flex h-7 w-7 items-center justify-center text-foreground transition-colors hover:bg-surface-2 sm:h-9 sm:w-9"
           >
-            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="h-[18px] w-[18px] sm:h-6 sm:w-6">
               <path d="M4 7h16M4 12h16M4 17h16" strokeLinecap="round" />
             </svg>
           </button>
@@ -102,27 +102,27 @@ export default function Header() {
           href="/"
           className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2"
         >
-          <Logo className="h-6 w-auto sm:h-7" />
+          <Logo className="h-7 w-auto sm:h-10" />
         </Link>
 
         {/* Right: icon-only search / account / cart */}
         <div className="flex items-center gap-1">
           {searchOpen ? (
-            <form onSubmit={submitSearch} className="hidden items-center sm:flex">
+            <form onSubmit={submitSearch} className="flex items-center">
               <input
                 autoFocus
                 value={query}
                 onChange={(e) => setQuery(e.target.value)}
                 onBlur={() => !query && setSearchOpen(false)}
                 placeholder={t("searchPlaceholder")}
-                className="h-9 w-40 bg-transparent px-2 text-sm text-foreground outline-none placeholder:text-muted"
+                className="h-8 w-40 bg-transparent px-2 text-sm text-foreground outline-none placeholder:text-muted"
               />
               <button
                 type="submit"
                 aria-label={t("search")}
-                className="flex h-9 w-9 items-center justify-center text-foreground transition-colors hover:bg-surface-2"
+                className="flex h-7 w-7 items-center justify-center text-foreground transition-colors hover:bg-surface-2 sm:h-9 sm:w-9"
               >
-                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="h-[18px] w-[18px] sm:h-6 sm:w-6">
                   <circle cx="11" cy="11" r="7" />
                   <path d="m21 21-4.3-4.3" />
                 </svg>
@@ -133,9 +133,9 @@ export default function Header() {
               type="button"
               aria-label={t("search")}
               onClick={() => setSearchOpen(true)}
-              className="hidden h-9 w-9 items-center justify-center text-foreground transition-colors hover:bg-surface-2 sm:flex"
+              className="flex h-7 w-7 items-center justify-center text-foreground transition-colors hover:bg-surface-2 sm:h-9 sm:w-9"
             >
-              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="h-[18px] w-[18px] sm:h-6 sm:w-6">
                 <circle cx="11" cy="11" r="7" />
                 <path d="m21 21-4.3-4.3" />
               </svg>
@@ -145,9 +145,9 @@ export default function Header() {
             <Link
               href={user ? "/account" : "/login"}
               aria-label={user ? user.name : t("login")}
-              className="hidden h-9 w-9 items-center justify-center text-foreground transition-colors hover:bg-surface-2 sm:flex"
+              className="flex h-7 w-7 items-center justify-center text-foreground transition-colors hover:bg-surface-2 sm:h-9 sm:w-9"
             >
-              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="h-[18px] w-[18px] sm:h-6 sm:w-6">
                 <circle cx="12" cy="8" r="4" />
                 <path d="M4 20c0-4.4 3.6-8 8-8s8 3.6 8 8" />
               </svg>
@@ -156,15 +156,13 @@ export default function Header() {
           <button
             onClick={openCart}
             aria-label={t("cart")}
-            className="relative flex h-9 w-9 items-center justify-center text-foreground transition-colors hover:bg-surface-2"
+            className="relative flex h-7 w-7 items-center justify-center text-foreground transition-colors hover:bg-surface-2 sm:h-9 sm:w-9"
           >
-            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-              <path d="M6 6h15l-1.5 9h-12z" />
-              <path d="M6 6 4.5 3H2" />
-              <circle cx="9" cy="20" r="1" />
-              <circle cx="18" cy="20" r="1" />
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="h-[18px] w-[18px] sm:h-6 sm:w-6">
+              <path d="M7 8V6a5 5 0 0 1 10 0v2" />
+              <path d="M5.5 8h13l1 12.5a1.5 1.5 0 0 1-1.5 1.5H6a1.5 1.5 0 0 1-1.5-1.5z" />
             </svg>
-            <span className="btn-tag absolute -right-1 -top-1 flex h-4 min-w-4 items-center justify-center bg-pop px-1 text-[10px] font-bold text-pop-foreground">
+            <span className="btn-tag absolute right-0.5 top-0.5 flex h-3.5 min-w-3.5 items-center justify-center bg-pop px-1 text-[8px] font-bold text-pop-foreground sm:right-1 sm:top-1 sm:h-4 sm:min-w-4 sm:text-[10px]">
               {count}
             </span>
           </button>

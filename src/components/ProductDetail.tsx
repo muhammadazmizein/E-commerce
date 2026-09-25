@@ -154,7 +154,7 @@ export default function ProductDetail({
         </div>
 
         <div className="lg:flex-1">
-          <h1 className="text-xl font-semibold leading-snug text-foreground sm:text-2xl">
+          <h1 className="text-xl font-normal leading-snug text-foreground sm:text-2xl">
             {product.name}
           </h1>
 
@@ -168,13 +168,11 @@ export default function ProductDetail({
               </span>
             )}
           </div>
-          <p className={`mt-2 text-xs font-medium ${soldOut || lowStock ? "text-red-500" : "text-muted"}`}>
-            {soldOut
-              ? t("outOfStock")
-              : lowStock
-                ? t("lowStock", { stock: product.stock })
-                : t("inStock", { stock: product.stock })}
-          </p>
+          {(soldOut || lowStock) && (
+            <p className="mt-2 text-xs font-medium text-red-500">
+              {soldOut ? t("outOfStock") : t("lowStock", { stock: product.stock })}
+            </p>
+          )}
 
           {product.colors && product.colors.length > 0 && (
             <div className="mt-5">
@@ -185,10 +183,10 @@ export default function ProductDetail({
                     key={c + i}
                     type="button"
                     onClick={() => setColorIndex(i)}
-                    className={`h-9 border px-4 text-xs font-semibold transition-colors ${
+                    className={`h-9 border px-4 text-xs font-semibold text-foreground transition-colors ${
                       colorIndex === i
-                        ? "border-foreground bg-foreground text-background"
-                        : "border-border text-foreground hover:border-foreground"
+                        ? "border-2 border-foreground"
+                        : "border-border hover:border-foreground"
                     }`}
                   >
                     {nameFromHex(c)}
@@ -217,10 +215,10 @@ export default function ProductDetail({
                   <button
                     key={s}
                     onClick={() => setSize(s)}
-                    className={`h-9 min-w-9 border px-2.5 text-xs font-semibold transition-colors ${
+                    className={`h-9 min-w-9 border px-2.5 text-xs font-semibold text-foreground transition-colors ${
                       size === s
-                        ? "border-foreground bg-foreground text-background"
-                        : "border-border text-foreground hover:border-foreground"
+                        ? "border-2 border-foreground"
+                        : "border-border hover:border-foreground"
                     }`}
                   >
                     {s}

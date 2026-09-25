@@ -20,10 +20,7 @@ export default function ProductBadge({ badge }: { badge: NonNullable<Product["ba
   }
 
   return (
-    <span className="inline-flex items-center gap-1 rounded-full bg-surface-2 px-3 py-1 text-foreground">
-      <span className="animate-flame inline-block" aria-hidden="true">
-        🔥
-      </span>
+    <span className="inline-flex items-center rounded-full bg-red-600 px-3 py-1 text-white">
       {label}
     </span>
   );

@@ -127,27 +127,6 @@ body {
   }
 }
 
-@keyframes flame-flicker {
-  0%,
-  100% {
-    transform: scale(1) rotate(-6deg);
-  }
-  25% {
-    transform: scale(1.15) rotate(4deg);
-  }
-  50% {
-    transform: scale(0.95) rotate(-3deg);
-  }
-  75% {
-    transform: scale(1.1) rotate(6deg);
-  }
-}
-
-.animate-flame {
-  animation: flame-flicker 0.6s ease-in-out infinite;
-  transform-origin: center bottom;
-}
-
 @keyframes badge-sparkle {
   0%,
   100% {

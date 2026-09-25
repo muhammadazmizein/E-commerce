@@ -9,7 +9,7 @@ export default async function FeaturedDrops({ products }: { products: Product[] 
   if (drops.length === 0) return null;
 
   return (
-    <section id="drop" className="bg-black py-16 sm:py-20">
+    <section id="drop" className="bg-black pb-16 pt-6 sm:pb-20 sm:pt-8">
       <FeaturedDropsScroller
         drops={drops}
         kicker={t("kicker")}

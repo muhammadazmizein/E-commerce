@@ -25,7 +25,7 @@ export default async function ProductsPage({
   return (
     <div className="flex min-h-screen flex-col">
       <Header />
-      <main className="mx-auto w-full max-w-7xl flex-1 px-4 py-8 sm:px-6 lg:px-8">
+      <main className="mx-auto w-full max-w-[1600px] flex-1 px-4 py-8 sm:px-6 lg:px-8">
         <Breadcrumb items={[{ label: tBreadcrumb("home"), href: "/" }, { label: tBreadcrumb("allProducts") }]} />
         <div className="mt-4">
           <ProductsCatalog products={products} initialCategory={category} initialSearch={search} initialSale={sale === "1"} />

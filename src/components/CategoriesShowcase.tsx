@@ -22,7 +22,7 @@ function CategoryCard({ cat }: { cat: Category }) {
   return (
     <Link
       href={`/products?category=${encodeURIComponent(cat.name)}`}
-      className="group flex aspect-[3/4] w-full flex-col overflow-hidden bg-white"
+      className="group flex aspect-[3/4] w-full flex-col overflow-hidden bg-[#E5E5E5]"
     >
       <div className="relative flex-1">
         <div className="absolute inset-1.5 sm:inset-4">
